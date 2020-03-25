@@ -25,7 +25,7 @@ if __name__ == '__main__':
         NumSteps=3
         NCircls=12
         Nproc=int(np.floor(mp.cpu_count()/3))
-        Limite=80000
+        Limite=400000
             
         # Create a VideoCapture object and read from input file 
         cap = cv2.VideoCapture(wwrkdir_ +'coronavx.mp4')#or mp4     
