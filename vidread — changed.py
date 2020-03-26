@@ -5,12 +5,15 @@ import concurrent.futures
 import multiprocessing as mp
 from scipy.signal import savgol_filter
 from RALf1FiltrVID import RALf1FiltrV,RandomV,filterFourierV
-import dill    
-if __name__ == '__main__':                         
-    wrkdir = r".\\"
-    wwrkdir_=r".\W3\\"
-    
-    filename = wwrkdir_+"globalsavepkl"
+import dill 
+
+wrkdir = r".\\"
+wwrkdir_=r".\W3\\"
+nmfile0='coronaBAZA.mp4'
+nmfile='coronavBAZAout.avi'
+filename = wwrkdir_+"globalsavepkl"
+   
+if __name__ == '__main__':        
     anamef="fralf.tmp"
     fo = open(anamef, "w")
     fo.write(str(0)+'\n')
@@ -29,15 +32,13 @@ if __name__ == '__main__':
         Limite=400000
             
         # Create a VideoCapture object and read from input file 
-        cap = cv2.VideoCapture(wwrkdir_ +'coronaBAZA.mp4')#or mp4     
+        cap = cv2.VideoCapture(wwrkdir_ +nmfile0)#or mp4     
         ArrX=[[] for i in range(3)]
-        NumFr=int(cap.get(cv2.CAP_PROP_FRAME_COUNT))#CAP_PROP_POS_MSEC CAP_PROP_FRAME_COUNT 
         aDur=int(cap.get(cv2.CAP_PROP_FPS))
         sz1=int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         sz2=int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         gray_sz1=sz1
         gray_sz2=sz2
-
         NumFr_=int(cap.get(cv2.CAP_PROP_FRAME_COUNT))  
         agray=[[] for icl in range(3)]
         ret=True
@@ -182,39 +183,33 @@ if __name__ == '__main__':
                 ArrRez_=np.asarray(ArrRez_-(ArrRez_-255)*(ArrRez_>255),np.uint8)
                 ArrRez_=np.asarray(ArrRez_-ArrRez_*(ArrRez_<0),np.uint8)
                 coefX=max(gray_sz1/sz1,gray_sz2/sz2)
-                out = cv2.VideoWriter(wwrkdir_ +'coronavout.avi',cv2.VideoWriter_fourcc('M','J','P','G'), aDur, (gray_sz1,gray_sz2))
+                out = cv2.VideoWriter(wwrkdir_ +nmfile,cv2.VideoWriter_fourcc('M','J','P','G'), aDur, (gray_sz2,gray_sz1))
                 kk=np.zeros(3,int)
                 kkk=np.zeros(3,int)
                 kk[icl]=0
                 kkk[icl]=0
-                al=0
-                while al==0:
+                for kk in range(NumFr):
                     frame=frame_
-                    for icl in range(3):   
-                        frame[ : , : , icl] = ndimage.zoom(ArrRez_[icl][kkk[icl]], coefX)[0:gray_sz1,0:gray_sz2]                       
-                        kk[icl]=kk[icl]+1
-                        if kk[icl]>astep:
-                            kkk[icl]=kkk[icl]+1
-                            if kkk[icl]==NumFr:
-                                al=1
-                            kk[icl]=0
-                    #frame=cv2.medianBlur(frame,21)
+                    for ii in range(astep):                
+                        for icl in range(3):   
+                            frame[ : , : , icl] = ndimage.zoom(ArrRez_[icl][kk], coefX)[0:gray_sz1,0:gray_sz2]                       
+                        #frame=cv2.medianBlur(frame,21)
+                        out.write(frame)                    
+                    
                     cv2.imshow('frame', frame)
                     # Press Q on keyboard to  exit 
                     if cv2.waitKey(30) & 0xFF == ord('q'): 
-                        break    
-                    out.write(frame)
+                        break                    
                 out.release()
                 cv2.destroyAllWindows()
                 
                 hh=hh+1
                 dill.dump_session(filename+("%s_%s"%(hhh,hh-1))+".ralf")              
        
-        cap = cv2.VideoCapture(wwrkdir_ +'coronavout.avi')#or mp4     
-        ArrXY=[[] for i in range(3)]
-        NumFr=int(cap.get(cv2.CAP_PROP_FRAME_COUNT))#CAP_PROP_POS_MSEC CAP_PROP_FRAME_COUNT 
-        sz1=int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        sz2=int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        cap = cv2.VideoCapture(wwrkdir_ +nmfile)#or mp4     
+        ArrXY=[[] for i in range(3)]    
+        sz1=int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        sz2=int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         gray_sz1=sz1
         gray_sz2=sz2
         NumFr_=int(cap.get(cv2.CAP_PROP_FRAME_COUNT))  
@@ -248,6 +243,7 @@ if __name__ == '__main__':
         NumFr_=kk    
         NumFr=len(ArrXY[0])       
         cap.release() 
+        cv2.destroyAllWindows()
         Arr=np.asarray(ArrXY,float)        
         sz1=len(gray)
         sz2=len(gray[0])
