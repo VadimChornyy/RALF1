@@ -29,7 +29,7 @@ if __name__ == '__main__':
         NumSteps=3
         NCircls=12
         Nproc=int(np.floor(mp.cpu_count()/3))
-        Limite=400000
+        Limite=800000
             
         # Create a VideoCapture object and read from input file 
         cap = cv2.VideoCapture(wwrkdir_ +nmfile0)#or mp4     
@@ -146,8 +146,8 @@ if __name__ == '__main__':
                         for i in range(NChan):
                             arezBMx[i]=arezAMxZ[0+NumFr*i:NumFr+NumFr*i].copy()              
                             # arezBMx[i][NumFr-NNew:NumFr]=arezBMx[i][NumFr-NNew:NumFr]*np.std(Arr_x[icl][i][NumFr-NNew:Nn0])/np.std(arezBMx[i][NumFr-NNew:Nn0])                           
-                            arezBMx[i][NumFr-NNew:NumFr]=arezBMx[i][NumFr-NNew:NumFr]-np.mean(arezBMx[i][NumFr-NNew:Nn0])+np.mean(Arr_x[icl][i][NumFr-NNew:Nn0])
-                            #arezBMx[i][NumFr-NNew:NumFr]=arezBMx[i][NumFr-NNew:NumFr]+Arr_x[icl][i][NumFr-NNew-1]
+                            #arezBMx[i][NumFr-NNew:NumFr]=arezBMx[i][NumFr-NNew:NumFr]-np.mean(arezBMx[i][NumFr-NNew:Nn0])+np.mean(Arr_x[icl][i][NumFr-NNew:Nn0])
+                            arezBMx[i][NumFr-NNew:NumFr]=arezBMx[i][NumFr-NNew:NumFr]+Arr_x[icl][i][NumFr-NNew-1]
                             #arezBMx[i][0:NumFr-NNew]=Arr_0[icl][i][0:NumFr-NNew].copy()
                             #arezBMx[i]= savgol_filter(arezBMx[i], 11, 5) 
                             arezBMx[i][0:NumFr-NNew]=Arr_x[icl][i][0:NumFr-NNew].copy()
@@ -249,4 +249,4 @@ if __name__ == '__main__':
         sz2=len(gray[0])
         NNew0=int(NumFr*0.4)    
         hhh=hhh+1
-        dill.dump_session(filename+".ralf")    
+        dill.dump_session(filename+".ralf")  
