@@ -8,7 +8,7 @@ from RALf1FiltrVID import RALf1FiltrV,RandomV,filterFourierV
 import dill    
 if __name__ == '__main__':                         
     wrkdir = r".\\"
-    wwrkdir_=r".\W2\\"
+    wwrkdir_=r".\W3\\"
     
     filename = wwrkdir_+"globalsavepkl"
     anamef="fralf.tmp"
@@ -22,10 +22,10 @@ if __name__ == '__main__':
         hhh=hhh        
         coef=0.2
         NIt=1
-        NumSteps=3
-        NCircls=12
+        NumSteps=12
+        NCircls=3
         Nproc=int(np.floor(mp.cpu_count()/3))
-        Limite=400000
+        Limite=80000
             
         # Create a VideoCapture object and read from input file 
         cap = cv2.VideoCapture(wwrkdir_ +'coronavx.mp4')#or mp4     
@@ -68,8 +68,8 @@ if __name__ == '__main__':
             try:
                 dill.load_session(filename+("%s_%s"%(hhh,hh))+".ralf")        
             except:
-                NNew=int(NNew0*(1-hhh/(NumSteps)))
-                Nn0=NumFr-NNew+int(NNew*(1/(NumSteps)))    
+                NNew=int(np.ceil(NNew0*(1-hhh/(NumSteps))))
+                Nn0=NumFr-NNew+int(np.ceil(NNew*(1/(NumSteps))))   
                 SZ=int(sz1*sz2)
                 NumFri=RandomV(SZ) 
                 NumFrX_=np.zeros(SZ,int)
@@ -129,8 +129,8 @@ if __name__ == '__main__':
                         for i in range(NChan):
                             arezBMx[i]=arezAMxZ[0+NumFr*i:NumFr+NumFr*i].copy()              
                             # arezBMx[i][NumFr-NNew:NumFr]=arezBMx[i][NumFr-NNew:NumFr]*np.std(Arr_x[icl][i][NumFr-NNew:Nn0])/np.std(arezBMx[i][NumFr-NNew:Nn0])                           
-                            # arezBMx[i][NumFr-NNew:NumFr]=arezBMx[i][NumFr-NNew:NumFr]-np.mean(arezBMx[i][NumFr-NNew:Nn0])+np.mean(Arr_x[icl][i][NumFr-NNew:Nn0])
-                            arezBMx[i][NumFr-NNew:NumFr]=arezBMx[i][NumFr-NNew:NumFr]+Arr_x[icl][i][NumFr-NNew-1]
+                            arezBMx[i][NumFr-NNew:NumFr]=arezBMx[i][NumFr-NNew:NumFr]-np.mean(arezBMx[i][NumFr-NNew:Nn0])+np.mean(Arr_x[icl][i][NumFr-NNew:Nn0])
+                            #arezBMx[i][NumFr-NNew:NumFr]=arezBMx[i][NumFr-NNew:NumFr]+Arr_x[icl][i][NumFr-NNew-1]
                             #arezBMx[i][0:NumFr-NNew]=Arr_0[icl][i][0:NumFr-NNew].copy()
                             #arezBMx[i]= savgol_filter(arezBMx[i], 11, 5) 
                             arezBMx[i][0:NumFr-NNew]=Arr_x[icl][i][0:NumFr-NNew].copy()
