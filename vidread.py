@@ -5,12 +5,15 @@ import concurrent.futures
 import multiprocessing as mp
 from scipy.signal import savgol_filter
 from RALf1FiltrVID import RALf1FiltrV,RandomV,filterFourierV
-import dill    
-if __name__ == '__main__':                         
-    wrkdir = r".\\"
-    wwrkdir_=r".\W3\\"
-    
-    filename = wwrkdir_+"globalsavepkl"
+import dill 
+
+wrkdir = r".\\"
+wwrkdir_=r".\W5\\"
+nmfile0='novalSARSCOV2.mp4'
+nmfile='novalSARCOV2out.avi'
+filename = wwrkdir_+"globalsavepkl"
+   
+if __name__ == '__main__':        
     anamef="fralf.tmp"
     fo = open(anamef, "w")
     fo.write(str(0)+'\n')
@@ -20,56 +23,74 @@ if __name__ == '__main__':
         dill.load_session(filename+".ralf")  
     except:
         hhh=hhh        
-        coef=0.2
+        coef=0.033
+        astep=3
         NIt=1
-        NumSteps=12
-        NCircls=3
+        NumSteps=3
+        NCircls=6
         Nproc=int(np.floor(mp.cpu_count()/3))
-        Limite=80000
+        Limite=200000
             
         # Create a VideoCapture object and read from input file 
-        cap = cv2.VideoCapture(wwrkdir_ +'coronavx.mp4')#or mp4     
+        cap = cv2.VideoCapture(wwrkdir_ +nmfile0)#or mp4     
         ArrX=[[] for i in range(3)]
-        NumFr=int(cap.get(cv2.CAP_PROP_FRAME_COUNT))#CAP_PROP_POS_MSEC CAP_PROP_FRAME_COUNT 
         aDur=int(cap.get(cv2.CAP_PROP_FPS))
-        sz1=int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        sz2=int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        sz1=int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        sz2=int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         gray_sz1=sz1
-        while(cap.isOpened()):
-            ret, frame = cap.read()    
-            if ret==True:
-                frame_=frame
-                for icl in range(3):
-                    gray=np.zeros((sz1,sz2),np.uint8)
-                    for i in range(sz1):
-                        for j in range(sz2):
-                            gray[i][j]=frame[i][j][icl]
-                    cv2.imshow('frame', gray)
-                    gray = ndimage.zoom(gray, coef)        
-                    ArrX[icl].append(gray)    
-                    # Press Q on keyboard to  exit 
-                    if cv2.waitKey(30) & 0xFF == ord('q'): 
-                        break   
+        gray_sz2=sz2
+        NumFr_=int(cap.get(cv2.CAP_PROP_FRAME_COUNT))  
+        agray=[[] for icl in range(3)]
+        ret=True
+        kk=0
+        while kk<NumFr_ and ret:
+            for ii in range(astep):
+                ret, frame = cap.read()   
+                if ret:
+                    frame_=frame
+                    frame0=frame
+                    for icl in range(3):    
+                        gray=frame[:,:,icl]
+                        gray = ndimage.zoom(gray, coef)  
+                        sz1=len(gray)
+                        sz2=len(gray[0])
+                        coefX=max(gray_sz1/sz1,gray_sz2/sz2)
+                        if ii==0:
+                            agray[icl]=gray                        
+                        agray[icl]=(agray[icl]*ii+gray)/(ii+1)                    
+                    if ii==astep-1:
+                        frame= np.zeros((len(gray),len(gray[0]),3),np.uint8)           
+                        for icl in range(3):
+                            frame[ : , : , icl] =agray[icl]
+                            ArrX[icl].append(agray[icl])
+                            frame0[ : , : , icl] = ndimage.zoom(frame[ : , : , icl], coefX)[0:gray_sz1,0:gray_sz2]                       
+                        cv2.imshow('frame', frame0)
+                        # Press Q on keyboard to  exit 
+                        if cv2.waitKey(30) & 0xFF == ord('q'): 
+                            break   
+            if ret:
+                kk=kk+astep
             else:
-                break        
+                break            
+        NumFr_=kk
         cap.release() 
         cv2.destroyAllWindows() 
         Arr=np.asarray(ArrX,float)    
-        sz1=len(gray)
-        sz2=len(gray[0])
-        NNew0=int(NumFr*0.4)
         dill.dump_session(filename+".ralf")  
     
     while hhh<NumSteps:
-        ArrRezMx=np.zeros((3,NumFr,sz1,sz2),float)-np.Inf
-        ArrRezMn=np.zeros((3,NumFr,sz1,sz2),float)+np.Inf
         hh=0
         while hh<NCircls: 
             try:
                 dill.load_session(filename+("%s_%s"%(hhh,hh))+".ralf")        
             except:
-                NNew=int(np.ceil(NNew0*(1-hhh/(NumSteps))))
-                Nn0=NumFr-NNew+int(np.ceil(NNew*(1/(NumSteps))))   
+                NumFr0=len(ArrX[0])
+                NNew=int(NumFr0*0.4)
+                NumFr=NumFr0+int(np.ceil(hhh*NNew/NumSteps))
+                Nn0=NumFr-NNew+int(np.ceil(NNew/NumSteps)) 
+                if hh==0:
+                    ArrRezMx=np.zeros((3,NumFr,sz1,sz2),float)-np.Inf
+                    ArrRezMn=np.zeros((3,NumFr,sz1,sz2),float)+np.Inf                          
                 SZ=int(sz1*sz2)
                 NumFri=RandomV(SZ) 
                 NumFrX_=np.zeros(SZ,int)
@@ -129,8 +150,8 @@ if __name__ == '__main__':
                         for i in range(NChan):
                             arezBMx[i]=arezAMxZ[0+NumFr*i:NumFr+NumFr*i].copy()              
                             # arezBMx[i][NumFr-NNew:NumFr]=arezBMx[i][NumFr-NNew:NumFr]*np.std(Arr_x[icl][i][NumFr-NNew:Nn0])/np.std(arezBMx[i][NumFr-NNew:Nn0])                           
-                            arezBMx[i][NumFr-NNew:NumFr]=arezBMx[i][NumFr-NNew:NumFr]-np.mean(arezBMx[i][NumFr-NNew:Nn0])+np.mean(Arr_x[icl][i][NumFr-NNew:Nn0])
-                            #arezBMx[i][NumFr-NNew:NumFr]=arezBMx[i][NumFr-NNew:NumFr]+Arr_x[icl][i][NumFr-NNew-1]
+                            #arezBMx[i][NumFr-NNew:NumFr]=arezBMx[i][NumFr-NNew:NumFr]-np.mean(arezBMx[i][NumFr-NNew:Nn0])+np.mean(Arr_x[icl][i][NumFr-NNew:Nn0])
+                            arezBMx[i][NumFr-NNew:NumFr]=arezBMx[i][NumFr-NNew:NumFr]+Arr_x[icl][i][NumFr-NNew-1]
                             #arezBMx[i][0:NumFr-NNew]=Arr_0[icl][i][0:NumFr-NNew].copy()
                             #arezBMx[i]= savgol_filter(arezBMx[i], 11, 5) 
                             arezBMx[i][0:NumFr-NNew]=Arr_x[icl][i][0:NumFr-NNew].copy()
@@ -161,52 +182,72 @@ if __name__ == '__main__':
                 if hh==0:
                     ArrRez=ZZ
                 else:
-                    ArrRez=(ArrRez*hh+ZZ)/(hh+1) 
-                                
+                    ArrRez=(ArrRez*hh+ZZ)/(hh+1)                                 
                 ArrRez_=ArrRez.copy()
                 ArrRez_=np.asarray(ArrRez_-(ArrRez_-255)*(ArrRez_>255),np.uint8)
                 ArrRez_=np.asarray(ArrRez_-ArrRez_*(ArrRez_<0),np.uint8)
-                coefX=gray_sz1/sz1
-                out = cv2.VideoWriter(wwrkdir_ +'coronavout.avi',cv2.VideoWriter_fourcc('M','J','P','G'), aDur, (int(sz1*coefX),int(sz2*coefX)))
-                for l in range(int(NumFr)):
+                coefX=max(gray_sz1/sz1,gray_sz2/sz2)
+                out = cv2.VideoWriter(wwrkdir_ +nmfile,cv2.VideoWriter_fourcc('M','J','P','G'), aDur, (gray_sz2,gray_sz1))
+                kk=np.zeros(3,int)
+                kkk=np.zeros(3,int)
+                kk[icl]=0
+                kkk[icl]=0
+                for kk in range(NumFr):
                     frame=frame_
-                    for icl in range(3):        
-                        frame[ : , : , icl] = ndimage.zoom(ArrRez_[icl][l], coefX)  
-                    #frame=cv2.medianBlur(frame,21)
+                    for ii in range(astep):                
+                        for icl in range(3):   
+                            frame[ : , : , icl] = ndimage.zoom(ArrRez_[icl][kk], coefX)[0:gray_sz1,0:gray_sz2]                       
+                        #frame=cv2.medianBlur(frame,21)
+                        out.write(frame)                    
+                    
                     cv2.imshow('frame', frame)
                     # Press Q on keyboard to  exit 
-                    if cv2.waitKey(300) & 0xFF == ord('q'): 
-                        break    
-                    out.write(frame)
+                    if cv2.waitKey(30) & 0xFF == ord('q'): 
+                        break                    
                 out.release()
                 cv2.destroyAllWindows()
+                
                 hh=hh+1
                 dill.dump_session(filename+("%s_%s"%(hhh,hh-1))+".ralf")              
        
-        cap = cv2.VideoCapture(wwrkdir_ +'coronavout.avi')#or mp4     
-        ArrXY=[[] for i in range(3)]
-        NumFr=int(cap.get(cv2.CAP_PROP_FRAME_COUNT))#CAP_PROP_POS_MSEC CAP_PROP_FRAME_COUNT 
-        aDur=int(cap.get(cv2.CAP_PROP_FPS))
-        sz1=int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        sz2=int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        cap = cv2.VideoCapture(wwrkdir_ +nmfile)#or mp4     
+        ArrXY=[[] for i in range(3)]    
+        sz1=int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        sz2=int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         gray_sz1=sz1
-        while(cap.isOpened()):
-            ret, frame = cap.read()    
-            if ret==True:
-                frame_=frame
-                for icl in range(3):
-                    gray=np.zeros((sz1,sz2),np.uint8)
-                    for i in range(sz1):
-                        for j in range(sz2):
-                            gray[i][j]=frame[i][j][icl]
-                    gray = ndimage.zoom(gray, coef)        
-                    ArrXY[icl].append(gray) 
+        gray_sz2=sz2
+        NumFr_=int(cap.get(cv2.CAP_PROP_FRAME_COUNT))  
+        agray=[[] for icl in range(3)]
+        ret=True
+        kk=0
+        while kk<NumFr_ and ret:
+            for ii in range(astep):
+                ret, frame = cap.read()   
+                if ret:
+                    frame_=frame
+                    for icl in range(3):    
+                        gray=frame[:,:,icl]
+                        gray = ndimage.zoom(gray, coef)  
+                        if ii==0:
+                            agray[icl]=gray                        
+                        agray[icl]=(agray[icl]*ii+gray)/(ii+1)                    
+                    if ii==astep-1:
+                        frame= np.zeros((len(gray),len(gray[0]),3),np.uint8)           
+                        for icl in range(3):
+                            frame[ : , : , icl] =agray[icl]
+                            ArrXY[icl].append(agray[icl])
+                        cv2.imshow('frame', frame)
+                        # Press Q on keyboard to  exit 
+                        if cv2.waitKey(30) & 0xFF == ord('q'): 
+                            break   
+            if ret:
+                kk=kk+astep
             else:
-                break        
+                break             
         cap.release() 
+        cv2.destroyAllWindows()
         Arr=np.asarray(ArrXY,float)        
         sz1=len(gray)
         sz2=len(gray[0])
-        NNew0=int(NumFr*0.4)    
         hhh=hhh+1
         dill.dump_session(filename+".ralf")    
