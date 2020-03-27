@@ -8,9 +8,9 @@ from RALf1FiltrVID import RALf1FiltrV,RandomV,filterFourierV
 import dill 
 
 wrkdir = r".\\"
-wwrkdir_=r".\W3\\"
-nmfile0='coronaBAZA.mp4'
-nmfile='coronavBAZAout.avi'
+wwrkdir_=r".\W4\\"
+nmfile0='novalSARSCOV2.mp4'
+nmfile='novalSARCOV2out.avi'
 filename = wwrkdir_+"globalsavepkl"
    
 if __name__ == '__main__':        
@@ -23,13 +23,13 @@ if __name__ == '__main__':
         dill.load_session(filename+".ralf")  
     except:
         hhh=hhh        
-        coef=0.1
-        astep=4
+        coef=0.05
+        astep=3
         NIt=1
         NumSteps=3
         NCircls=12
         Nproc=int(np.floor(mp.cpu_count()/3))
-        Limite=800000
+        Limite=400000
             
         # Create a VideoCapture object and read from input file 
         cap = cv2.VideoCapture(wwrkdir_ +nmfile0)#or mp4     
@@ -68,25 +68,26 @@ if __name__ == '__main__':
             else:
                 break            
         NumFr_=kk
-        NumFr=len(ArrX[0])
         cap.release() 
         cv2.destroyAllWindows() 
         Arr=np.asarray(ArrX,float)    
         sz1=len(gray)
         sz2=len(gray[0])
-        NNew0=int(NumFr*0.4)
         dill.dump_session(filename+".ralf")  
     
     while hhh<NumSteps:
-        ArrRezMx=np.zeros((3,NumFr,sz1,sz2),float)-np.Inf
-        ArrRezMn=np.zeros((3,NumFr,sz1,sz2),float)+np.Inf
         hh=0
         while hh<NCircls: 
             try:
                 dill.load_session(filename+("%s_%s"%(hhh,hh))+".ralf")        
             except:
-                NNew=int(np.ceil(NNew0*(1-hhh/(NumSteps))))
-                Nn0=NumFr-NNew+int(np.ceil(NNew*(1/(NumSteps))))   
+                NumFr0=len(ArrX[0])
+                NNew=int(NumFr0*0.4)
+                NumFr=NumFr0+int(np.ceil(hhh*NNew/NumSteps))
+                Nn0=NumFr-NNew+int(np.ceil(NNew/NumSteps)) 
+                if hh==0:
+                    ArrRezMx=np.zeros((3,NumFr,sz1,sz2),float)-np.Inf
+                    ArrRezMn=np.zeros((3,NumFr,sz1,sz2),float)+np.Inf                          
                 SZ=int(sz1*sz2)
                 NumFri=RandomV(SZ) 
                 NumFrX_=np.zeros(SZ,int)
@@ -239,14 +240,11 @@ if __name__ == '__main__':
             if ret:
                 kk=kk+astep
             else:
-                break            
-        NumFr_=kk    
-        NumFr=len(ArrXY[0])       
+                break             
         cap.release() 
         cv2.destroyAllWindows()
         Arr=np.asarray(ArrXY,float)        
         sz1=len(gray)
         sz2=len(gray[0])
-        NNew0=int(NumFr*0.4)    
         hhh=hhh+1
-        dill.dump_session(filename+".ralf")  
+        dill.dump_session(filename+".ralf")    
