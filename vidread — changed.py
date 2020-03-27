@@ -8,7 +8,7 @@ from RALf1FiltrVID import RALf1FiltrV,RandomV,filterFourierV
 import dill 
 
 wrkdir = r".\\"
-wwrkdir_=r".\W4\\"
+wwrkdir_=r".\W5\\"
 nmfile0='novalSARSCOV2.mp4'
 nmfile='novalSARCOV2out.avi'
 filename = wwrkdir_+"globalsavepkl"
@@ -23,13 +23,13 @@ if __name__ == '__main__':
         dill.load_session(filename+".ralf")  
     except:
         hhh=hhh        
-        coef=0.05
+        coef=0.033
         astep=3
         NIt=1
         NumSteps=3
-        NCircls=12
+        NCircls=6
         Nproc=int(np.floor(mp.cpu_count()/3))
-        Limite=400000
+        Limite=200000
             
         # Create a VideoCapture object and read from input file 
         cap = cv2.VideoCapture(wwrkdir_ +nmfile0)#or mp4     
@@ -48,9 +48,13 @@ if __name__ == '__main__':
                 ret, frame = cap.read()   
                 if ret:
                     frame_=frame
+                    frame0=frame
                     for icl in range(3):    
                         gray=frame[:,:,icl]
                         gray = ndimage.zoom(gray, coef)  
+                        sz1=len(gray)
+                        sz2=len(gray[0])
+                        coefX=max(gray_sz1/sz1,gray_sz2/sz2)
                         if ii==0:
                             agray[icl]=gray                        
                         agray[icl]=(agray[icl]*ii+gray)/(ii+1)                    
@@ -59,7 +63,8 @@ if __name__ == '__main__':
                         for icl in range(3):
                             frame[ : , : , icl] =agray[icl]
                             ArrX[icl].append(agray[icl])
-                        cv2.imshow('frame', frame)
+                            frame0[ : , : , icl] = ndimage.zoom(frame[ : , : , icl], coefX)[0:gray_sz1,0:gray_sz2]                       
+                        cv2.imshow('frame', frame0)
                         # Press Q on keyboard to  exit 
                         if cv2.waitKey(30) & 0xFF == ord('q'): 
                             break   
@@ -71,8 +76,6 @@ if __name__ == '__main__':
         cap.release() 
         cv2.destroyAllWindows() 
         Arr=np.asarray(ArrX,float)    
-        sz1=len(gray)
-        sz2=len(gray[0])
         dill.dump_session(filename+".ralf")  
     
     while hhh<NumSteps:
