@@ -10,7 +10,7 @@ import dill
 wrkdir = r".\\"
 wwrkdir_=r".\W5\\"
 nmfile0='novalSARSCOV2.mp4'
-nmfile='novalSARCOV2out.avi'
+nmfile='novalSARCOV2out.mp4'
 filename = wwrkdir_+"globalsavepkl"
    
 if __name__ == '__main__':        
@@ -187,7 +187,8 @@ if __name__ == '__main__':
                 ArrRez_=np.asarray(ArrRez_-(ArrRez_-255)*(ArrRez_>255),np.uint8)
                 ArrRez_=np.asarray(ArrRez_-ArrRez_*(ArrRez_<0),np.uint8)
                 coefX=max(gray_sz1/sz1,gray_sz2/sz2)
-                out = cv2.VideoWriter(wwrkdir_ +nmfile,cv2.VideoWriter_fourcc('M','J','P','G'), aDur, (gray_sz2,gray_sz1))
+                fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+                out = cv2.VideoWriter(wwrkdir_ +nmfile,fourcc, aDur, (gray_sz2,gray_sz1))
                 kk=np.zeros(3,int)
                 kkk=np.zeros(3,int)
                 kk[icl]=0
