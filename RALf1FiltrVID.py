@@ -228,7 +228,7 @@ def RALf1FiltrV(args):
             aMn[0+Nf*l:Nf+Nf*l]= savgol_filter(aMn[0+Nf*l:Nf+Nf*l], 11, 5)
         arr_bbbxxx=aMx + aMn  
         
-        arr_bbbxxx=filterFourierV(arr_bbbxxx,arr_b,NNew,NChan)
+        #arr_bbbxxx=filterFourierV(arr_bbbxxx,arr_b,NNew,NChan)
         
         ann=sum(np.isnan(arr_bbbxxx))
         if ann==0: 
