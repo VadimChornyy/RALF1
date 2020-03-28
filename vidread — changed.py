@@ -10,7 +10,7 @@ import dill
 wrkdir = r".\\"
 wwrkdir_=r".\W5\\"
 nmfile0='novalSARSCOV2.mp4'
-nmfile='novalSARCOV2out.mp4'
+nmfile='novalSARSCOV2out.mp4'
 filename = wwrkdir_+"globalsavepkl"
    
 if __name__ == '__main__':        
@@ -29,7 +29,7 @@ if __name__ == '__main__':
         NumSteps=3
         NCircls=6
         Nproc=int(np.floor(mp.cpu_count()/3))
-        Limite=200000
+        Limite=400000
             
         # Create a VideoCapture object and read from input file 
         cap = cv2.VideoCapture(wwrkdir_ +nmfile0)#or mp4     
@@ -80,11 +80,11 @@ if __name__ == '__main__':
     
     while hhh<NumSteps:
         hh=0
+        NumFr0=len(ArrX[0])
         while hh<NCircls: 
             try:
                 dill.load_session(filename+("%s_%s"%(hhh,hh))+".ralf")        
-            except:
-                NumFr0=len(ArrX[0])
+            except:                
                 NNew=int(NumFr0*0.4)
                 NumFr=NumFr0+int(np.ceil(hhh*NNew/NumSteps))
                 Nn0=NumFr-NNew+int(np.ceil(NNew/NumSteps)) 
@@ -111,7 +111,7 @@ if __name__ == '__main__':
                         NumFrX=np.concatenate((NumFrX, NumFrX_))
                         NumFrY=np.concatenate((NumFrY, NumFrY_))    
                 for icl in range(3):    
-                    for i in range(int(NumFr)):
+                    for i in range(int(NumFr-NNew)):
                         for j in range(SZ):
                             Arr_[icl][j][i]=Arr[icl][i][NumFrX[j]][NumFrY[j]]            
                     
