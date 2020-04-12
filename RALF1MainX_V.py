@@ -6,6 +6,7 @@ import urllib.request, json
 import pandas as pd
 from PIL import Image
 import msvcrt
+import cv2 as cv
 
 from scipy import stats as scp
 import dateutil.parser
@@ -90,7 +91,7 @@ def loaddata(aLengt,key):
 
 if __name__ == '__main__':   
     ImApp=[]
-    wrkdir = r"C:\Work\\"
+    wrkdir = r"e:\Work\\"
 
     arrrxx,adat_=loaddata(Lengt,1)
     arrrxx=np.asarray(arrrxx,float)
@@ -100,6 +101,7 @@ if __name__ == '__main__':
     esz=len(arrrxx_)
     arr_rezDzRez=[[] for j in range(esz)]
     kkk=0
+    out=0
     while kkk <esz:        
         arrr=arrrxx_[kkk].copy()    
         arrr=np.asarray(arrr,float)    
@@ -128,8 +130,19 @@ if __name__ == '__main__':
                 transform=axes_.transAxes,color='blue', fontsize=14)        
         fig.savefig(wrkdir +'dynamic.png',dpi=180,transparent=False,bbox_inches = 'tight')
         frame=Image.open(wrkdir +'dynamic.png')
-        ImApp.append(frame)
-        ImApp[0].save(wrkdir + aname+'.gif',save_all=True,duration=300,loop=0)
+        
+        cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)
+        if out==0:
+            gray_sz2=len(cimg[0])
+            gray_sz1=len(cimg)
+            aDur=4
+            fourcc = cv.VideoWriter_fourcc(*'MP4V')
+        out = cv.VideoWriter(wrkdir + aname+'.mp4',fourcc, aDur, (gray_sz2,gray_sz1))
+        ImApp.append(cimg)
+        for iii in range(len(ImApp)):
+            out.write(ImApp[iii]) 
+        out.release()
+        
         plt.show()
        
         arr_rezBz=np.zeros(Nf,float)
@@ -299,8 +312,12 @@ if __name__ == '__main__':
                         transform=axes_.transAxes,color='green', fontsize=30)
                     fig.savefig(wrkdir +'dynamic.png',dpi=180,transparent=False,bbox_inches = 'tight')
                     frame=Image.open(wrkdir +'dynamic.png')
-                    ImApp.append(frame)
-                    ImApp[0].save(wrkdir + aname+'.gif',save_all=True,append_images=ImApp[1:],duration=600,loop=0)
+                    cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)
+                    out = cv.VideoWriter(wrkdir + aname+'.mp4',fourcc, aDur, (gray_sz2,gray_sz1))
+                    ImApp.append(cimg)
+                    for iii in range(len(ImApp)):
+                        out.write(ImApp[iii]) 
+                    out.release()
                     plt.show()
                     hh=hh+1
                     hhh=hhh+1
@@ -339,9 +356,13 @@ if __name__ == '__main__':
         axes_.plot(mm1,mm2, 'ok', markersize=3, alpha=0.2)               
         fig.savefig(wrkdir +'dynamic.png',dpi=180,transparent=False,bbox_inches = 'tight')
         frame=Image.open(wrkdir +'dynamic.png')
+        cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)
+        out = cv.VideoWriter(wrkdir + aname+'.mp4',fourcc, aDur, (gray_sz2,gray_sz1))
         for i in range(10):
-            ImApp.append(frame)
-        ImApp[0].save(wrkdir + aname+'.gif',save_all=True,append_images=ImApp[1:len(ImApp)],duration=300,loop=0)
+            ImApp.append(cimg)
+        for iii in range(len(ImApp)):
+            out.write(ImApp[iii]) 
+        out.release()
         plt.show()
         kkk=kkk+1
         

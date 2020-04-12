@@ -223,9 +223,9 @@ def RALf1FiltrV(args):
         del(liix)
         del(dQ3)
         
-        for l in range(NChan):                
-            aMx[0+Nf*l:Nf+Nf*l]= savgol_filter(aMx[0+Nf*l:Nf+Nf*l], 11, 5)
-            aMn[0+Nf*l:Nf+Nf*l]= savgol_filter(aMn[0+Nf*l:Nf+Nf*l], 11, 5)
+        # for l in range(NChan):                
+        #     aMx[0+Nf*l:Nf+Nf*l]= savgol_filter(aMx[0+Nf*l:Nf+Nf*l], 11, 5)
+        #     aMn[0+Nf*l:Nf+Nf*l]= savgol_filter(aMn[0+Nf*l:Nf+Nf*l], 11, 5)
         arr_bbbxxx=aMx + aMn  
         
         #arr_bbbxxx=filterFourierV(arr_bbbxxx,arr_b,NNew,NChan)
