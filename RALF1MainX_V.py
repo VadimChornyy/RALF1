@@ -33,7 +33,7 @@ Ngroup=2
 Nproc=Ngroup*mp.cpu_count()
 Lo=0
 aTmStop=5
-NIt=1
+NIt=2
 NIter=20
 DT=0.25
 Nf_K=3
@@ -137,14 +137,11 @@ if __name__ == '__main__':
         gray_sz2=len(cimg)
         aDur=4
         fourcc = cv.VideoWriter_fourcc(*'MP4V')
-        out = cv.VideoWriter(wrkdir + aname+'.mp4',fourcc, aDur, (gray_sz1,gray_sz2))
-        cimgx=[]
+        out = cv.VideoWriter(wrkdir + aname+'.mp4',fourcc, aDur, (gray_sz1,gray_sz2))                   
         for icl in range(len(ImApp)):
-            cimgx.append(cv.cvtColor(np.array(ImApp[icl]), cv.COLOR_RGB2BGR))                        
-            out.write(cimgx[icl]) 
-            tm.sleep(0.01) 
+            cimgx=(cv.cvtColor(np.array(ImApp[icl]), cv.COLOR_RGB2BGR)) 
+            out.write(cimgx[0:gray_sz2,0:gray_sz1,:]) 
         out.release()
-        
         plt.show()
        
         arr_rezBz=np.zeros(Nf,float)
@@ -308,19 +305,20 @@ if __name__ == '__main__':
                     axes.text(4, 4, 'Course = %s, start = %s, step = %s'%(aname,adat0,interv),
                             verticalalignment='bottom', horizontalalignment='right',
                             transform=axes_.transAxes,color='blue', fontsize=14)        
-                    axes_.plot(mm1,mm2, 'ok', markersize=3, alpha=0.1)               
+                    axes_.plot(mm1,mm2, 'ok', markersize=3, alpha=0.03)               
                     axes_.text(0.2, 0.6, '%d'%int(np.floor(Koef)),
                         verticalalignment='bottom', horizontalalignment='right',
                         transform=axes_.transAxes,color='green', fontsize=30)
                     fig.savefig(wrkdir +'dynamic.png',dpi=300,transparent=False,bbox_inches = 'tight')
                     frame=Image.open(wrkdir +'dynamic.png')
+                    cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)        
+                    gray_sz1=min(gray_sz1,len(cimg[0]))
+                    gray_sz2=min(gray_sz2,len(cimg))
                     ImApp.append(frame)
-                    out = cv.VideoWriter(wrkdir + aname+'.mp4',fourcc, aDur, (gray_sz1,gray_sz2))
-                    cimgx=[]
+                    out = cv.VideoWriter(wrkdir + aname+'.mp4',fourcc, aDur, (gray_sz1,gray_sz2))                   
                     for icl in range(len(ImApp)):
-                        cimgx.append(cv.cvtColor(np.array(ImApp[icl]), cv.COLOR_RGB2BGR)) 
-                        out.write(cimgx[icl]) 
-                        tm.sleep(0.01) 
+                        cimgx=(cv.cvtColor(np.array(ImApp[icl]), cv.COLOR_RGB2BGR)) 
+                        out.write(cimgx[0:gray_sz2,0:gray_sz1,:]) 
                     out.release()
                     plt.show()
                     hh=hh+1
@@ -357,17 +355,18 @@ if __name__ == '__main__':
         axes.text(4, 4, 'Course = %s, start = %s, step = %s'%(aname,adat0,interv),
                 verticalalignment='bottom', horizontalalignment='right',
                 transform=axes_.transAxes,color='blue', fontsize=14)                
-        axes_.plot(mm1,mm2, 'ok', markersize=3, alpha=0.1)               
+        axes_.plot(mm1,mm2, 'ok', markersize=3, alpha=0.03)               
         fig.savefig(wrkdir +'dynamic.png',dpi=300,transparent=False,bbox_inches = 'tight')
         frame=Image.open(wrkdir +'dynamic.png')
+        cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)        
+        gray_sz1=min(gray_sz1,len(cimg[0]))
+        gray_sz2=min(gray_sz2,len(cimg))
         for icl in range(10):
             ImApp.append(frame)
-        out = cv.VideoWriter(wrkdir + aname+'.mp4',fourcc, aDur, (gray_sz1,gray_sz2))
-        cimgx=[]
+        out = cv.VideoWriter(wrkdir + aname+'.mp4',fourcc, aDur, (gray_sz1,gray_sz2))                   
         for icl in range(len(ImApp)):
-            cimgx.append(cv.cvtColor(np.array(ImApp[icl]), cv.COLOR_RGB2BGR))                       
-            out.write(cimgx[icl]) 
-            tm.sleep(0.01) 
+            cimgx=(cv.cvtColor(np.array(ImApp[icl]), cv.COLOR_RGB2BGR)) 
+            out.write(cimgx[0:gray_sz2,0:gray_sz1,:])       
         out.release()
         plt.show()
         kkk=kkk+1
