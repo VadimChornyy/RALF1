@@ -29,7 +29,7 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symb
 #from scipy.signal import savgol_filter
 
 Lengt=1000
-Ngroup=2
+Ngroup=1
 Nproc=Ngroup*mp.cpu_count()
 Lo=1
 aTmStop=5
@@ -301,7 +301,7 @@ if __name__ == '__main__':
                     axes_ = fig.add_axes([0, 0, 0.3, 0.3])   
                     axes.plot(all_rezAz_,'oy',alpha=0.1)
                     axes.plot(ar0, 'ro-', alpha=0.1)
-                    axes.plot(arr_rezBz,'cx-', alpha=0.1)
+                    axes.plot(arr_rezBz,'cx-', alpha=0.5)
                     axes.text(4, 4, 'Course = %s, start = %s, step = %s'%(aname,adat0,interv),
                             verticalalignment='bottom', horizontalalignment='right',
                             transform=axes_.transAxes,color='blue', fontsize=14)        
@@ -351,7 +351,7 @@ if __name__ == '__main__':
         axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])
         axes_ = fig.add_axes([0, 0, 0.3, 0.3])
         axes.plot(arrr, 'ro-')
-        axes.plot(arr_rezDz, 'cx-', alpha=0.1) #predicted data
+        axes.plot(arr_rezDz, 'cx-', alpha=0.5) #predicted data
         axes.text(4, 4, 'Course = %s, start = %s, step = %s'%(aname,adat0,interv),
                 verticalalignment='bottom', horizontalalignment='right',
                 transform=axes_.transAxes,color='blue', fontsize=14)                
