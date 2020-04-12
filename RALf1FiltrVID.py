@@ -8,6 +8,7 @@ from scipy.signal import savgol_filter
 def RALF1FilterV(dQ2):
     Np=len(dQ2)  
     SdQ=np.mean(dQ2,0)
+    stddQ=np.std(dQ2, dtype=np.float64)
         
     sSdQ=np.std(np.asarray(SdQ,float))
     for i in range(Np):
@@ -18,6 +19,8 @@ def RALF1FilterV(dQ2):
             dQ2[i]=np.asarray(dQ2[i] +SdQ * (SdQj_ / sSdQ - 1),np.float16)
         else:
             dQ2[i]=dQ2[i]*0  
+    stddQ_=np.std(dQ2, dtype=np.float64)
+    dQ2=dQ2*stddQ/stddQ_
     return dQ2
 
 def RandomV(Nfx):

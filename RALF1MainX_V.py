@@ -7,6 +7,7 @@ import pandas as pd
 from PIL import Image
 import msvcrt
 import cv2 as cv
+import time as tm
 
 from scipy import stats as scp
 import dateutil.parser
@@ -27,12 +28,12 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symb
 #d_intervals = {"1min","5min","15min","30min","60min"}
 #from scipy.signal import savgol_filter
 
-Lengt=1000 
+Lengt=1000
 Ngroup=2
 Nproc=Ngroup*mp.cpu_count()
 Lo=0
 aTmStop=5
-NIt=4
+NIt=1
 NIter=20
 DT=0.25
 Nf_K=3
@@ -130,18 +131,18 @@ if __name__ == '__main__':
                 transform=axes_.transAxes,color='blue', fontsize=14)        
         fig.savefig(wrkdir +'dynamic.png',dpi=300,transparent=False,bbox_inches = 'tight')
         frame=Image.open(wrkdir +'dynamic.png')
-        
-        cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)
-        if out==0:
-            gray_sz2=len(cimg[0])
-            gray_sz1=len(cimg)
-            aDur=4
-            fourcc = cv.VideoWriter_fourcc(*'MP4V')
         ImApp.append(frame)
-        out = cv.VideoWriter(wrkdir + aname+'.mp4',fourcc, aDur, (gray_sz2,gray_sz1))
-        for iii in range(len(ImApp)):
-            cimg = cv.cvtColor(np.array(ImApp[iii]), cv.COLOR_RGB2BGR)                        
-            out.write(cimg) 
+        cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)        
+        gray_sz1=len(cimg[0])
+        gray_sz2=len(cimg)
+        aDur=4
+        fourcc = cv.VideoWriter_fourcc(*'MP4V')
+        out = cv.VideoWriter(wrkdir + aname+'.mp4',fourcc, aDur, (gray_sz1,gray_sz2))
+        cimgx=[]
+        for icl in range(len(ImApp)):
+            cimgx.append(cv.cvtColor(np.array(ImApp[icl]), cv.COLOR_RGB2BGR))                        
+            out.write(cimgx[icl]) 
+            tm.sleep(0.01) 
         out.release()
         
         plt.show()
@@ -314,10 +315,12 @@ if __name__ == '__main__':
                     fig.savefig(wrkdir +'dynamic.png',dpi=300,transparent=False,bbox_inches = 'tight')
                     frame=Image.open(wrkdir +'dynamic.png')
                     ImApp.append(frame)
-                    out = cv.VideoWriter(wrkdir + aname+'.mp4',fourcc, aDur, (gray_sz2,gray_sz1))
-                    for iii in range(len(ImApp)):
-                        cimg = cv.cvtColor(np.array(ImApp[iii]), cv.COLOR_RGB2BGR)                        
-                        out.write(cimg) 
+                    out = cv.VideoWriter(wrkdir + aname+'.mp4',fourcc, aDur, (gray_sz1,gray_sz2))
+                    cimgx=[]
+                    for icl in range(len(ImApp)):
+                        cimgx.append(cv.cvtColor(np.array(ImApp[icl]), cv.COLOR_RGB2BGR)) 
+                        out.write(cimgx[icl]) 
+                        tm.sleep(0.01) 
                     out.release()
                     plt.show()
                     hh=hh+1
@@ -357,11 +360,14 @@ if __name__ == '__main__':
         axes_.plot(mm1,mm2, 'ok', markersize=3, alpha=0.1)               
         fig.savefig(wrkdir +'dynamic.png',dpi=300,transparent=False,bbox_inches = 'tight')
         frame=Image.open(wrkdir +'dynamic.png')
-        ImApp.append(frame)
-        out = cv.VideoWriter(wrkdir + aname+'.mp4',fourcc, aDur, (gray_sz2,gray_sz1))
-        for iii in range(len(ImApp)):
-            cimg = cv.cvtColor(np.array(ImApp[iii]), cv.COLOR_RGB2BGR)                        
-            out.write(cimg) 
+        for icl in range(10):
+            ImApp.append(frame)
+        out = cv.VideoWriter(wrkdir + aname+'.mp4',fourcc, aDur, (gray_sz1,gray_sz2))
+        cimgx=[]
+        for icl in range(len(ImApp)):
+            cimgx.append(cv.cvtColor(np.array(ImApp[icl]), cv.COLOR_RGB2BGR))                       
+            out.write(cimgx[icl]) 
+            tm.sleep(0.01) 
         out.release()
         plt.show()
         kkk=kkk+1
