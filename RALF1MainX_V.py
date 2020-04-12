@@ -33,7 +33,7 @@ Nproc=Ngroup*mp.cpu_count()
 Lo=0
 aTmStop=5
 NIt=4
-NIter=12
+NIter=20
 DT=0.25
 Nf_K=3
     
@@ -128,7 +128,7 @@ if __name__ == '__main__':
         axes.text(4, 4, 'Course = %s, start = %s, step = %s'%(aname,adat0,interv),
                 verticalalignment='bottom', horizontalalignment='right',
                 transform=axes_.transAxes,color='blue', fontsize=14)        
-        fig.savefig(wrkdir +'dynamic.png',dpi=180,transparent=False,bbox_inches = 'tight')
+        fig.savefig(wrkdir +'dynamic.png',dpi=300,transparent=False,bbox_inches = 'tight')
         frame=Image.open(wrkdir +'dynamic.png')
         
         cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)
@@ -137,10 +137,11 @@ if __name__ == '__main__':
             gray_sz1=len(cimg)
             aDur=4
             fourcc = cv.VideoWriter_fourcc(*'MP4V')
+        ImApp.append(frame)
         out = cv.VideoWriter(wrkdir + aname+'.mp4',fourcc, aDur, (gray_sz2,gray_sz1))
-        ImApp.append(cimg)
         for iii in range(len(ImApp)):
-            out.write(ImApp[iii]) 
+            cimg = cv.cvtColor(np.array(ImApp[iii]), cv.COLOR_RGB2BGR)                        
+            out.write(cimg) 
         out.release()
         
         plt.show()
@@ -306,17 +307,17 @@ if __name__ == '__main__':
                     axes.text(4, 4, 'Course = %s, start = %s, step = %s'%(aname,adat0,interv),
                             verticalalignment='bottom', horizontalalignment='right',
                             transform=axes_.transAxes,color='blue', fontsize=14)        
-                    axes_.plot(mm1,mm2, 'ok', markersize=3, alpha=0.2)               
+                    axes_.plot(mm1,mm2, 'ok', markersize=3, alpha=0.1)               
                     axes_.text(0.2, 0.6, '%d'%int(np.floor(Koef)),
                         verticalalignment='bottom', horizontalalignment='right',
                         transform=axes_.transAxes,color='green', fontsize=30)
-                    fig.savefig(wrkdir +'dynamic.png',dpi=180,transparent=False,bbox_inches = 'tight')
+                    fig.savefig(wrkdir +'dynamic.png',dpi=300,transparent=False,bbox_inches = 'tight')
                     frame=Image.open(wrkdir +'dynamic.png')
-                    cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)
+                    ImApp.append(frame)
                     out = cv.VideoWriter(wrkdir + aname+'.mp4',fourcc, aDur, (gray_sz2,gray_sz1))
-                    ImApp.append(cimg)
                     for iii in range(len(ImApp)):
-                        out.write(ImApp[iii]) 
+                        cimg = cv.cvtColor(np.array(ImApp[iii]), cv.COLOR_RGB2BGR)                        
+                        out.write(cimg) 
                     out.release()
                     plt.show()
                     hh=hh+1
@@ -353,15 +354,14 @@ if __name__ == '__main__':
         axes.text(4, 4, 'Course = %s, start = %s, step = %s'%(aname,adat0,interv),
                 verticalalignment='bottom', horizontalalignment='right',
                 transform=axes_.transAxes,color='blue', fontsize=14)                
-        axes_.plot(mm1,mm2, 'ok', markersize=3, alpha=0.2)               
-        fig.savefig(wrkdir +'dynamic.png',dpi=180,transparent=False,bbox_inches = 'tight')
+        axes_.plot(mm1,mm2, 'ok', markersize=3, alpha=0.1)               
+        fig.savefig(wrkdir +'dynamic.png',dpi=300,transparent=False,bbox_inches = 'tight')
         frame=Image.open(wrkdir +'dynamic.png')
-        cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)
+        ImApp.append(frame)
         out = cv.VideoWriter(wrkdir + aname+'.mp4',fourcc, aDur, (gray_sz2,gray_sz1))
-        for i in range(10):
-            ImApp.append(cimg)
         for iii in range(len(ImApp)):
-            out.write(ImApp[iii]) 
+            cimg = cv.cvtColor(np.array(ImApp[iii]), cv.COLOR_RGB2BGR)                        
+            out.write(cimg) 
         out.release()
         plt.show()
         kkk=kkk+1
