@@ -8,7 +8,7 @@ from scipy.signal import savgol_filter
 def RALF1FilterV(dQ2):
     Np=len(dQ2)  
     SdQ=np.mean(dQ2,0)
-    stddQ=np.std(dQ2, dtype=np.float64)
+    stddQ=np.mean(dQ2)
         
     sSdQ=np.std(np.asarray(SdQ,float))
     for i in range(Np):
@@ -19,8 +19,9 @@ def RALF1FilterV(dQ2):
             dQ2[i]=np.asarray(dQ2[i] +SdQ * (SdQj_ / sSdQ - 1),np.float16)
         else:
             dQ2[i]=dQ2[i]*0  
-    stddQ_=np.std(dQ2, dtype=np.float64)
-    dQ2=dQ2*stddQ/stddQ_
+    stddQ_=np.mean(dQ2)
+    if stddQ_>0:
+        dQ2=dQ2*stddQ/stddQ_
     return dQ2
 
 def RandomV(Nfx):
@@ -63,13 +64,13 @@ def filterFourierV(arxx,arb,NNew,NChan):
                 farx[j]=max(farx[j],ar_[j])
     
     farx[0]=1e-32
-    srfarx=.62*np.mean(farx[1:])
+    srfarx=.1*np.mean(farx[1:])
     arxr=np.zeros(Nfl*NChan,float)   
     for l in range(NChan):       
         farxx=np.fft.fft(arxx[Nfl-Nnl+Nfl*l:Nfl+Nfl*l])    
         mfarxx=abs(farxx) 
         mfarxx[0]=1e-32
-        srmfarxx=.62*np.mean(mfarxx[1:])
+        srmfarxx=.1*np.mean(mfarxx[1:])
         farxxx=np.zeros(Nnl,complex)     
         for j in range(Nnl):
             if mfarxx[j]>srmfarxx and farx[j]>srfarx:
@@ -231,7 +232,7 @@ def RALf1FiltrV(args):
         #     aMn[0+Nf*l:Nf+Nf*l]= savgol_filter(aMn[0+Nf*l:Nf+Nf*l], 11, 5)
         arr_bbbxxx=aMx + aMn  
         
-        #arr_bbbxxx=filterFourierV(arr_bbbxxx,arr_b,NNew,NChan)
+        arr_bbbxxx=filterFourierV(arr_bbbxxx,arr_b,NNew,NChan)
         
         ann=sum(np.isnan(arr_bbbxxx))
         if ann==0: 

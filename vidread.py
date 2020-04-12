@@ -23,11 +23,11 @@ if __name__ == '__main__':
         dill.load_session(filename+".ralf")  
     except:
         hhh=hhh        
-        coef=0.1
+        coef=0.0333
         astep=3
-        NIt=1
+        NIt=2
         NumSteps=4
-        NCircls=9
+        NCircls=10
         Nproc=int(np.floor(mp.cpu_count()/3))
         Limite=1000000
             
@@ -170,12 +170,12 @@ if __name__ == '__main__':
                         ffZZ.append(np.fft.fft2(ZZ[icl][l]-mnZZ))
                     ffZZ=np.asarray(np.abs(ffZZ),float)
                     affZZ=np.max(ffZZ,0)
-                    maffZZ=0.62*np.mean(affZZ)
+                    maffZZ=0.1*np.mean(affZZ)
                     for l in range(NumFr-NNew,NumFr):
                         mnZZ=np.mean(ZZ[icl][l])
                         ZZ_=np.fft.fft2(ZZ[icl][l]-mnZZ)
                         aZZ_=np.abs(ZZ_)+1e-32
-                        mZZ_=0.62*np.mean(aZZ_)                
+                        mZZ_=0.1*np.mean(aZZ_)                
                         fZZ=np.fft.ifft2((ZZ_/aZZ_)*(1*(aZZ_>mZZ_))*affZZ*(affZZ>maffZZ))
                         ZZ[icl][l]=fZZ.real+mnZZ 
                 

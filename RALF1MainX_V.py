@@ -18,7 +18,7 @@ from RALf1FiltrVID import RALf1FiltrV,filterFourierV
 
 api_key = 'ONKTYPV6TAMZK464' 
 
-ticker ="LOIL.L"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
+ticker ="BTC-USD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
 #interv="15min"
 interv="Daily"
 #url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=%s&interval=%s&outputsize=full&apikey=%s"%(ticker,interv,api_key)        
@@ -31,7 +31,7 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symb
 Lengt=1000
 Ngroup=2
 Nproc=Ngroup*mp.cpu_count()
-Lo=0
+Lo=1
 aTmStop=5
 NIt=2
 NIter=20
@@ -300,12 +300,12 @@ if __name__ == '__main__':
                     axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])
                     axes_ = fig.add_axes([0, 0, 0.3, 0.3])   
                     axes.plot(all_rezAz_,'oy',alpha=0.1)
-                    axes.plot(ar0, 'ro-', alpha=0.5)
-                    axes.plot(arr_rezBz,'cx-', alpha=0.5)
+                    axes.plot(ar0, 'ro-', alpha=0.1)
+                    axes.plot(arr_rezBz,'cx-', alpha=0.1)
                     axes.text(4, 4, 'Course = %s, start = %s, step = %s'%(aname,adat0,interv),
                             verticalalignment='bottom', horizontalalignment='right',
                             transform=axes_.transAxes,color='blue', fontsize=14)        
-                    axes_.plot(mm1,mm2, 'ok', markersize=3, alpha=0.03)               
+                    axes_.plot(mm1,mm2, 'ok', markersize=3, alpha=0.1)               
                     axes_.text(0.2, 0.6, '%d'%int(np.floor(Koef)),
                         verticalalignment='bottom', horizontalalignment='right',
                         transform=axes_.transAxes,color='green', fontsize=30)
@@ -351,11 +351,11 @@ if __name__ == '__main__':
         axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])
         axes_ = fig.add_axes([0, 0, 0.3, 0.3])
         axes.plot(arrr, 'ro-')
-        axes.plot(arr_rezDz, 'cx-', alpha=0.5) #predicted data
+        axes.plot(arr_rezDz, 'cx-', alpha=0.1) #predicted data
         axes.text(4, 4, 'Course = %s, start = %s, step = %s'%(aname,adat0,interv),
                 verticalalignment='bottom', horizontalalignment='right',
                 transform=axes_.transAxes,color='blue', fontsize=14)                
-        axes_.plot(mm1,mm2, 'ok', markersize=3, alpha=0.03)               
+        axes_.plot(mm1,mm2, 'ok', markersize=3, alpha=0.1)               
         fig.savefig(wrkdir +'dynamic.png',dpi=300,transparent=False,bbox_inches = 'tight')
         frame=Image.open(wrkdir +'dynamic.png')
         cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)        
