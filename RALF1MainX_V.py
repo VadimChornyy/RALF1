@@ -7,12 +7,12 @@ import pandas as pd
 from PIL import Image
 import msvcrt
 import cv2 as cv
-import time as tm
+#import time as tm
 
 from scipy import stats as scp
 import dateutil.parser
 from operator import itemgetter
-from scipy.signal import savgol_filter
+#from scipy.signal import savgol_filter
 
 from RALf1FiltrVID import RALf1FiltrV,filterFourierV
 
