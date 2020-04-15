@@ -3,12 +3,12 @@ from operator import itemgetter
 import time as tm
 import sys
 import lfib1340 
-from scipy.signal import savgol_filter
-
-def RALF1FilterV(dQ2):
+#from scipy.signal import savgol_filter
+  
+def RALF1FilterQ(dQ2):
     Np=len(dQ2)  
     SdQ=np.mean(dQ2,0)
-    stddQ=np.mean(dQ2)
+    stddQ=np.std(np.asarray(dQ2,float))
         
     sSdQ=np.std(np.asarray(SdQ,float))
     for i in range(Np):
@@ -19,7 +19,7 @@ def RALF1FilterV(dQ2):
             dQ2[i]=np.asarray(dQ2[i] +SdQ * (SdQj_ / sSdQ - 1),np.float16)
         else:
             dQ2[i]=dQ2[i]*0  
-    stddQ_=np.mean(dQ2)
+    stddQ_=np.std(np.asarray(dQ2,float))
     if stddQ_>0:
         dQ2=dQ2*stddQ/stddQ_
     return dQ2
@@ -64,16 +64,16 @@ def filterFourierV(arxx,arb,NNew,NChan):
                 farx[j]=max(farx[j],ar_[j])
     
     farx[0]=1e-32
-    srfarx=.1*np.mean(farx[1:])
+    srfarx=.63*np.mean(farx[1:])/2
     arxr=np.zeros(Nfl*NChan,float)   
     for l in range(NChan):       
         farxx=np.fft.fft(arxx[Nfl-Nnl+Nfl*l:Nfl+Nfl*l])    
         mfarxx=abs(farxx) 
         mfarxx[0]=1e-32
-        srmfarxx=.1*np.mean(mfarxx[1:])
+        srmfarxx=0.63*np.mean(mfarxx[1:])
         farxxx=np.zeros(Nnl,complex)     
         for j in range(Nnl):
-            if mfarxx[j]>srmfarxx and farx[j]>srfarx:
+            if mfarxx[j]>srmfarxx:# and farx[j]>srfarx:
                 farxxx[j]=farxx[j]/mfarxx[j]*farx[j]            
             else:
                 farxxx[j]=0        
@@ -135,88 +135,77 @@ def RALf1FiltrV(args):
         K=NNew/(Nf+1)/NChan
         sz=int(NChan*Nf)
         liix=[[] for kk in range(Nf*NChan)]  
-
-        line=1
-        while line==1: 
-            tm.sleep(0.2)
-            anamef="fralf.tmp"
-            try:
-                fo = open(anamef, "r")
-                line = int(fo.readline()) 
-            except:
-                fo = open(anamef, "w")
-                fo.write(str(0)+'\n') 
-                line=0                       
-            fo.close()
-            if line==0:
-                fo = open(anamef, "w")
-                fo.write(str(1)+'\n')
-                fo.close()
-                dQ3=np.zeros((sz,sz),np.float16)
-                mDD=np.zeros((sz,sz),np.float16)
-                fo = open(anamef, "w")
-                fo.write(str(0)+'\n')
-                fo.close() 
-        
+        dQ3=np.zeros((sz,sz),np.float16)
+        mDD=np.zeros((sz,sz),np.float16)        
         for i in range(sz):    
             r1=liiB[int(liiD[i]):sz+int(liiD[i])]                                     
-            liix[i].append(np.asarray(r1,int)) 
-                                                 
-            # r1=liiB[int(liiD[i]):Nf+int(liiD[i])].copy()
-            # lfib1340.LFib1340(int(liiC[i])).shuffle(r1)                         
-            # liix[i].append(r1)
-                     
+            liix[i].append(np.asarray(r1,int))                     
             dQ3[i]=r2[r1]
             for l in range(NChan):
                 bb=np.asarray(liiC[np.asarray(np.arange(l+int(liiE[i]),l+sz+int(liiE[i]),sz/NNew),int)]*K,int)
-                R4[Nf-NNew+Nf*l:Nf+Nf*l]=r4[Nf-NNew+Nf*l+bb[0:NNew]] 
-                
-            # R4=r4.copy()
-            # lfib1340.LFib1340(int(liiD[i])).shuffle(R4[Nf-NNew:])    
+                R4[Nf-NNew+Nf*l:Nf+Nf*l]=r4[Nf-NNew+Nf*l+bb[0:NNew]]                 
             mDD[i]=R4[r1]  
             tm.sleep(0.002)
              
         line=1
         while line==1: 
             tm.sleep(0.2)
-            anamef="fralf.tmp"
+            #anamef="fralf.tmp"
             try:
-                fo = open(anamef, "r")
-                line = int(fo.readline()) 
-            except:
-                fo = open(anamef, "w")
-                fo.write(str(0)+'\n') 
+            #     fo = open(anamef, "r")
+            #     line = int(fo.readline()) 
+            # except:
+            #     fo = open(anamef, "w")
+            #     fo.write(str(0)+'\n') 
                 line=0                       
-            fo.close()
-            if line==0:
-                fo = open(anamef, "w")
-                fo.write(str(1)+'\n')
-                fo.close()
-                
-                NumFri=RandomV(sz)                 
+            #fo.close()
+            #if line==0:
+                # fo = open(anamef, "w")
+                # fo.write(str(1)+'\n')
+                # fo.close()               
+             
                 Ndel=int(np.ceil(np.sqrt(sz)))
-                NCh=int(np.ceil(sz/Ndel))                    
-                NumFri=np.concatenate((NumFri, NumFri)) 
+                NCh=int(np.ceil(sz/Ndel)) 
+                Ndel0=2*Ndel
+                NCh0=int(np.ceil(sz/Ndel0))                    
                 dQ3mx=np.zeros((sz,sz),np.float16)-np.Inf
                 dQ3mn=np.zeros((sz,sz),np.float16)+np.Inf
-                dQ4=np.zeros((NCh,sz),np.float16) 
-                mDD4=np.zeros((NCh,sz),np.float16)                 
-                for kk in range(Ndel):
-                    ii=int(kk*NCh)
-                    dQ4=dQ3[NumFri[ii+0:ii+NCh]].copy()
-                    mDD4=mDD[NumFri[ii+0:ii+NCh]].copy()                            
-                    dQ4mn=np.mean(dQ4*(1-(np.abs(mDD4)<D*1e-6)))
-                    dQ4=dQ4-dQ4mn                 
-                    dQ4=(RALF1FilterV(  dQ4-dQ4*(dQ4<0) +mDD4)-
-                         RALF1FilterV(-(dQ4-dQ4*(dQ4>0))+mDD4))
-                    dQ4=dQ4+dQ4mn
-                    dQ3mx[NumFri[ii+0:ii+NCh]]=np.maximum(dQ3mx[NumFri[ii+0:ii+NCh]],dQ4)
-                    dQ3mn[NumFri[ii+0:ii+NCh]]=np.minimum(dQ3mn[NumFri[ii+0:ii+NCh]],dQ4)
-                    
+                dQ4=np.zeros((NCh,NCh0),np.float16)
+                mDD4=np.zeros((NCh,NCh0),np.float16)
+                NumFri=RandomV(sz)
+                NumFri_=RandomV(sz)                 
+                NumFri=np.concatenate((NumFri, NumFri, NumFri))                  
+                NumFri_=np.concatenate((NumFri_, NumFri_, NumFri_))  
+                zz=Nhh-1#int(np.ceil(np.sqrt(Ndel)))
+                while zz>=0:
+                    for kk in range(Ndel):
+                        ii=int(kk*NCh)
+                        for k in range(Ndel0):
+                            i=int(k*NCh0) 
+                            dQ4=[]
+                            mDD4=[]
+                            for ll in range(NCh0):
+                                dQ4.append(dQ3[NumFri[zz+ii+0:zz+ii+NCh],NumFri_[i+ll]])
+                                mDD4.append(mDD[NumFri[zz+ii+0:zz+ii+NCh],NumFri_[i+ll]])
+                            dQ4=np.asarray(dQ4,np.float16).transpose()
+                            mDD4=np.asarray(mDD4,np.float16).transpose()
+                            dQ4mn=np.mean(dQ4*(1-(np.abs(mDD4)<D*1e-6)))
+                            dQ4=dQ4-dQ4mn                 
+                            dQ4=(RALF1FilterQ(  dQ4-dQ4*(dQ4<0) +mDD4)-
+                                 RALF1FilterQ(-(dQ4-dQ4*(dQ4>0))+mDD4))
+                            dQ4=dQ4+dQ4mn
+                            for ll in range(NCh0):
+                                dQ3mx[NumFri[zz+ii+0:zz+ii+NCh],NumFri_[i+ll]]=np.maximum(dQ3mx[NumFri[zz+ii+0:zz+ii+NCh],NumFri_[i+ll]],dQ4[:,ll])
+                                dQ3mn[NumFri[zz+ii+0:zz+ii+NCh],NumFri_[i+ll]]=np.minimum(dQ3mn[NumFri[zz+ii+0:zz+ii+NCh],NumFri_[i+ll]],dQ4[:,ll])
+                    zz=zz-1   
                 dQ3=(dQ3mx+dQ3mn)/2
-                fo = open(anamef, "w")
-                fo.write(str(0)+'\n')
-                fo.close()                
+                del(dQ3mx)
+                del(dQ3mn)
+                # fo = open(anamef, "w")
+                # fo.write(str(0)+'\n')
+                # fo.close()   
+            except:
+                line=0
         
         del(mDD)       
         for i in range(sz):

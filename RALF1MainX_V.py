@@ -16,25 +16,26 @@ from operator import itemgetter
 
 from RALf1FiltrVID import RALf1FiltrV,filterFourierV
 
+wrkdir = r"c:\Work\\"
 api_key = 'ONKTYPV6TAMZK464' 
 
 ticker ="BTC-USD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
-#interv="15min"
-interv="Daily"
-#url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=%s&interval=%s&outputsize=full&apikey=%s"%(ticker,interv,api_key)        
-url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=%s&outputsize=full&apikey=%s"%(ticker,api_key)
+interv="15min"
+#interv="Daily"
+url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=%s&interval=%s&outputsize=full&apikey=%s"%(ticker,interv,api_key)        
+#url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=%s&outputsize=full&apikey=%s"%(ticker,api_key)
 
 #INTRADAY
 #d_intervals = {"1min","5min","15min","30min","60min"}
 #from scipy.signal import savgol_filter
 
-Lengt=1000
+Lengt=200
 Ngroup=1
 Nproc=Ngroup*mp.cpu_count()
 Lo=1
 aTmStop=5
 NIt=2
-NIter=20
+NIter=60
 DT=0.25
 Nf_K=3
     
@@ -92,7 +93,6 @@ def loaddata(aLengt,key):
 
 if __name__ == '__main__':   
     ImApp=[]
-    wrkdir = r"e:\Work\\"
 
     arrrxx,adat_=loaddata(Lengt,1)
     arrrxx=np.asarray(arrrxx,float)
@@ -295,7 +295,7 @@ if __name__ == '__main__':
                 mm1=ar0[Nf-NNew:].copy()                            
                 mm2=arr_rezBz[Nf-NNew:len(ar0)].copy()        
                 Koef=100*scp.pearsonr(mm1,mm2)[0]
-                if (Koef+100)> 0.62*(TKoef+100):                                        
+                if (Koef+100)> 0.63*(TKoef+100):                                        
                     fig = plt.figure()
                     axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])
                     axes_ = fig.add_axes([0, 0, 0.3, 0.3])   

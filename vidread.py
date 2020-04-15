@@ -8,9 +8,10 @@ from RALf1FiltrVID import RALf1FiltrV,RandomV,filterFourierV
 import dill 
 
 wrkdir = r".\\"
-wwrkdir_=r".\W6\\"
-nmfile0='novalSARSCOV2.mp4'
-nmfile='novalSARSCOV2out.mp4'
+wwrkdir_=r".\W8\\"
+nama='ZEISSAXIO_HeLa'
+nmfile0=nama+'.mp4'
+nmfile=nama+'out.mp4'
 filename = wwrkdir_+"globalsavepkl"
    
 if __name__ == '__main__':        
@@ -23,13 +24,14 @@ if __name__ == '__main__':
         dill.load_session(filename+".ralf")  
     except:
         hhh=hhh        
-        coef=0.0333
-        astep=3
+        coef=0.05
+        astep=1
         NIt=2
+        dNew=0.4
         NumSteps=4
         NCircls=10
         Nproc=int(np.floor(mp.cpu_count()/3))
-        Limite=1000000
+        Limite=40000
             
         # Create a VideoCapture object and read from input file 
         cap = cv2.VideoCapture(wwrkdir_ +nmfile0)#or mp4     
@@ -85,8 +87,8 @@ if __name__ == '__main__':
             try:
                 dill.load_session(filename+("%s_%s"%(hhh,hh))+".ralf")        
             except:                
-                NNew=int(NumFr0*0.4)
-                NumFr=NumFr0+2*int(np.ceil(hhh*NNew/NumSteps))
+                NNew=int(NumFr0*dNew)
+                NumFr=NumFr0+int(np.ceil(hhh*NNew/NumSteps))
                 Nn0=NumFr-NNew+int(np.ceil(NNew/NumSteps)) 
                 if hh==0:
                     ArrRezMx=np.zeros((3,NumFr,sz1,sz2),float)-np.Inf
@@ -166,19 +168,21 @@ if __name__ == '__main__':
                 for icl in range(3):
                     ffZZ=[]            
                     for l in range(NumFr-NNew):
-                        mnZZ=np.mean(ZZ[icl][l])
-                        ffZZ.append(np.fft.fft2(ZZ[icl][l]-mnZZ))
+                        dd=ZZ[icl][l]-ZZ[icl][NumFr-NNew-1]
+                        mnZZ=np.mean(dd)
+                        ffZZ.append(np.fft.fft2(dd-mnZZ))
                     ffZZ=np.asarray(np.abs(ffZZ),float)
                     affZZ=np.max(ffZZ,0)
-                    maffZZ=0.1*np.mean(affZZ)
+                    maffZZ=0.63*np.mean(affZZ)/2
                     for l in range(NumFr-NNew,NumFr):
-                        mnZZ=np.mean(ZZ[icl][l])
-                        ZZ_=np.fft.fft2(ZZ[icl][l]-mnZZ)
+                        dd=ZZ[icl][l]-ZZ[icl][NumFr-NNew-1]
+                        mnZZ=np.mean(dd)
+                        ZZ_=np.fft.fft2(dd-mnZZ)
                         aZZ_=np.abs(ZZ_)+1e-32
-                        mZZ_=0.1*np.mean(aZZ_)                
-                        fZZ=np.fft.ifft2((ZZ_/aZZ_)*(1*(aZZ_>mZZ_))*affZZ*(affZZ>maffZZ))
-                        ZZ[icl][l]=fZZ.real+mnZZ 
-                
+                        mZZ_=0.63*np.mean(aZZ_)                
+                        fZZ=np.fft.ifft2((ZZ_/aZZ_)*(1*(aZZ_>mZZ_))*affZZ)#*(affZZ>maffZZ))
+                        ZZ[icl][l]=fZZ.real+mnZZ+ZZ[icl][NumFr-NNew-1]
+              
                 if hh==0:
                     ArrRez=ZZ
                 else:
@@ -191,7 +195,7 @@ if __name__ == '__main__':
                 for icl in range(3):
                     for i in range(sz1):
                         for j in range(sz2):                
-                            ArrRez_[icl,:,i,j]= savgol_filter(ArrRez_[icl,:,i,j], 21, 5)
+                            ArrRez_[icl,:,i,j]= savgol_filter(ArrRez_[icl,:,i,j], 11, 5)
                 out = cv2.VideoWriter(wwrkdir_ +nmfile,fourcc, aDur, (gray_sz2,gray_sz1))
                 kk=np.zeros(3,int)
                 kkk=np.zeros(3,int)
@@ -202,7 +206,7 @@ if __name__ == '__main__':
                     for ii in range(astep):                
                         for icl in range(3):   
                             frame[ : , : , icl] = ndimage.zoom(ArrRez_[icl][kk], coefX)[0:gray_sz1,0:gray_sz2]                       
-                        frame=cv2.medianBlur(frame,31)
+                        frame=cv2.medianBlur(frame,11)
                         out.write(frame)                    
                     
                     cv2.imshow('frame', frame)
