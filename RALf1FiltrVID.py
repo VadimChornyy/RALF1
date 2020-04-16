@@ -164,9 +164,9 @@ def RALf1FiltrV(args):
                 # fo.write(str(1)+'\n')
                 # fo.close()               
              
-                Ndel=2#int(np.ceil(np.sqrt(sz)))
+                Ndel=int(np.ceil(np.sqrt(sz)))
                 NCh=int(np.ceil(sz/Ndel)) 
-                Ndel0=2#2*Ndel
+                Ndel0=2*Ndel
                 NCh0=int(np.ceil(sz/Ndel0))                    
                 dQ3mx=np.zeros((sz,sz),np.float16)-np.Inf
                 dQ3mn=np.zeros((sz,sz),np.float16)+np.Inf
