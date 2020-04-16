@@ -64,13 +64,13 @@ def filterFourierV(arxx,arb,NNew,NChan):
                 farx[j]=max(farx[j],ar_[j])
     
     farx[0]=1e-32
-    srfarx=.63*np.mean(farx[1:])/2
+    srfarx=.62*np.mean(farx[1:])/2
     arxr=np.zeros(Nfl*NChan,float)   
     for l in range(NChan):       
         farxx=np.fft.fft(arxx[Nfl-Nnl+Nfl*l:Nfl+Nfl*l])    
         mfarxx=abs(farxx) 
         mfarxx[0]=1e-32
-        srmfarxx=.63*np.mean(mfarxx[1:])
+        srmfarxx=.62*np.mean(mfarxx[1:])
         farxxx=np.zeros(Nnl,complex)     
         for j in range(Nnl):
             if mfarxx[j]>srmfarxx:# and farx[j]>srfarx:
