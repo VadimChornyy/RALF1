@@ -31,7 +31,7 @@ if __name__ == '__main__':
         NumSteps=4
         NCircls=10
         Nproc=int(np.floor(mp.cpu_count()/3))
-        Limite=40000
+        NChan=20
             
         # Create a VideoCapture object and read from input file 
         cap = cv2.VideoCapture(wwrkdir_ +nmfile0)#or mp4     
@@ -100,9 +100,8 @@ if __name__ == '__main__':
                 for i in range(SZ):
                     NumFrY_[i]= np.floor(NumFri[i]/sz1)
                     NumFrX_[i]=NumFri[i]-NumFrY_[i]*sz1 
-                Ndel=(SZ*NumFr/Limite)
-                NChan=int(np.ceil(sz1/Ndel))     
-                SZ=NChan*int(np.ceil(sz2*Ndel))
+                Ndel=int(np.ceil(SZ/NChan))
+                SZ=NChan*Ndel
                 Arr_=np.zeros((3,SZ,int(NumFr)),float)
                 
                 for kk in range(int(SZ/(sz1*sz2))+1):
@@ -117,7 +116,7 @@ if __name__ == '__main__':
                         for j in range(SZ):
                             Arr_[icl][j][i]=Arr[icl][i][NumFrX[j]][NumFrY[j]]            
                     
-                for l in range(int(np.ceil(sz2*Ndel))):         
+                for l in range(Ndel):         
                     Arr_x=np.zeros((3,NChan,NumFr),float)
                     argss=[[] for kk in range(3*Nproc)]
                     for kk in range(3*Nproc):
@@ -151,18 +150,14 @@ if __name__ == '__main__':
                         
                         for i in range(NChan):
                             arezBMx[i]=arezAMxZ[0+NumFr*i:NumFr+NumFr*i].copy()              
-                            # arezBMx[i][NumFr-NNew:NumFr]=arezBMx[i][NumFr-NNew:NumFr]*np.std(Arr_x[icl][i][NumFr-NNew:Nn0])/np.std(arezBMx[i][NumFr-NNew:Nn0])                           
-                            #arezBMx[i][NumFr-NNew:NumFr]=arezBMx[i][NumFr-NNew:NumFr]-np.mean(arezBMx[i][NumFr-NNew:Nn0])+np.mean(Arr_x[icl][i][NumFr-NNew:Nn0])
                             arezBMx[i][NumFr-NNew:NumFr]=arezBMx[i][NumFr-NNew:NumFr]+Arr_x[icl][i][NumFr-NNew-1]
-                            #arezBMx[i][0:NumFr-NNew]=Arr_0[icl][i][0:NumFr-NNew].copy()
-                            #arezBMx[i]= savgol_filter(arezBMx[i], 11, 5) 
                             arezBMx[i][0:NumFr-NNew]=Arr_x[icl][i][0:NumFr-NNew].copy()
                            
                         for j in range(l*NChan,(l+1)*NChan):
                             for i in range(int(NumFr)):
                                 ArrRezMx[icl][i][NumFrX[j]][NumFrY[j]]=max(ArrRezMx[icl][i][NumFrX[j]][NumFrY[j]],arezBMx[j-l*NChan][i])
                                 ArrRezMn[icl][i][NumFrX[j]][NumFrY[j]]=min(ArrRezMn[icl][i][NumFrX[j]][NumFrY[j]],arezBMx[j-l*NChan][i])                 
-                    print ("calculated %s percents"%(int((l+1)/(int(np.ceil(sz2*Ndel)))*1000)/10))
+                    print ("calculated %s percents"%(int((l+1)/Ndel*1000)/10))
         
                 ZZ=(ArrRezMx+ArrRezMn)/2    
                 for icl in range(3):
@@ -173,21 +168,27 @@ if __name__ == '__main__':
                         ffZZ.append(np.fft.fft2(dd-mnZZ))
                     ffZZ=np.asarray(np.abs(ffZZ),float)
                     affZZ=np.max(ffZZ,0)
-                    maffZZ=0.63*np.mean(affZZ)/2
+                    maffZZ=.62*np.mean(affZZ)
                     for l in range(NumFr-NNew,NumFr):
                         dd=ZZ[icl][l]-ZZ[icl][NumFr-NNew-1]
                         mnZZ=np.mean(dd)
                         ZZ_=np.fft.fft2(dd-mnZZ)
                         aZZ_=np.abs(ZZ_)+1e-32
-                        mZZ_=0.63*np.mean(aZZ_)                
+                        mZZ_=.62*np.mean(aZZ_)                
                         fZZ=np.fft.ifft2((ZZ_/aZZ_)*(1*(aZZ_>mZZ_))*affZZ)#*(affZZ>maffZZ))
                         ZZ[icl][l]=fZZ.real+mnZZ+ZZ[icl][NumFr-NNew-1]
               
                 if hh==0:
                     ArrRez=ZZ
                 else:
-                    ArrRez=(ArrRez*hh+ZZ)/(hh+1)                                 
-                ArrRez_=ArrRez.copy()
+                    ArrRez=(ArrRez*hh+ZZ)/(hh+1)   
+                                
+                ArrRez_=ArrRez.copy()                  
+                for icl in range(3):
+                    Dstd=np.std(Arr[icl][:][NumFr-NNew:Nn0])/np.std(ArrRez_[icl,NumFr-NNew:Nn0,:,:])                    
+                    ArrRez_[icl,NumFr-NNew:,:,:]=ArrRez_[icl,NumFr-NNew:,:,:]*Dstd 
+                    ArrRez_[icl,NumFr-NNew:,:,:]=ArrRez_[icl,NumFr-NNew:,:,:]-ArrRez_[icl,NumFr-NNew,:,:]+ArrRez_[icl,NumFr-NNew-1,:,:]
+                
                 ArrRez_=np.asarray(ArrRez_-(ArrRez_-255)*(ArrRez_>255),np.uint8)
                 ArrRez_=np.asarray(ArrRez_-ArrRez_*(ArrRez_<0),np.uint8)
                 coefX=max(gray_sz1/sz1,gray_sz2/sz2)
@@ -196,6 +197,7 @@ if __name__ == '__main__':
                     for i in range(sz1):
                         for j in range(sz2):                
                             ArrRez_[icl,:,i,j]= savgol_filter(ArrRez_[icl,:,i,j], 11, 5)
+                            
                 out = cv2.VideoWriter(wwrkdir_ +nmfile,fourcc, aDur, (gray_sz2,gray_sz1))
                 kk=np.zeros(3,int)
                 kkk=np.zeros(3,int)

@@ -266,31 +266,40 @@ if __name__ == '__main__':
                     arr_rezBz=filterFourierV(arr_rezBz,np.log(arr_z),NNew,1)
                 else:
                     arr_rezBz=filterFourierV(arr_rezBz,arr_z,NNew,1)            
-                  
+
                 if Lo:
+                    Dstd=np.std(np.log(ar0[Nf-NNew:]))
                     arr_rezBz[0:Nf-NNew]=np.log(ar0[0:Nf-NNew].copy())
-                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(np.log(ar0[Nf-NNew:]))/np.std(arr_rezBz[Nf-NNew:Nf])
-                    # arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-np.mean(arr_rezBz[Nf-NNew:len(ar0)])+np.mean(np.log(ar0[Nf-NNew:]))
-                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-arr_rezBz[Nf-NNew]+np.log(ar0[Nf-NNew-1])
-                    #arr_rezBz= savgol_filter(arr_rezBz, 11, 5)        
+                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-arr_rezBz[Nf-NNew]+np.log(ar0[Nf-NNew-1])    
                     for i in range(Nf):
                         arr_rezBz[i]=np.exp(arr_rezBz[i]) 
                 else:
+                    Dstd=np.std(ar0[Nf-NNew:])                 
                     arr_rezBz[0:Nf-NNew]=ar0[0:Nf-NNew].copy()  
-                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(ar0[Nf-NNew:])/np.std(arr_rezBz[Nf-NNew:Nf])                           
-                    # arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-np.mean(arr_rezBz[Nf-NNew:len(ar0)])+np.mean(ar0[Nf-NNew:])
                     arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-arr_rezBz[Nf-NNew]+ar0[Nf-NNew-1]
-                    #arr_rezBz= savgol_filter(arr_rezBz, 11, 5)  
+                
                 arr_rezBz[0:Nf-NNew]=ar0[0:Nf-NNew].copy()  
                        
                 all_rezAz[hhh]=arr_rezBz.copy()        
-                all_rezAz_=all_rezAz[0:hhh+1].transpose()
-                
-                for i in range(Nf-NNew,Nf):
+                all_rezAz_=all_rezAz[0:hhh+1].transpose()                
+                for i in range(Nf):
                     if Lo:
-                        arr_rezBz[i]=np.exp(np.mean(np.log(all_rezAz_[i])))
+                        arr_rezBz[i]=np.mean(np.log(all_rezAz_[i]))
                     else:
-                        arr_rezBz[i]=np.mean(all_rezAz_[i]) 
+                        arr_rezBz[i]=np.mean(all_rezAz_[i])
+                
+                Dstd=Dstd/np.std(arr_rezBz[Nf-NNew:len(ar0)])
+                arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*Dstd
+
+                if Lo:
+                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-arr_rezBz[Nf-NNew]+np.log(ar0[Nf-NNew-1])
+                    arr_rezBz[0:Nf-NNew]=np.log(ar0[0:Nf-NNew].copy())
+                    #arr_rezBz= savgol_filter(arr_rezBz, 11, 5)        
+                    arr_rezBz=np.exp(arr_rezBz) 
+                else:
+                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-arr_rezBz[Nf-NNew]+ar0[Nf-NNew-1]
+                    arr_rezBz[0:Nf-NNew]=ar0[0:Nf-NNew].copy()  
+                    #arr_rezBz= savgol_filter(arr_rezBz, 11, 5)  
 
                 mm1=ar0[Nf-NNew:].copy()                            
                 mm2=arr_rezBz[Nf-NNew:len(ar0)].copy()        
