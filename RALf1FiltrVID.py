@@ -8,7 +8,7 @@ import lfib1340
 def RALF1FilterQ(dQ2):
     Np=len(dQ2)  
     SdQ=np.mean(dQ2,0)
-    stddQ=np.std(np.asarray(dQ2,float))
+    stddQ=np.mean(np.asarray(dQ2,float))
         
     sSdQ=np.std(np.asarray(SdQ,float))
     for i in range(Np):
@@ -19,7 +19,7 @@ def RALF1FilterQ(dQ2):
             dQ2[i]=np.asarray(dQ2[i] +SdQ * (SdQj_ / sSdQ - 1),np.float16)
         else:
             dQ2[i]=dQ2[i]*0  
-    stddQ_=np.std(np.asarray(dQ2,float))
+    stddQ_=np.mean(np.asarray(dQ2,float))
     if stddQ_>0:
         dQ2=dQ2*stddQ/stddQ_
     return dQ2
@@ -219,8 +219,8 @@ def RALf1FiltrV(args):
         # for l in range(NChan):                
         #     aMx[0+Nf*l:Nf+Nf*l]= savgol_filter(aMx[0+Nf*l:Nf+Nf*l], 11, 5)
         #     aMn[0+Nf*l:Nf+Nf*l]= savgol_filter(aMn[0+Nf*l:Nf+Nf*l], 11, 5)
-        arr_bbbxxx=aMx + aMn  
-        
+
+        arr_bbbxxx=aMx + aMn          
         arr_bbbxxx=filterFourierV(arr_bbbxxx,arr_b,NNew,NChan)
         
         ann=sum(np.isnan(arr_bbbxxx))
