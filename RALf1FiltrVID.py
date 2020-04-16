@@ -70,7 +70,7 @@ def filterFourierV(arxx,arb,NNew,NChan):
         farxx=np.fft.fft(arxx[Nfl-Nnl+Nfl*l:Nfl+Nfl*l])    
         mfarxx=abs(farxx) 
         mfarxx[0]=1e-32
-        srmfarxx=0.63*np.mean(mfarxx[1:])
+        srmfarxx=.63*np.mean(mfarxx[1:])
         farxxx=np.zeros(Nnl,complex)     
         for j in range(Nnl):
             if mfarxx[j]>srmfarxx:# and farx[j]>srfarx:
@@ -164,9 +164,9 @@ def RALf1FiltrV(args):
                 # fo.write(str(1)+'\n')
                 # fo.close()               
              
-                Ndel=int(np.ceil(np.sqrt(sz)))
+                Ndel=1#int(np.ceil(np.sqrt(sz)))
                 NCh=int(np.ceil(sz/Ndel)) 
-                Ndel0=2*Ndel
+                Ndel0=1#2*Ndel
                 NCh0=int(np.ceil(sz/Ndel0))                    
                 dQ3mx=np.zeros((sz,sz),np.float16)-np.Inf
                 dQ3mn=np.zeros((sz,sz),np.float16)+np.Inf
