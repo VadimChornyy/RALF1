@@ -29,7 +29,7 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&s
 #d_intervals = {"1min","5min","15min","30min","60min"}
 #from scipy.signal import savgol_filter
 
-Lengt=1000
+Lengt=500
 Ngroup=1
 Nproc=Ngroup*mp.cpu_count()
 Lo=1
@@ -295,7 +295,7 @@ if __name__ == '__main__':
                 mm1=ar0[Nf-NNew:].copy()                            
                 mm2=arr_rezBz[Nf-NNew:len(ar0)].copy()        
                 Koef=100*scp.pearsonr(mm1,mm2)[0]
-                if (Koef+100)> 0.63*(TKoef+100):                                        
+                if (Koef+100)> .62*(TKoef+100):                                        
                     fig = plt.figure()
                     axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])
                     axes_ = fig.add_axes([0, 0, 0.3, 0.3])   
