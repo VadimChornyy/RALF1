@@ -13,8 +13,8 @@ def RALF1FilterQ(dQ2):
     sSdQ=np.std(np.asarray(SdQ,float))
     for i in range(Np):
         SdQj_ = np.std(np.asarray(dQ2[i] - SdQ,float))
-        SdQj__ = np.std(np.asarray(dQ2[i],float))              
-        if SdQj__ >0 and sSdQ>0:
+        #SdQj__ = np.std(np.asarray(dQ2[i],float))              
+        if SdQj_ >.62*sSdQ and sSdQ>0:
             #dd = dd * (1+sSdQ / SdQj__) / 2 
             dQ2[i]=np.asarray(dQ2[i] +SdQ * (SdQj_ / sSdQ - 1),np.float16)
         else:
