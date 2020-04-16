@@ -29,7 +29,7 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&s
 #d_intervals = {"1min","5min","15min","30min","60min"}
 #from scipy.signal import savgol_filter
 
-Lengt=500
+Lengt=300
 Ngroup=1
 Nproc=Ngroup*mp.cpu_count()
 Lo=1
@@ -269,7 +269,7 @@ if __name__ == '__main__':
                   
                 if Lo:
                     arr_rezBz[0:Nf-NNew]=np.log(ar0[0:Nf-NNew].copy())
-                    # arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(np.log(ar0[Nf-NNew:]))/np.std(arr_rezBz[Nf-NNew:Nf])
+                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(np.log(ar0[Nf-NNew:]))/np.std(arr_rezBz[Nf-NNew:Nf])
                     # arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-np.mean(arr_rezBz[Nf-NNew:len(ar0)])+np.mean(np.log(ar0[Nf-NNew:]))
                     arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-arr_rezBz[Nf-NNew]+np.log(ar0[Nf-NNew-1])
                     #arr_rezBz= savgol_filter(arr_rezBz, 11, 5)        
@@ -277,7 +277,7 @@ if __name__ == '__main__':
                         arr_rezBz[i]=np.exp(arr_rezBz[i]) 
                 else:
                     arr_rezBz[0:Nf-NNew]=ar0[0:Nf-NNew].copy()  
-                    # arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(ar0[Nf-NNew:])/np.std(arr_rezBz[Nf-NNew:Nf])                           
+                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(ar0[Nf-NNew:])/np.std(arr_rezBz[Nf-NNew:Nf])                           
                     # arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-np.mean(arr_rezBz[Nf-NNew:len(ar0)])+np.mean(ar0[Nf-NNew:])
                     arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-arr_rezBz[Nf-NNew]+ar0[Nf-NNew-1]
                     #arr_rezBz= savgol_filter(arr_rezBz, 11, 5)  
