@@ -25,13 +25,13 @@ if __name__ == '__main__':
     except:
         hhh=hhh        
         coef=0.05
-        astep=1
+        astep=2
         NIt=2
         dNew=0.4
         NumSteps=4
-        NCircls=10
+        NCircls=60
         Nproc=int(np.floor(mp.cpu_count()/3))
-        NChan=20
+        NChan=40
             
         # Create a VideoCapture object and read from input file 
         cap = cv2.VideoCapture(wwrkdir_ +nmfile0)#or mp4     
@@ -185,7 +185,7 @@ if __name__ == '__main__':
                                 
                 ArrRez_=ArrRez.copy()                  
                 for icl in range(3):
-                    Dstd=np.std(Arr[icl][:][NumFr-NNew:Nn0])/np.std(ArrRez_[icl,NumFr-NNew:Nn0,:,:])                    
+                    Dstd=np.std(Arr[icl][:][NumFr-NNew:Nn0]-Arr[icl][:][NumFr-NNew-1])/np.std(ArrRez_[icl,NumFr-NNew:Nn0,:,:]-ArrRez_[icl,NumFr-NNew-1,:,:])                    
                     ArrRez_[icl,NumFr-NNew:,:,:]=ArrRez_[icl,NumFr-NNew:,:,:]*Dstd 
                     ArrRez_[icl,NumFr-NNew:,:,:]=ArrRez_[icl,NumFr-NNew:,:,:]-ArrRez_[icl,NumFr-NNew,:,:]+ArrRez_[icl,NumFr-NNew-1,:,:]
                 
