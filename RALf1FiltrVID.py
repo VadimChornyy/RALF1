@@ -164,9 +164,9 @@ def RALf1FiltrV(args):
                 # fo.write(str(1)+'\n')
                 # fo.close()               
              
-                Ndel=int(np.ceil(np.sqrt(sz)))
+                Ndel=8#int(np.ceil(np.sqrt(sz)))
                 NCh=int(np.ceil(sz/Ndel)) 
-                Ndel0=2*Ndel
+                Ndel0=8#2*Ndel
                 NCh0=int(np.ceil(sz/Ndel0))                    
                 dQ3mx=np.zeros((sz,sz),np.float16)-np.Inf
                 dQ3mn=np.zeros((sz,sz),np.float16)+np.Inf
@@ -176,7 +176,7 @@ def RALf1FiltrV(args):
                 NumFri_=RandomV(sz)                 
                 NumFri=np.concatenate((NumFri, NumFri, NumFri))                  
                 NumFri_=np.concatenate((NumFri_, NumFri_, NumFri_))  
-                zz=Nhh-1#int(np.ceil(np.sqrt(Ndel)))
+                zz=8#Nhh-1#int(np.ceil(np.sqrt(Ndel)))
                 while zz>=0:
                     for kk in range(Ndel):
                         ii=int(kk*NCh)
