@@ -10,7 +10,7 @@ def RALF1FilterQ(dQ1,mD,D):
     dQ2=dQ1+mD
     SdQ=np.mean(dQ2,0)
     mddQ=np.mean(dQ2*(1-(np.abs(mD)<D*Koe)))
-    stddQ=np.std(dQ2*(1-(np.abs(mD)<D*Koe)))
+    stddQ=np.std(np.asarray(dQ2*(1-(np.abs(mD)<D*Koe)),float))
     
     sSdQ=np.std(np.asarray(SdQ,float))
     for i in range(Np):
@@ -22,7 +22,7 @@ def RALF1FilterQ(dQ1,mD,D):
         else:
             dQ2[i]=dQ2[i]*0  
 
-    stddQ_=np.std(dQ2*(1-(np.abs(mD)<D*Koe)))
+    stddQ_=np.std(np.asarray(dQ2*(1-(np.abs(mD)<D*Koe)),float))
     if stddQ_>0:
         dQ2=dQ2*stddQ/stddQ_
     mddQ_=np.mean(dQ2*(1-(np.abs(mD)<D*Koe)))
