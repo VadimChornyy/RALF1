@@ -4,24 +4,29 @@ import time as tm
 import sys
 import lfib1340 
 #from scipy.signal import savgol_filter
-  
-def RALF1FilterQ(dQ2):
-    Np=len(dQ2)  
+Koe=1e-6  
+def RALF1FilterQ(dQ1,mD,D):
+    Np=len(dQ1)  
+    dQ2=dQ1+mD
     SdQ=np.mean(dQ2,0)
-    stddQ=np.mean(np.asarray(dQ2,float))
-        
+    mddQ=np.mean(dQ2*(1-(np.abs(mD)<D*Koe)))
+    stddQ=np.std(dQ2*(1-(np.abs(mD)<D*Koe)))
+    
     sSdQ=np.std(np.asarray(SdQ,float))
     for i in range(Np):
         SdQj_ = np.std(np.asarray(dQ2[i] - SdQ,float))
         #SdQj__ = np.std(np.asarray(dQ2[i],float))              
-        if SdQj_ >.62*sSdQ and sSdQ>0:
+        if SdQj_ >0 and sSdQ>0:
             #dd = dd * (1+sSdQ / SdQj__) / 2 
             dQ2[i]=np.asarray(dQ2[i] +SdQ * (SdQj_ / sSdQ - 1),np.float16)
         else:
             dQ2[i]=dQ2[i]*0  
-    stddQ_=np.mean(np.asarray(dQ2,float))
+
+    stddQ_=np.std(dQ2*(1-(np.abs(mD)<D*Koe)))
     if stddQ_>0:
         dQ2=dQ2*stddQ/stddQ_
+    mddQ_=np.mean(dQ2*(1-(np.abs(mD)<D*Koe)))
+    dQ2=dQ2-mddQ_+mddQ  
     return dQ2
 
 def RandomV(Nfx):
@@ -125,7 +130,7 @@ def RALf1FiltrV(args):
         r4=np.zeros(Nf*NChan,float)
         for l in range(NChan):            
             r4[Nf-NNew+Nf*l:Nf+Nf*l]=RandomV(NNew)/NNew 
-            r4[Nf-NNew+Nf*l:Nf+Nf*l]=D*(r4[Nf-NNew+Nf*l:Nf+Nf*l]/np.std(r4[Nf-NNew+Nf*l:Nf+Nf*l])/2+1e-6) 
+            r4[Nf-NNew+Nf*l:Nf+Nf*l]=D*(r4[Nf-NNew+Nf*l:Nf+Nf*l]/np.std(r4[Nf-NNew+Nf*l:Nf+Nf*l])/2+Koe) 
                             
         r2=np.asarray(arr_b,np.float16)
         for l in range(NChan):                
@@ -189,10 +194,10 @@ def RALf1FiltrV(args):
                                 mDD4.append(mDD[NumFri[zz+ii+0:zz+ii+NCh],NumFri_[i+ll]])
                             dQ4=np.asarray(dQ4,np.float16).transpose()
                             mDD4=np.asarray(mDD4,np.float16).transpose()
-                            dQ4mn=np.mean(dQ4*(1-(np.abs(mDD4)<D*1e-6)))
+                            dQ4mn=np.mean(dQ4*(1-(np.abs(mDD4)<D*Koe)))
                             dQ4=dQ4-dQ4mn                 
-                            dQ4=(RALF1FilterQ(  dQ4-dQ4*(dQ4<0) +mDD4)-
-                                 RALF1FilterQ(-(dQ4-dQ4*(dQ4>0))+mDD4))
+                            dQ4=(RALF1FilterQ(  dQ4-dQ4*(dQ4<0) ,mDD4,D)-
+                                 RALF1FilterQ(-(dQ4-dQ4*(dQ4>0)),mDD4,D))
                             dQ4=dQ4+dQ4mn
                             for ll in range(NCh0):
                                 dQ3mx[NumFri[zz+ii+0:zz+ii+NCh],NumFri_[i+ll]]=np.maximum(dQ3mx[NumFri[zz+ii+0:zz+ii+NCh],NumFri_[i+ll]],dQ4[:,ll])
