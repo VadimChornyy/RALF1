@@ -14,28 +14,28 @@ import dateutil.parser
 from operator import itemgetter
 #from scipy.signal import savgol_filter
 
-from RALf1FiltrVID import RALf1FiltrV,filterFourierV
+from RALf1FiltrVID import RALf1FiltrQ,filterFourierQ
 
 wrkdir = r"c:\Work\\"
 api_key = 'ONKTYPV6TAMZK464' 
 
 ticker ="BTC-USD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
-interv="15min"
-#interv="Daily"
+interv="30min"
+interv="Daily"
 url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=%s&interval=%s&outputsize=full&apikey=%s"%(ticker,interv,api_key)        
-#url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=%s&outputsize=full&apikey=%s"%(ticker,api_key)
+url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=%s&outputsize=full&apikey=%s"%(ticker,api_key)
 
 #INTRADAY
 #d_intervals = {"1min","5min","15min","30min","60min"}
 #from scipy.signal import savgol_filter
 
 Lengt=600
-Ngroup=1
-Nproc=Ngroup*mp.cpu_count()
+Ngroup=3
+Nproc=Ngroup*(mp.cpu_count()-1)
 Lo=1
-aTmStop=4
-NIt=2
-NIter=50
+aTmStop=6
+NIt=9
+NIter=30
 DT=0.25
 Nf_K=3
     
@@ -161,7 +161,7 @@ if __name__ == '__main__':
         key=0
         TKoef=-100
         
-        nnn=int(0.5*nn)
+        nnn=int(nn/4)
         arr_rezCz=np.zeros(int(nnn*(aTmStop-1)),float)
         while hhh_<aTmStop and not key == 13: 
             Aprocess=[]
@@ -194,6 +194,10 @@ if __name__ == '__main__':
                     arr_A=arr_z.copy()
                     if Lo:
                         arr_A=np.log(arr_z)
+                    Asr=np.mean(arr_A[0:Nf-NNew])
+                    arr_A=arr_A-Asr
+                    Klg=np.power(10,np.floor(np.log10(np.max(abs(arr_A)))))
+                    arr_A=arr_A/Klg
         
                     if hh==0 and iProc==0:
                         file=open('datapy%d.tmp'%(iProc+1),'w')
@@ -210,14 +214,14 @@ if __name__ == '__main__':
                     NChan=1
                     argss[iProc]=["python", "%s"%NChan, "%s"%NNew, "%s"%NIt]#"%s"%(iProc+1)]
                     for i in range(Nf):
-                        argss[iProc].append(arr_A[i])
-        
+                        argss[iProc].append(str("%1.3f"%(arr_A[i])))
+                        
                 arezAMx=[]
                 # for iProc in range(Nproc):
-                #     arezAMx.append(RALf1FiltrV(argss[iProc]))
+                #     arezAMx.append(RALf1FiltrQ(argss[iProc]))
 
                 with concurrent.futures.ThreadPoolExecutor(max_workers=Nproc) as executor:
-                    future_to = {executor.submit(RALf1FiltrV, argss[iProc]) for iProc in range(Nproc)}
+                    future_to = {executor.submit(RALf1FiltrQ, argss[iProc]) for iProc in range(Nproc)}
                     for future in concurrent.futures.as_completed(future_to):                
                         arezAMx.append(future.result())
         
@@ -228,21 +232,23 @@ if __name__ == '__main__':
                         arr_B=np.log(arr_z)
         
                     arr_B=-arr_B
+                    arr_B=arr_B+Asr
+                    arr_B=arr_B/Klg
                     
                     program =wrkdir + "RALF1FiltrX_lg.py"
                     NChan=1
                     argss[iProc]=["python", "%s"%NChan, "%s"%NNew, "%s"%NIt]#"%s"%(iProc+1)]
                     for i in range(Nf):
-                        argss[iProc].append(arr_B[i])
+                        argss[iProc].append(str("%1.3f"%(arr_B[i])))
         
                 arezBMx=[]
                 with concurrent.futures.ThreadPoolExecutor(max_workers=Nproc) as executor:
-                    future_to = {executor.submit(RALf1FiltrV, argss[iProc]) for iProc in range(Nproc)}
+                    future_to = {executor.submit(RALf1FiltrQ, argss[iProc]) for iProc in range(Nproc)}
                     for future in concurrent.futures.as_completed(future_to):                
                         arezBMx.append(future.result())      
         
-                arezAMx= np.asarray(arezAMx,float)
-                arezBMx=-np.asarray(arezBMx,float)
+                arezAMx= np.asarray(arezAMx,float)*Klg+Asr
+                arezBMx=-np.asarray(arezBMx,float)*Klg+Asr
                         
                 Arr_AAA=np.zeros((Ngroup,int(Nproc*2*(hhh+1)/Ngroup),Nf),float)  
                 for iGr in range(Ngroup):
@@ -260,56 +266,32 @@ if __name__ == '__main__':
                 aMx=arr_rezMx.transpose()
                 aMn=arr_rezMn.transpose()                 
                 for i in range(Nf-NNew,Nf):
-                    arr_rezBz[i]=max(aMx[i])+min(aMn[i])                      
+                    arr_rezBz[i]=(max(aMx[i])+min(aMn[i]))/2
                 
                 if Lo:           
-                    arr_rezBz=filterFourierV(arr_rezBz,np.log(arr_z),NNew,1)
+                    arr_rezBz=filterFourierQ(arr_rezBz,np.log(arr_z),NNew,1)
                 else:
-                    arr_rezBz=filterFourierV(arr_rezBz,arr_z,NNew,1)            
+                    arr_rezBz=filterFourierQ(arr_rezBz,arr_z,NNew,1)            
 
                 if Lo:
-                    Dstd=np.std(np.log(ar0[Nf-NNew:]))
                     arr_rezBz[0:Nf-NNew]=np.log(ar0[0:Nf-NNew].copy())
                     arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-arr_rezBz[Nf-NNew]+np.log(ar0[Nf-NNew-1])    
-                    for i in range(Nf):
-                        arr_rezBz[i]=np.exp(arr_rezBz[i]) 
-                else:
-                    Dstd=np.std(ar0[Nf-NNew:])                 
+                else:                 
                     arr_rezBz[0:Nf-NNew]=ar0[0:Nf-NNew].copy()  
                     arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-arr_rezBz[Nf-NNew]+ar0[Nf-NNew-1]
                 
-                arr_rezBz[0:Nf-NNew]=ar0[0:Nf-NNew].copy()  
-                       
                 all_rezAz[hhh]=arr_rezBz.copy()        
                 all_rezAz_=all_rezAz[0:hhh+1].transpose()                
                 for i in range(Nf):
-                    if Lo:
-                        arr_rezBz[i]=np.mean(np.log(all_rezAz_[i]))
-                    else:
-                        arr_rezBz[i]=np.mean(all_rezAz_[i])
-                
-                Dstd=Dstd/np.std(arr_rezBz[Nf-NNew:len(ar0)])
-                arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*Dstd
-
-                if Lo:
-                    all_rezAz_=np.log(all_rezAz_)                    
-                    all_rezAz_[Nf-NNew:Nf,:]=all_rezAz_[Nf-NNew:Nf,:]*Dstd
-                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-arr_rezBz[Nf-NNew]+np.log(ar0[Nf-NNew-1])
-                    all_rezAz_[Nf-NNew:Nf,:]=all_rezAz_[Nf-NNew:Nf,:]-all_rezAz_[Nf-NNew,:]+all_rezAz_[Nf-NNew-1,:]
-                    arr_rezBz[0:Nf-NNew]=np.log(ar0[0:Nf-NNew].copy())
-                    #arr_rezBz= savgol_filter(arr_rezBz, 11, 5)        
+                    arr_rezBz[i]=np.mean(all_rezAz_[i])
+                    
+                if Lo:                       
                     arr_rezBz=np.exp(arr_rezBz) 
                     all_rezAz_=np.exp(all_rezAz_)
-                else:                 
-                    all_rezAz_[Nf-NNew:Nf,:]=all_rezAz_[Nf-NNew:Nf,:]*Dstd
-                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-arr_rezBz[Nf-NNew]+ar0[Nf-NNew-1]
-                    all_rezAz_[Nf-NNew:Nf,:]=all_rezAz_[Nf-NNew:Nf,:]-all_rezAz_[Nf-NNew,:]+all_rezAz_[Nf-NNew-1,:]
-                    arr_rezBz[0:Nf-NNew]=ar0[0:Nf-NNew].copy()
-                    #arr_rezBz= savgol_filter(arr_rezBz, 11, 5)        
 
                 mm1=ar0[Nf-NNew:].copy()                            
                 mm2=arr_rezBz[Nf-NNew:len(ar0)].copy()        
-                Koef=100*scp.pearsonr(mm1,mm2)[0]
+                Koef=100*scp.spearmanr(mm1,mm2)[0]
                 if (Koef+100)> .62*(TKoef+100):                                        
                     fig = plt.figure()
                     axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])
@@ -385,5 +367,4 @@ if __name__ == '__main__':
         out.release()
         plt.show()
         kkk=kkk+1
-        
         

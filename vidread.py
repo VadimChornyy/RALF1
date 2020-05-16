@@ -4,9 +4,9 @@ from scipy import ndimage
 import concurrent.futures
 import multiprocessing as mp
 from scipy.signal import savgol_filter
-from RALf1FiltrVID import RALf1FiltrV,RandomV,filterFourierV
 import dill 
-
+from RALf1FiltrVID import RALf1FiltrQ,RandomQ,filterFourierQ
+    
 wrkdir = r".\\"
 wwrkdir_=r".\W8\\"
 nama='ZEISSAXIO_HeLa'
@@ -23,15 +23,16 @@ if __name__ == '__main__':
     try:
         dill.load_session(filename+".ralf")  
     except:
-        hhh=hhh        
-        coef=0.05
-        astep=2
-        NIt=2
-        dNew=0.4
+        Ngroup=3
+        Nproc=int(np.floor(mp.cpu_count()))-1
+        coef=0.05#0.08
+        astep=1
+        NIt=9
+        dNew=0.33
         NumSteps=4
-        NCircls=60
-        Nproc=int(np.floor(mp.cpu_count()/3))
-        NChan=40
+        NCircls=8
+        
+        NChan=40#112
             
         # Create a VideoCapture object and read from input file 
         cap = cv2.VideoCapture(wwrkdir_ +nmfile0)#or mp4     
@@ -45,10 +46,12 @@ if __name__ == '__main__':
         agray=[[] for icl in range(3)]
         ret=True
         kk=0
+        frame_0=[]
         while kk<NumFr_ and ret:
             for ii in range(astep):
                 ret, frame = cap.read()   
                 if ret:
+                    frame_0.append(frame.copy())
                     frame_=frame
                     frame0=frame
                     for icl in range(3):    
@@ -80,21 +83,29 @@ if __name__ == '__main__':
         Arr=np.asarray(ArrX,float)    
         dill.dump_session(filename+".ralf")  
     
+    ahh=0
     while hhh<NumSteps:
         hh=0
-        NumFr0=len(ArrX[0])
+        NumFr0=len(ArrX[0])        
         while hh<NCircls: 
             try:
-                dill.load_session(filename+("%s_%s"%(hhh,hh))+".ralf")        
-            except:                
-                NNew=int(NumFr0*dNew)
-                NumFr=NumFr0+int(np.ceil(hhh*NNew/NumSteps))
-                Nn0=NumFr-NNew+int(np.ceil(NNew/NumSteps)) 
+                dill.load_session(filename+("%s_%s"%(hhh,hh))+".ralf")    
+                hh=ahh
+            except:
                 if hh==0:
-                    ArrRezMx=np.zeros((3,NumFr,sz1,sz2),float)-np.Inf
-                    ArrRezMn=np.zeros((3,NumFr,sz1,sz2),float)+np.Inf                          
+                    NNew=int(NumFr0*dNew)
+                    NumFr=NumFr0+int(np.ceil(hhh*NNew/NumSteps))
+                    Nn0=NumFr-NNew+int(np.ceil(NNew/NumSteps))
+                    ArrRezRez=np.zeros((3,NCircls,NumFr,sz1,sz2),float)  
+                    ArrRez_=np.zeros((3,NumFr,sz1,sz2),float)                  
+                    ArrRezMx=np.zeros((3,Ngroup,NumFr,sz1,sz2),float)-np.Inf
+                    ArrRezMn=np.zeros((3,Ngroup,NumFr,sz1,sz2),float)+np.Inf 
+                else:
+                    dill.load_session(filename+("%s_%s"%(hhh,hh-1))+".ralf")                 
+                    hh=ahh
+                                         
                 SZ=int(sz1*sz2)
-                NumFri=RandomV(SZ) 
+                NumFri=RandomQ(SZ) 
                 NumFrX_=np.zeros(SZ,int)
                 NumFrY_=np.zeros(SZ,int)
                 for i in range(SZ):
@@ -118,77 +129,81 @@ if __name__ == '__main__':
                     
                 for l in range(Ndel):         
                     Arr_x=np.zeros((3,NChan,NumFr),float)
-                    argss=[[] for kk in range(3*Nproc)]
-                    for kk in range(3*Nproc):
+                    argss=[[] for kk in range(3*Nproc*Ngroup)]
+                    for kk in range(3*Nproc*Ngroup):
                         argss[kk]=[0, "%s"%NChan, "%s"%NNew, "%s"%NIt]
-                        icl=int(kk/Nproc)
+                        icl=int(kk/Nproc/Ngroup)
                         Arr_x[icl]=Arr_[icl][l*NChan:(l+1)*NChan].copy()    
                         for i in range(NChan): 
                             for j in range(NumFr):
                                 if j>NumFr-NNew-1:
-                                    argss[kk].append(0)
+                                    argss[kk].append(Arr_x[icl][i][NumFr-NNew-1])
                                 else:
-                                    argss[kk].append(Arr_x[icl][i][j]-Arr_x[icl][i][NumFr-NNew-1])                                                       
+                                    argss[kk].append(Arr_x[icl][i][j])                                                       
                             
                     arezAMx=[]
-                    # for kk in range(3*Nproc):
-                    #     dd=RALf1FiltrV(argss[kk])
+                    # for kk in range(len(argss)):
+                    #     dd=RALf1FiltrQ(argss[kk])
                     #     arezAMx.append(dd)
                     with concurrent.futures.ThreadPoolExecutor(max_workers=Nproc) as executor:
-                        future_to = {executor.submit(RALf1FiltrV, argss[kk]) for kk in range(3*Nproc)}
+                        future_to = {executor.submit(RALf1FiltrQ, argss[kk]) for kk in range(len(argss))}
                         for future in concurrent.futures.as_completed(future_to):                
                             arezAMx.append(future.result())
                         del(executor)            
                     
                     arezAMx=np.asarray(arezAMx,float)
                     for icl in range(3):   
-                        arezAMx_=arezAMx[0+icl*Nproc:Nproc+icl*Nproc].copy()
-                        arezBMx=np.zeros((NChan,NumFr),float)            
-                        arezAMxZ=(np.max(arezAMx_,axis=0)+np.min(arezAMx_,axis=0))/2
-                        
-                        arezAMxZ=filterFourierV(arezAMxZ,np.reshape(Arr_x[icl],len(Arr_x[icl])*len(Arr_x[icl][0])),NNew,NChan)
-                        
-                        for i in range(NChan):
-                            arezBMx[i]=arezAMxZ[0+NumFr*i:NumFr+NumFr*i].copy()              
-                            arezBMx[i][NumFr-NNew:NumFr]=arezBMx[i][NumFr-NNew:NumFr]+Arr_x[icl][i][NumFr-NNew-1]
-                            arezBMx[i][0:NumFr-NNew]=Arr_x[icl][i][0:NumFr-NNew].copy()
-                           
-                        for j in range(l*NChan,(l+1)*NChan):
-                            for i in range(int(NumFr)):
-                                ArrRezMx[icl][i][NumFrX[j]][NumFrY[j]]=max(ArrRezMx[icl][i][NumFrX[j]][NumFrY[j]],arezBMx[j-l*NChan][i])
-                                ArrRezMn[icl][i][NumFrX[j]][NumFrY[j]]=min(ArrRezMn[icl][i][NumFrX[j]][NumFrY[j]],arezBMx[j-l*NChan][i])                 
+                        arezAMx_=arezAMx[0+icl*Nproc*Ngroup:(icl+1)*Nproc*Ngroup].copy()
+                        for ig in range(Ngroup):
+                            for j in range(l*NChan,(l+1)*NChan):
+                                dd=arezAMx_[:,(j-l*NChan)*NumFr+np.asarray(np.linspace(0,NumFr-1,NumFr),int)]
+                                ArrRezMx[icl,ig,:,NumFrX[j],NumFrY[j]]=(np.maximum(ArrRezMx[icl,ig,:,NumFrX[j],NumFrY[j]],
+                                                                                  np.max(dd[np.asarray(np.linspace(ig*Nproc,ig*Nproc+Nproc-1,Nproc),int),:],0)))
+                                ArrRezMn[icl,ig,:,NumFrX[j],NumFrY[j]]=(np.minimum(ArrRezMn[icl,ig,:,NumFrX[j],NumFrY[j]],
+                                                                                  np.min(dd[np.asarray(np.linspace(ig*Nproc,ig*Nproc+Nproc-1,Nproc),int),:],0)))                                  
+                    
                     print ("calculated %s percents"%(int((l+1)/Ndel*1000)/10))
-        
-                ZZ=(ArrRezMx+ArrRezMn)/2    
-                for icl in range(3):
-                    ffZZ=[]            
-                    for l in range(NumFr-NNew):
-                        dd=ZZ[icl][l]-ZZ[icl][NumFr-NNew-1]
-                        mnZZ=np.mean(dd)
-                        ffZZ.append(np.fft.fft2(dd-mnZZ))
-                    ffZZ=np.asarray(np.abs(ffZZ),float)
-                    affZZ=np.max(ffZZ,0)
-                    maffZZ=.62*np.mean(affZZ)
-                    for l in range(NumFr-NNew,NumFr):
-                        dd=ZZ[icl][l]-ZZ[icl][NumFr-NNew-1]
-                        mnZZ=np.mean(dd)
-                        ZZ_=np.fft.fft2(dd-mnZZ)
-                        aZZ_=np.abs(ZZ_)+1e-32
-                        mZZ_=.62*np.mean(aZZ_)                
-                        fZZ=np.fft.ifft2((ZZ_/aZZ_)*(1*(aZZ_>mZZ_))*affZZ)#*(affZZ>maffZZ))
-                        ZZ[icl][l]=fZZ.real+mnZZ+ZZ[icl][NumFr-NNew-1]
-              
-                if hh==0:
-                    ArrRez=ZZ
-                else:
-                    ArrRez=(ArrRez*hh+ZZ)/(hh+1)   
-                                
-                ArrRez_=ArrRez.copy()                  
-                for icl in range(3):
-                    Dstd=np.std(Arr[icl][:][NumFr-NNew:Nn0]-Arr[icl][:][NumFr-NNew-1])/np.std(ArrRez_[icl,NumFr-NNew:Nn0,:,:]-ArrRez_[icl,NumFr-NNew-1,:,:])                    
-                    ArrRez_[icl,NumFr-NNew:,:,:]=ArrRez_[icl,NumFr-NNew:,:,:]*Dstd 
-                    ArrRez_[icl,NumFr-NNew:,:,:]=ArrRez_[icl,NumFr-NNew:,:,:]-ArrRez_[icl,NumFr-NNew,:,:]+ArrRez_[icl,NumFr-NNew-1,:,:]
-                
+            #if hh==3:               
+                for icl in range(3): 
+                    ZZZ0=(np.max(ArrRezMx[icl],0)+np.min(ArrRezMn[icl],0))/2             
+                    ZZZ0[0:NumFr-NNew]=Arr[icl,0:NumFr-NNew]
+                    for i in range(len(ZZZ0[0])):
+                        for j in range(len(ZZZ0[0][0])):
+                            ZZZ0x=ZZZ0[:,i,j].copy()  
+                            if i==0 and j==0:
+                                ZZZ0_=ZZZ0x.copy()  
+                            else:
+                                ZZZ0_=np.concatenate((ZZZ0_,ZZZ0x))
+                    ZZZ0_=filterFourierQ(ZZZ0_,ZZZ0_,NNew,len(ZZZ0[0])*len(ZZZ0[0][0]))    
+                    for i in range(len(ZZZ0[0])):
+                        for j in range(len(ZZZ0[0][0])):
+                            ZZZ0[:,i,j]=ZZZ0_[0+NumFr*(i*len(ZZZ0[0][0])+j):NumFr+NumFr*(i*len(ZZZ0[0][0])+j)].copy()  
+                        
+                    ZZZZ=ZZZ0.copy()   
+                    ArrRezRez[icl,hh]=ZZZZ.copy()
+                    ZZZZ[NumFr-NNew:]=np.mean(ArrRezRez[icl,0:hh+1],0)[NumFr-NNew:]
+                    
+                    # affZZ=ZZZZ[NumFr-NNew:].copy()-np.Inf
+                    # az=int(np.floor(NumFr-NNew)/NNew)
+                    # for i in range(az):
+                    #     ffZZ=np.fft.fftn(ZZZZ[0+NumFr-2*NNew-i*NNew:NumFr-NNew-i*NNew,:,:])
+                    #     affZZ=np.maximum(affZZ,np.asarray(np.abs(ffZZ),float))
+                    # ZZ_=np.fft.fftn(ZZZZ[NumFr-NNew:NumFr,:,:])
+                    # aZZ_=np.asarray(np.abs(ZZ_),float)
+                    # mZZ_=0.62*np.mean(aZZ_)
+                    # dd=(ZZ_/aZZ_)*(1*(aZZ_>mZZ_))*affZZ
+                    # ddd=np.zeros((2*len(dd),2*len(dd[0]),2*len(dd[0][0])),complex)
+                    # ddd[0:2*len(dd):2,0:2*len(dd[0]):2,0:2*len(dd[0][0]):2]=dd.copy()
+                    # ddd[0,0:2*len(dd[0]):2,0:2*len(dd[0][0]):2]=ZZ_[0,:,:]                    
+                    # ddd[0:2*len(dd):2,0,0:2*len(dd[0][0]):2]=ZZ_[:,0,:]
+                    # ddd[0:2*len(dd):2,0:2*len(dd[0]):2,0]=ZZ_[:,:,0]
+                    # fZZ=np.fft.ifftn(ddd)#*(affZZ>maffZZ))
+                    # ZZZZ[NumFr-NNew:]=fZZ.real[0:NNew,0:len(ZZZZ[0]),0:len(ZZZZ[0][0])]
+                    
+                    ZZZZ[NumFr-NNew:]=(np.std(Arr[icl,NumFr-NNew-5:NumFr-NNew-2])/np.std(ZZZZ[NumFr-NNew:NumFr-NNew+3]))*ZZZZ[NumFr-NNew:] 
+                    ZZZZ[NumFr-NNew:]=ZZZZ[NumFr-NNew:]-np.mean(ZZZZ[NumFr-NNew])+2*np.mean(Arr[icl,NumFr-NNew-1])-np.mean(Arr[icl,NumFr-NNew-2])                 
+                    ArrRez_[icl]=ZZZZ.copy()            
+                                       
                 ArrRez_=np.asarray(ArrRez_-(ArrRez_-255)*(ArrRez_>255),np.uint8)
                 ArrRez_=np.asarray(ArrRez_-ArrRez_*(ArrRez_<0),np.uint8)
                 coefX=max(gray_sz1/sz1,gray_sz2/sz2)
@@ -203,23 +218,26 @@ if __name__ == '__main__':
                 kkk=np.zeros(3,int)
                 kk[icl]=0
                 kkk[icl]=0
-                for kk in range(NumFr):
+                for kk in range(NumFr-1):
                     frame=frame_
                     for ii in range(astep):                
                         for icl in range(3):   
                             frame[ : , : , icl] = ndimage.zoom(ArrRez_[icl][kk], coefX)[0:gray_sz1,0:gray_sz2]                       
-                        frame=cv2.medianBlur(frame,11)
-                        out.write(frame)                    
-                    
-                    cv2.imshow('frame', frame)
+                        #frame=cv2.medianBlur(frame,15)#int(3*coefX)) 
+                        cv2.addWeighted(frame,0.8,frame_0[kk*astep+ii],0.2,0,frame)
+                        #frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                        cv2.imshow('frame', frame)
+                        out.write(frame) 
                     # Press Q on keyboard to  exit 
                     if cv2.waitKey(30) & 0xFF == ord('q'): 
                         break                    
                 out.release()
                 cv2.destroyAllWindows()
                 
+                ahh=hh+1                
+                dill.dump_session(filename+("%s_%s"%(hhh,hh))+".ralf")  
                 hh=hh+1
-                dill.dump_session(filename+("%s_%s"%(hhh,hh-1))+".ralf")              
+                
        
         cap = cv2.VideoCapture(wwrkdir_ +nmfile)#or mp4     
         ArrXY=[[] for i in range(3)]    
@@ -231,10 +249,12 @@ if __name__ == '__main__':
         agray=[[] for icl in range(3)]
         ret=True
         kk=0
+        frame_0=[]
         while kk<NumFr_ and ret:
             for ii in range(astep):
                 ret, frame = cap.read()   
                 if ret:
+                    frame_0.append(frame.copy())
                     frame_=frame
                     for icl in range(3):    
                         gray=frame[:,:,icl]
