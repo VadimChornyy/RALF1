@@ -136,7 +136,7 @@ if __name__ == '__main__':
         gray_sz1=len(cimg[0])
         gray_sz2=len(cimg)
         aDur=4
-        fourcc = cv.VideoWriter_fourcc(*'MP4V')
+        fourcc = cv.VideoWriter_fourcc(*'mp4v')
         out = cv.VideoWriter(wrkdir + aname+'.mp4',fourcc, aDur, (gray_sz1,gray_sz2))                   
         for icl in range(len(ImApp)):
             cimgx=(cv.cvtColor(np.array(ImApp[icl]), cv.COLOR_RGB2BGR)) 
@@ -367,4 +367,3 @@ if __name__ == '__main__':
         out.release()
         plt.show()
         kkk=kkk+1
-        
