@@ -207,7 +207,7 @@ if __name__ == '__main__':
                 ArrRez_=np.asarray(ArrRez_-(ArrRez_-255)*(ArrRez_>255),np.uint8)
                 ArrRez_=np.asarray(ArrRez_-ArrRez_*(ArrRez_<0),np.uint8)
                 coefX=max(gray_sz1/sz1,gray_sz2/sz2)
-                fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+                fourcc = cv2.VideoWriter_fourcc(*'mp4v')
                 for icl in range(3):
                     for i in range(sz1):
                         for j in range(sz2):                
@@ -281,4 +281,4 @@ if __name__ == '__main__':
         sz1=len(gray)
         sz2=len(gray[0])
         hhh=hhh+1
-        dill.dump_session(filename+".ralf")    
+        dill.dump_session(filename+".ralf")  
