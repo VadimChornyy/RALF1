@@ -100,7 +100,7 @@ def RALF1Calculation(arr_b,Nf,NNew,NChan,D):
     r4=np.zeros(Nf*NChan,float)
     for l in range(NChan):            
         r4[Nf-NNew+Nf*l:Nf+Nf*l]=RandomQ(NNew)/NNew 
-        r4[Nf-NNew+Nf*l:Nf+Nf*l]=D*(r4[Nf-NNew+Nf*l:Nf+Nf*l]/np.std(r4[Nf-NNew+Nf*l:Nf+Nf*l])/2+1e-6) 
+        r4[Nf-NNew+Nf*l:Nf+Nf*l]=D*((r4[Nf-NNew+Nf*l:Nf+Nf*l]/np.std(r4[Nf-NNew+Nf*l:Nf+Nf*l]))/2+1e-6) 
                         
     r2=np.asarray(arr_b,np.float16)
     for l in range(NChan):                
