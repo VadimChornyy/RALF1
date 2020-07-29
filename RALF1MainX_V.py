@@ -29,12 +29,12 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symb
 #d_intervals = {"1min","5min","15min","30min","60min"}
 #from scipy.signal import savgol_filter
 
-Lengt=600
+Lengt=1000
 Ngroup=3
-Nproc=Ngroup*(mp.cpu_count()-1)
+Nproc=Ngroup*2#(mp.cpu_count()-1)
 Lo=1
 aTmStop=6
-NIt=9
+NIt=20
 NIter=30
 DT=0.25
 Nf_K=3
@@ -136,7 +136,7 @@ if __name__ == '__main__':
         gray_sz1=len(cimg[0])
         gray_sz2=len(cimg)
         aDur=4
-        fourcc = cv.VideoWriter_fourcc(*'mp4v')
+        fourcc = cv.VideoWriter_fourcc(*'MP4V')
         out = cv.VideoWriter(wrkdir + aname+'.mp4',fourcc, aDur, (gray_sz1,gray_sz2))                   
         for icl in range(len(ImApp)):
             cimgx=(cv.cvtColor(np.array(ImApp[icl]), cv.COLOR_RGB2BGR)) 
@@ -367,3 +367,4 @@ if __name__ == '__main__':
         out.release()
         plt.show()
         kkk=kkk+1
+        
