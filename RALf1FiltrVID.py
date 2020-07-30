@@ -128,8 +128,8 @@ def RALF1Calculation(arr_b,Nf,NNew,NChan,D):
         for l in range(NChan):
             bb=np.asarray(liiC[np.asarray(np.arange(l+int(liiE[i]),l+sz+int(liiE[i]),sz/NNew),int)]*K,int)
             bb_=np.asarray(liiC[np.asarray(np.arange(l+sz+int(liiE[i]),l+int(liiE[i]),-sz/NNew),int)]*K,int)
-            R4[Nf-NNew+Nf*l:Nf+Nf*l]=(r4[Nf-NNew+Nf*l+bb[0:NNew]]-
-                                      r4[Nf-NNew+Nf*l+bb_[0:NNew]])*np.sqrt(2) 
+            R4[Nf-NNew+Nf*l:Nf+Nf*l]=(r4[Nf-NNew+Nf*l+bb[0:NNew]]+
+                                      r4[Nf-NNew+Nf*l+bb_[0:NNew]])/np.sqrt(2) 
         mDD[i]=R4[r1].copy()
         tm.sleep(0.002)
     w=1
@@ -137,10 +137,10 @@ def RALF1Calculation(arr_b,Nf,NNew,NChan,D):
         try:
             dQ3=( XFilter.RALF1FilterX(  dQ3*(1-(dQ3<0))+mDD,len(dQ3),len(dQ3[0]),1,0)-                    
                   XFilter.RALF1FilterX( -dQ3*(1-(dQ3>0))+mDD,len(dQ3),len(dQ3[0]),1,0))            
-            # dQ3=( XFilter.RALF1FilterX(  dQ3*(1-(dQ3<0))+mDD,len(dQ3),len(dQ3[0]),1,0)+
-            #       XFilter.RALF1FilterX(  dQ3*(1-(dQ3<0))+mDD,len(dQ3),len(dQ3[0]),1,1)-                    
-            #       XFilter.RALF1FilterX( -dQ3*(1-(dQ3>0))+mDD,len(dQ3),len(dQ3[0]),1,0)-
-            #       XFilter.RALF1FilterX( -dQ3*(1-(dQ3>0))+mDD,len(dQ3),len(dQ3[0]),1,1))
+            # dQ3=( XFilter.RALF1FilterX(  dQ3+mDD,len(dQ3),len(dQ3[0]),1,0)+
+            #       XFilter.RALF1FilterX(  dQ3+mDD,len(dQ3),len(dQ3[0]),1,1)-                    
+            #       XFilter.RALF1FilterX( -dQ3+mDD,len(dQ3),len(dQ3[0]),1,0)-
+            #       XFilter.RALF1FilterX( -dQ3+mDD,len(dQ3),len(dQ3[0]),1,1))
             w=0
         except:
             w=1         
@@ -219,7 +219,10 @@ def RALf1FiltrQ(args):
             if ann==0: 
                 Koef[hh]=-np.std(mm1-mm2)
                 if np.mean(np.abs(mm1-np.mean(mm1)))>0:
-                    KoefA[hh]=100*scp.spearmanr(mm1,mm2)[0]
+                    try:
+                        KoefA[hh]=100*scp.spearmanr(mm1,mm2)[0]
+                    except:
+                        KoefA[hh]=0
                 else:
                     KoefA[hh]=0
                 arr_bbx.append(arr_bbbxxx)           
@@ -236,7 +239,7 @@ def RALf1FiltrQ(args):
         Nch=int(r2[1][Nhh-1])
         if np.isnan(KoefA[Nch]):
             KoefA[Nch]=0            
-        if KoefA[Nch]>0:
+        if KoefA[Nch]>50:
             for l in range(NChan):
                 arr_b[0+Nf-NNew+Nf*l:NNew+Nf-NNew+Nf*l]=arr_bbx[0+Nf-NNew+Nf*l:NNew+Nf-NNew+Nf*l,Nch].copy()    
             #arr_b=filterFourierQ(arr_b,arr_b,NNew,NChan)

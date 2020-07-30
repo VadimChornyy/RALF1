@@ -24,7 +24,7 @@ def RALF1FilterX(dQ1,Np,Nf,key,key2):
         SdQ=np.zeros(Nf,float)         
         for j in range(Nf):
             SdQ[j]=np.mean(dQ2_[j])  
-        sSdQ=np.std(SdQ)
+        sSdQ=np.std(np.asarray(SdQ,float))
         for i in range(Np):
             SdQj_ = np.std(dQ2[i] - SdQ)
             SdQj__ = np.std(dQ2[i])            
