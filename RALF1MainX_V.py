@@ -31,10 +31,10 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symb
 
 Lengt=1000
 Ngroup=3
-Nproc=Ngroup*2#(mp.cpu_count()-1)
+Nproc=Ngroup*4#(mp.cpu_count()-1)
 Lo=0
 aTmStop=6
-NIt=20
+NIt=2
 NIter=30
 DT=0.25
 Nf_K=3
