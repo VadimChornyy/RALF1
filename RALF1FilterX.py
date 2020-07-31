@@ -26,8 +26,8 @@ def RALF1FilterX(dQ1,Np,Nf,key,key2):
             SdQ[j]=np.mean(dQ2_[j])  
         sSdQ=np.std(np.asarray(SdQ,float))
         for i in range(Np):
-            SdQj_ = np.std(dQ2[i] - SdQ)
-            SdQj__ = np.std(dQ2[i])            
+            SdQj_ = np.std(np.asarray(dQ2[i] - SdQ,float))
+            SdQj__ = np.std(np.asarray(dQ2[i],float))            
             if SdQj__ >0 and sSdQ>0:
                 dQ2[i] = dQ2[i] +SdQ * (SdQj_ / sSdQ - 1)
                 dQ2[i] = dQ2[i] *znakSdQj[i] * SdQj[i]#* (1+sSdQ / SdQj__) / 2 
