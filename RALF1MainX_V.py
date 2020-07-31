@@ -19,8 +19,8 @@ from RALf1FiltrVID import RALf1FiltrQ,filterFourierQ
 wrkdir = r"c:\Work\\"
 api_key = 'ONKTYPV6TAMZK464' 
 
-ticker ="BTC-USD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
-interv="30min"
+ticker ="LTC-USD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
+interv="60min"
 interv="Daily"
 url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=%s&interval=%s&outputsize=full&apikey=%s"%(ticker,interv,api_key)        
 url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=%s&outputsize=full&apikey=%s"%(ticker,api_key)
@@ -29,7 +29,7 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symb
 #d_intervals = {"1min","5min","15min","30min","60min"}
 #from scipy.signal import savgol_filter
 
-Lengt=400
+Lengt=800
 Ngroup=3
 Nproc=Ngroup*4#(mp.cpu_count()-1)
 Lo=0

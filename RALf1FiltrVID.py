@@ -228,7 +228,7 @@ def RALf1FiltrQ(args):
         arr_bbx=np.asarray(arr_bbx,np.float16).transpose()
         
         r2=np.zeros((2,Nhh),float)
-        r2[0]= np.asarray(Koef,float)
+        r2[0]= np.asarray(KoefA,float)
         r2[1]= np.asarray(range(Nhh),float)
         m=[[r2[j][l] for j in range(len(r2))] for l in range(len(r2[0]))]         
         m.sort(key=itemgetter(0))                  
