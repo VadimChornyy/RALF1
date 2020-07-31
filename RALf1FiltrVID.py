@@ -236,7 +236,7 @@ def RALf1FiltrQ(args):
         Nch=int(r2[1][Nhh-1])
         if np.isnan(KoefA[Nch]):
             KoefA[Nch]=0            
-        if KoefA[Nch]>60:
+        if KoefA[Nch]>50:
             for l in range(NChan):
                 arr_b[0+Nf-NNew+Nf*l:NNew+Nf-NNew+Nf*l]=arr_bbx[0+Nf-NNew+Nf*l:NNew+Nf-NNew+Nf*l,Nch].copy()    
             #arr_b=filterFourierQ(arr_b,arr_b,NNew,NChan)
