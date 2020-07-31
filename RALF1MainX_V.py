@@ -19,7 +19,7 @@ from RALf1FiltrVID import RALf1FiltrQ,filterFourierQ
 wrkdir = r"c:\Work\\"
 api_key = 'ONKTYPV6TAMZK464' 
 
-ticker ="BTC-USD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
+ticker ="LTC-USD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
 interv="30min"
 interv="Daily"
 url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=%s&interval=%s&outputsize=full&apikey=%s"%(ticker,interv,api_key)        
@@ -29,7 +29,7 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symb
 #d_intervals = {"1min","5min","15min","30min","60min"}
 #from scipy.signal import savgol_filter
 
-Lengt=600
+Lengt=300
 Ngroup=3
 Nproc=Ngroup*4#(mp.cpu_count()-1)
 Lo=0
@@ -290,8 +290,11 @@ if __name__ == '__main__':
                     all_rezAz_=np.exp(all_rezAz_)
 
                 mm1=ar0[Nf-NNew:].copy()                            
-                mm2=arr_rezBz[Nf-NNew:len(ar0)].copy()        
-                Koef=100*scp.spearmanr(mm1,mm2)[0]
+                mm2=arr_rezBz[Nf-NNew:len(ar0)].copy()   
+                if np.std(mm1)>0 and np.std(mm2)>0:
+                    Koef=100*scp.spearmanr(mm1,mm2)[0]
+                else:
+                    Koef=-2
                 if (Koef+100)> .62*(TKoef+100):                                        
                     fig = plt.figure()
                     axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])
