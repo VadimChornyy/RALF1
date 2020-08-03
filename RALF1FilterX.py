@@ -5,13 +5,12 @@ def RALF1FilterX(dQ1,Np,Nf,key,key2):
         mQ=np.mean(dQ1)
         SdQj=np.ones(Np,float)   
         dSdQj=np.zeros(Np,float)
-        znakSdQj=np.ones(Np,float)  
-        for i in range(Np):
-            znakSdQj[i]=np.mean(dQ2[i])        
-        
-        znakSdQj=((znakSdQj<0)-0.5)*2*(-1) 
-        if key2==0:
-            znakSdQj=np.ones(Np,int)  
+        znakSdQj=np.ones(Np,float) 
+        if key2>0:
+            for i in range(Np):
+                znakSdQj[i]=np.mean(dQ2[i])        
+            znakSdQj=((znakSdQj<0)-0.5)*2*(-1) 
+ 
         for i in range(Np): 
             #SdQj[i]=np.std(dQ2[i])
             dQ2[i] = dQ2[i] * znakSdQj[i]            
