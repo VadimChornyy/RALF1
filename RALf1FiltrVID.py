@@ -134,8 +134,8 @@ def RALF1Calculation(arr_b,Nf,NNew,NChan,D):
         tm.sleep(0.002)
     w=1
     while w>0:
-        dQ3=( XFilter.RALF1FilterX(  dQ3*(1-(dQ3<0))+mDD,len(dQ3),len(dQ3[0]),1,0)-                    
-              XFilter.RALF1FilterX( -dQ3*(1-(dQ3>0))+mDD,len(dQ3),len(dQ3[0]),1,0))            
+        dQ3=( RALF1FilterQ(  dQ3*(1-(dQ3<0))+mDD)-#,len(dQ3),len(dQ3[0]),1,0)-                    
+              RALF1FilterQ( -dQ3*(1-(dQ3>0))+mDD))#,len(dQ3),len(dQ3[0]),1,0))            
         # dQ3=( XFilter.RALF1FilterX(  dQ3,len(dQ3),len(dQ3[0]),1,0)+
         #       XFilter.RALF1FilterX(  dQ3,len(dQ3),len(dQ3[0]),1,1)-                    
         #       XFilter.RALF1FilterX( -dQ3,len(dQ3),len(dQ3[0]),1,0)-
@@ -199,7 +199,7 @@ def RALf1FiltrQ(args):
             for l in range(NChan):
                 dd_=arr_bbbxxx[Nf-1+Nf*l:Nf-NNew+Nf*l:-1].copy()
                 arr_bbbxxx_[0+Nf_*l:Nf_+Nf_*l]=(np.concatenate((dd_,np.ones(Nf_-len(dd_),float)*dd_[len(dd_)-1])))  
-            if not np.abs(np.mean(arr_bbbxxx_))==np.Inf:
+            if not (np.abs(np.mean(arr_bbbxxx_))==np.Inf or np.abs(np.mean(arr_bbbxxx_))==np.NaN):
                 arr_bbbxxx_y=RALF1Calculation(arr_bbbxxx_,Nf_,NNew_,NChan,D)
                 
                 arr_bbbxxx_yy=[]
