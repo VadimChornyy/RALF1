@@ -83,8 +83,9 @@ def RandomQ(Nfx):
     liiXX=np.asarray(r2[1],int)
     return liiXX
   
-def RALF1Calculation(arr_b,Nf,NNew,NChan,D):
+def RALF1Calculation(arr_bx,Nf,NNew,NChan,D):
     arr_bZ=[]
+    arr_b=np.asarray(arr_bx,float)
     for l in range(NChan):
         arr_bZ.append(arr_b[0+Nf*l:Nf-NNew+Nf*l])    
     arr_bZ=np.asarray(arr_bZ,float)
@@ -100,7 +101,7 @@ def RALF1Calculation(arr_b,Nf,NNew,NChan,D):
     r4=np.zeros(Nf*NChan,float)
     for l in range(NChan):            
         r4[Nf-NNew+Nf*l:Nf+Nf*l]=RandomQ(NNew)/NNew 
-        r4[Nf-NNew+Nf*l:Nf+Nf*l]=D*((r4[Nf-NNew+Nf*l:Nf+Nf*l]/np.std(r4[Nf-NNew+Nf*l:Nf+Nf*l]))/2+1e-6) 
+        r4[Nf-NNew+Nf*l:Nf+Nf*l]=D*((r4[Nf-NNew+Nf*l:Nf+Nf*l]/np.std(r4[Nf-NNew+Nf*l:Nf+Nf*l])+1e-5)/2) 
                         
     r2=np.asarray(arr_b,np.float16)
     for l in range(NChan):                
@@ -136,10 +137,10 @@ def RALF1Calculation(arr_b,Nf,NNew,NChan,D):
     while w>0:
         dQ3=( RALF1FilterQ(  dQ3*(1-(dQ3<0))+mDD)-#,len(dQ3),len(dQ3[0]),1,0)-                    
               RALF1FilterQ( -dQ3*(1-(dQ3>0))+mDD))#,len(dQ3),len(dQ3[0]),1,0))            
-        # dQ3=( XFilter.RALF1FilterX(  dQ3,len(dQ3),len(dQ3[0]),1,0)+
-        #       XFilter.RALF1FilterX(  dQ3,len(dQ3),len(dQ3[0]),1,1)-                    
-        #       XFilter.RALF1FilterX( -dQ3,len(dQ3),len(dQ3[0]),1,0)-
-        #       XFilter.RALF1FilterX( -dQ3,len(dQ3),len(dQ3[0]),1,1))
+        # dQ3=( XFilter.RALF1FilterX(  dQ3+mDD,len(dQ3),len(dQ3[0]),1,0)-
+        #       XFilter.RALF1FilterX(  dQ3+mDD,len(dQ3),len(dQ3[0]),1,1)-                    
+        #       XFilter.RALF1FilterX( -(dQ3+mDD),len(dQ3),len(dQ3[0]),1,0)+
+        #       XFilter.RALF1FilterX( -(dQ3+mDD),len(dQ3),len(dQ3[0]),1,1))
         w=0
        
        
@@ -160,7 +161,6 @@ def RALF1Calculation(arr_b,Nf,NNew,NChan,D):
     #         aMx[0+Nf*l:Nf+Nf*l]= savgol_filter(aMx[0+Nf*l:Nf+Nf*l], 11, 5)
     #         aMn[0+Nf*l:Nf+Nf*l]= savgol_filter(aMn[0+Nf*l:Nf+Nf*l], 11, 5)                    
     arr_bbbxxx=(aMx + aMn)/2  
-    
     arr_bbbxxx=filterFourierQ(arr_bbbxxx,arr_b,NNew,NChan)+mn
     return arr_bbbxxx
 
