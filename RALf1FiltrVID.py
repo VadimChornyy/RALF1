@@ -39,6 +39,7 @@ def filterFourierQ(arxx,arb,NNew,NChan):
                 farxxx[j]=0   
         farxxx[0]=farxx[0]
         farxxx2=np.zeros(2*Nnl,complex)
+        #farxxx2[0:2*Nnl:2]=farxxx.copy()
         farxxx2=farxxx.copy()
         arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l]=np.fft.ifft(farxxx2).real[0:Nnl] 
         arxr[0+Nfl*l:Nfl-Nnl+Nfl*l]=arb[0+Nfl*l:Nfl-Nnl+Nfl*l].copy() 
@@ -86,7 +87,9 @@ def RandomQ(Nfx):
 def RALF1Calculation(arr_bx,Nf,NNew,NChan,D):
     arr_bZ=[]
     arr_b=np.asarray(arr_bx,float)
+    arr_b[0]=0
     for l in range(NChan):
+        arr_b[l]=arr_bx[l]-arr_bx[l-1]        
         arr_bZ.append(arr_b[0+Nf*l:Nf-NNew+Nf*l])    
     arr_bZ=np.asarray(arr_bZ,float)
     mn=np.mean(arr_bZ)
@@ -101,7 +104,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D):
     r4=np.zeros(Nf*NChan,float)
     for l in range(NChan):            
         r4[Nf-NNew+Nf*l:Nf+Nf*l]=RandomQ(NNew)/NNew 
-        r4[Nf-NNew+Nf*l:Nf+Nf*l]=D*((r4[Nf-NNew+Nf*l:Nf+Nf*l]/np.std(r4[Nf-NNew+Nf*l:Nf+Nf*l])+1e-5)/2) 
+        r4[Nf-NNew+Nf*l:Nf+Nf*l]=D*((r4[Nf-NNew+Nf*l:Nf+Nf*l]/np.std(r4[Nf-NNew+Nf*l:Nf+Nf*l]))/2) 
                         
     r2=np.asarray(arr_b,np.float16)
     for l in range(NChan):                
@@ -135,8 +138,8 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D):
         tm.sleep(0.002)
     w=1
     while w>0:
-        dQ3=( RALF1FilterQ(  dQ3*(1-(dQ3<0))+mDD)-#,len(dQ3),len(dQ3[0]),1,0)-                    
-              RALF1FilterQ( -dQ3*(1-(dQ3>0))+mDD))#,len(dQ3),len(dQ3[0]),1,0))            
+        dQ3=( XFilter.RALF1FilterX(  dQ3*(1-(dQ3<0))+mDD,len(dQ3),len(dQ3[0]),1,0)-                    
+              XFilter.RALF1FilterX( -dQ3*(1-(dQ3>0))+mDD,len(dQ3),len(dQ3[0]),1,0))            
         # dQ3=( XFilter.RALF1FilterX(  dQ3+mDD,len(dQ3),len(dQ3[0]),1,0)-
         #       XFilter.RALF1FilterX(  dQ3+mDD,len(dQ3),len(dQ3[0]),1,1)-                    
         #       XFilter.RALF1FilterX( -(dQ3+mDD),len(dQ3),len(dQ3[0]),1,0)+
@@ -161,7 +164,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D):
     #         aMx[0+Nf*l:Nf+Nf*l]= savgol_filter(aMx[0+Nf*l:Nf+Nf*l], 11, 5)
     #         aMn[0+Nf*l:Nf+Nf*l]= savgol_filter(aMn[0+Nf*l:Nf+Nf*l], 11, 5)                    
     arr_bbbxxx=(aMx + aMn)/2  
-    arr_bbbxxx=filterFourierQ(arr_bbbxxx,arr_b,NNew,NChan)+mn
+    arr_bbbxxx=filterFourierQ(arr_bbbxxx,arr_bx,NNew,NChan)+mn
     return arr_bbbxxx
 
 def RALf1FiltrQ(args):
@@ -237,7 +240,7 @@ def RALf1FiltrQ(args):
             Nch=int(r2[1][Nhh-1])
             if np.isnan(KoefA[Nch]):
                 KoefA[Nch]=0            
-            if KoefA[Nch]>20:
+            if KoefA[Nch]>10:
                 for l in range(NChan):
                     arr_b[0+Nf-NNew+Nf*l:NNew+Nf-NNew+Nf*l]=arr_bbx[0+Nf-NNew+Nf*l:NNew+Nf-NNew+Nf*l,Nch].copy()    
                 #arr_b=filterFourierQ(arr_b,arr_b,NNew,NChan)
