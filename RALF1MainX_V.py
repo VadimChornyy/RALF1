@@ -32,7 +32,7 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&s
 Lengt=800
 Ngroup=6
 Nproc=Ngroup*4#(mp.cpu_count()-1)
-Lo=0
+Lo=1
 aTmStop=6
 NIt=4
 NIter=50
