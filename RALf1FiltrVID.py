@@ -242,7 +242,7 @@ def RALf1FiltrQ(args):
                 KoefA[Nch]=0            
             if KoefA[Nch]>20:
                 for l in range(NChan):
-                    arr_b[0+Nf-NNew+Nf*l:NNew+Nf-NNew+Nf*l]=arr_bbx[0+Nf-NNew+Nf*l:NNew+Nf-NNew+Nf*l,Nch].copy()    
+                    arr_b[Nf-NNew+Nf*l:Nf+Nf*l]=arr_bbx[Nf-NNew+Nf*l:Nf+Nf*l,Nch].copy()    
                 arr_b=filterFourierQ(arr_b,arr_b,NNew,NChan)
                 return arr_b
 
