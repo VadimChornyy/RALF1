@@ -21,9 +21,9 @@ api_key = 'ONKTYPV6TAMZK464'
 
 ticker ="GLD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
 interv="30min"
-#interv="Daily"
+interv="Daily"
 url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=%s&interval=%s&outputsize=full&apikey=%s"%(ticker,interv,api_key)        
-#url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=%s&outputsize=full&apikey=%s"%(ticker,api_key)
+url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=%s&outputsize=full&apikey=%s"%(ticker,api_key)
 
 #INTRADAY
 #d_intervals = {"1min","5min","15min","30min","60min"}
@@ -32,7 +32,7 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&s
 Lengt=800
 Ngroup=6
 Nproc=Ngroup*4#(mp.cpu_count()-1)
-Lo=0
+Lo=1
 aTmStop=6
 NIt=4
 NIter=50
@@ -270,14 +270,17 @@ if __name__ == '__main__':
                 
                 if Lo:           
                     arr_rezBz=filterFourierQ(arr_rezBz,np.log(arr_z),NNew,1)
+                    arr_rezBz[0:Nf-NNew]=np.log(ar0[0:Nf-NNew]) 
                 else:
-                    arr_rezBz=filterFourierQ(arr_rezBz,arr_z,NNew,1)            
-
+                    arr_rezBz=filterFourierQ(arr_rezBz,arr_z,NNew,1)  
+                    arr_rezBz[0:Nf-NNew]=ar0[0:Nf-NNew].copy()                    
+                
                 if Lo:
-                    arr_rezBz[0:Nf-NNew]=np.log(ar0[0:Nf-NNew].copy())
-                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-arr_rezBz[Nf-NNew]+np.log(ar0[Nf-NNew-1])    
-                else:                 
-                    arr_rezBz[0:Nf-NNew]=ar0[0:Nf-NNew].copy()  
+                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(np.log(ar0[Nf-NNew:]))/np.std(arr_rezBz[Nf-NNew:Nf])
+                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-arr_rezBz[Nf-NNew]+np.log(ar0[Nf-NNew-1])
+     
+                else: 
+                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(ar0[Nf-NNew:])/np.std(arr_rezBz[Nf-NNew:Nf])                        
                     arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-arr_rezBz[Nf-NNew]+ar0[Nf-NNew-1]
                 
                 all_rezAz[hhh]=arr_rezBz.copy()        
