@@ -222,14 +222,17 @@ if __name__ == '__main__':
                 
                 if Lo:           
                     arr_rezBz=filterFourierQ(arr_rezBz,np.log(arr_z),NNew,1)
+                    arr_rezBz[0:Nf-NNew]=np.log(ar0[0:Nf-NNew]) 
                 else:
-                    arr_rezBz=filterFourierQ(arr_rezBz,arr_z,NNew,1)            
-
+                    arr_rezBz=filterFourierQ(arr_rezBz,arr_z,NNew,1)  
+                    arr_rezBz[0:Nf-NNew]=ar0[0:Nf-NNew].copy()                    
+                
                 if Lo:
-                    arr_rezBz[0:Nf-NNew]=np.log(ar0[0:Nf-NNew].copy())
-                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-arr_rezBz[Nf-NNew]+np.log(ar0[Nf-NNew-1])    
-                else:                 
-                    arr_rezBz[0:Nf-NNew]=ar0[0:Nf-NNew].copy()  
+                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(np.log(ar0[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)]))/np.std(arr_rezBz[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)])
+                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-arr_rezBz[Nf-NNew]+np.log(ar0[Nf-NNew-1])
+     
+                else: 
+                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(ar0[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)])/np.std(arr_rezBz[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)])                        
                     arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-arr_rezBz[Nf-NNew]+ar0[Nf-NNew-1]
                 
                 all_rezAz[hhh]=arr_rezBz.copy()        

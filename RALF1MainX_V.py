@@ -276,7 +276,7 @@ if __name__ == '__main__':
                     arr_rezBz[0:Nf-NNew]=ar0[0:Nf-NNew].copy()                    
                 
                 if Lo:
-                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(np.log(ar0[Nf-NNew:]))/np.std(arr_rezBz[Nf-NNew::len(ar0)])
+                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(np.log(ar0[Nf-NNew:]))/np.std(arr_rezBz[Nf-NNew:len(ar0)])
                     arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-arr_rezBz[Nf-NNew]+np.log(ar0[Nf-NNew-1])
      
                 else: 
