@@ -10,7 +10,7 @@ import moviepy.editor as mpv
 from scipy import stats as scp
   
 wrkdir = r".\\"
-wwrkdir_=r".\W10\\"
+wwrkdir_=r".\\"
 nama='explosion'
 nmfile0=nama+'.mp4'
 nmfile=nama+'out.mp4'
