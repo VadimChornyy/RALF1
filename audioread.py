@@ -16,16 +16,16 @@ nmfile0=nama+'.mp4'
 nmfile=nama+'out.mp4'
 filename = wwrkdir_+"globalsavepkl"
 
-Lengt=150
+Lengt=300
 Ngroup=6
 Nproc=Ngroup*4#(mp.cpu_count()-1)
 Lo=0
 aTmStop=6
-NIt=2
+NIt=4
 NIter=60
 DT=0.1
 Nf_K=3
-dsiz=10000
+dsiz=5000
    
 if __name__ == '__main__': 
     ImApp=[]       
