@@ -10,13 +10,13 @@ import moviepy.editor as mpv
 from scipy import stats as scp
   
 wrkdir = r".\\"
-wwrkdir_=r".\\"
+wwrkdir_=r".\W10\\"
 nama='explosion'
 nmfile0=nama+'.mp4'
 nmfile=nama+'out.mp4'
 filename = wwrkdir_+"globalsavepkl"
 
-Lengt=300
+Lengt=600
 Ngroup=6
 Nproc=Ngroup*4#(mp.cpu_count()-1)
 Lo=0
@@ -25,7 +25,7 @@ NIt=4
 NIter=60
 DT=0.1
 Nf_K=3
-dsiz=5000
+dsiz=2500
    
 if __name__ == '__main__': 
     ImApp=[]       
