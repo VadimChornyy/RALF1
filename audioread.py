@@ -26,7 +26,7 @@ NIter=60
 DT=0.1
 Nf_K=3
 dsiz=2500
-   
+
 if __name__ == '__main__': 
     ImApp=[]       
     audio = mpv.AudioFileClip(wwrkdir_ +nama+".mp4")
@@ -38,7 +38,7 @@ if __name__ == '__main__':
     samplesx=np.zeros(siz_,float)
     for i in range(siz_):            
         samplesx[i]=(((np.mean(samples[i*dsiz+0:(i+1)*dsiz,0]))))
-    samplesx=np.log(np.abs(samplesx))
+    samplesx=np.log(abs(samplesx))
     samplesx_=np.mean(np.asarray(list(filter((-np.Inf).__ne__, samplesx)),float))
     samplesx=samplesx-samplesx_
     siz=len(samplesx)
@@ -229,11 +229,11 @@ if __name__ == '__main__':
                 
                 if Lo:
                     arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(np.log(ar0[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)]))/np.std(arr_rezBz[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)])
-                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-arr_rezBz[Nf-NNew]+np.log(ar0[Nf-NNew-1])
+                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-np.mean(arr_rezBz[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)])+np.mean(np.log(ar0[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)]))
      
                 else: 
                     arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(ar0[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)])/np.std(arr_rezBz[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)])                        
-                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-arr_rezBz[Nf-NNew]+ar0[Nf-NNew-1]
+                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-np.mean(arr_rezBz[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)])+np.mean((ar0[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)]))
                 
                 all_rezAz[hhh]=arr_rezBz.copy()        
                 all_rezAz_=all_rezAz[0:hhh+1].transpose()                
