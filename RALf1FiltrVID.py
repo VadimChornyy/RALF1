@@ -138,14 +138,16 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D):
         tm.sleep(0.002)
     w=1
     while w>0:
-        dQ3=( XFilter.RALF1FilterX(  dQ3*(1-(dQ3<0))+mDD,len(dQ3),len(dQ3[0]),1,0)-                    
-              XFilter.RALF1FilterX( -dQ3*(1-(dQ3>0))+mDD,len(dQ3),len(dQ3[0]),1,0))            
-        # dQ3=( XFilter.RALF1FilterX(  dQ3+mDD,len(dQ3),len(dQ3[0]),1,0)-
-        #       XFilter.RALF1FilterX(  dQ3+mDD,len(dQ3),len(dQ3[0]),1,1)-                    
-        #       XFilter.RALF1FilterX( -(dQ3+mDD),len(dQ3),len(dQ3[0]),1,0)+
-        #       XFilter.RALF1FilterX( -(dQ3+mDD),len(dQ3),len(dQ3[0]),1,1))
-        w=0
-       
+        try:
+            dQ3=( XFilter.RALF1FilterX(  dQ3*(1-(dQ3<0))+mDD,len(dQ3),len(dQ3[0]),1,0)-                    
+                  XFilter.RALF1FilterX( -dQ3*(1-(dQ3>0))+mDD,len(dQ3),len(dQ3[0]),1,0))            
+            # dQ3=( XFilter.RALF1FilterX(  dQ3+mDD,len(dQ3),len(dQ3[0]),1,0)-
+            #       XFilter.RALF1FilterX(  dQ3+mDD,len(dQ3),len(dQ3[0]),1,1)-                    
+            #       XFilter.RALF1FilterX( -(dQ3+mDD),len(dQ3),len(dQ3[0]),1,0)+
+            #       XFilter.RALF1FilterX( -(dQ3+mDD),len(dQ3),len(dQ3[0]),1,1))
+            w=0
+        except:
+            w=1
        
     for i in range(sz):
         r1=np.asarray(liix[i],int)
