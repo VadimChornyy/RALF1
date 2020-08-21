@@ -1,5 +1,5 @@
 import concurrent.futures
-import pylab as plt
+import pylab as plt 
 import numpy as np
 import pandas as pd
 from PIL import Image
@@ -16,7 +16,7 @@ nmfile0=nama+'.mp4'
 nmfile=nama+'out.mp4'
 filename = wwrkdir_+"globalsavepkl"
 
-Lengt=600
+Lengt=300
 Ngroup=6
 Nproc=Ngroup*4#(mp.cpu_count()-1)
 Lo=0
@@ -25,7 +25,7 @@ NIt=4
 NIter=60
 DT=0.1
 Nf_K=3
-dsiz=2500
+dsiz=5000
 
 if __name__ == '__main__': 
     ImApp=[]       
@@ -177,38 +177,16 @@ if __name__ == '__main__':
                     for future in concurrent.futures.as_completed(future_to):                
                         arezAMx.append(future.result())
         
-                Aprocess=[]
-                for iProc in range(Nproc):
-                    arr_B=arr_z.copy()
-                    if Lo:
-                        arr_B=np.log(arr_z)
-        
-                    arr_B=-arr_B
-                    arr_B=arr_B+Asr
-                    arr_B=arr_B/Klg
-                    
-                    program =wrkdir + "RALF1FiltrX_lg.py"
-                    NChan=1
-                    argss[iProc]=["python", "%s"%NChan, "%s"%NNew, "%s"%NIt]#"%s"%(iProc+1)]
-                    for i in range(Nf):
-                        argss[iProc].append(str("%1.3f"%(arr_B[i])))
-        
-                arezBMx=[]
-                with concurrent.futures.ThreadPoolExecutor(max_workers=Nproc) as executor:
-                    future_to = {executor.submit(RALf1FiltrQ, argss[iProc]) for iProc in range(Nproc)}
-                    for future in concurrent.futures.as_completed(future_to):                
-                        arezBMx.append(future.result())      
+    
         
                 arezAMx= np.asarray(arezAMx,float)*Klg+Asr
-                arezBMx=-np.asarray(arezBMx,float)*Klg+Asr
+
                         
-                Arr_AAA=np.zeros((Ngroup,int(Nproc*2*(hhh+1)/Ngroup),Nf),float)  
+                Arr_AAA=np.zeros((Ngroup,int(Nproc*(hhh+1)/Ngroup),Nf),float)  
                 for iGr in range(Ngroup):
                     for iProc in range(int(Nproc/Ngroup)):                
                         Arr_AM[iProc+int(iGr*(Nproc/Ngroup))][hhh]= np.asarray(arezAMx[iProc+int(iGr*(Nproc/Ngroup))],float)
-                        Arr_BM[iProc+int(iGr*(Nproc/Ngroup))][hhh]= np.asarray(arezBMx[iProc+int(iGr*(Nproc/Ngroup))],float)
-                        Arr_AAA[iGr][0*(hhh+1)+iProc*2*(hhh+1):1*(hhh+1)+iProc*2*(hhh+1)]=Arr_AM[iProc+int(iGr*(Nproc/Ngroup))][0:hhh+1].copy()
-                        Arr_AAA[iGr][1*(hhh+1)+iProc*2*(hhh+1):2*(hhh+1)+iProc*2*(hhh+1)]=Arr_BM[iProc+int(iGr*(Nproc/Ngroup))][0:hhh+1].copy()
+                        Arr_AAA[iGr][0*(hhh+1)+iProc*(hhh+1):1*(hhh+1)+iProc*(hhh+1)]=Arr_AM[iProc+int(iGr*(Nproc/Ngroup))][0:hhh+1].copy()
                     
                     Arr_BBB=Arr_AAA[iGr].transpose()
                     for i in range(Nf):
