@@ -85,6 +85,7 @@ def RandomQ(Nfx):
     return liiXX
   
 def RALF1Calculation(arr_bx,Nf,NNew,NChan,D):
+    Koe=1e-6 
     arr_bZ=[]
     arr_b=np.asarray(arr_bx,float)
     #arr_b[0]=0
@@ -104,7 +105,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D):
     r4=np.zeros(Nf*NChan,float)
     for l in range(NChan):            
         r4[Nf-NNew+Nf*l:Nf+Nf*l]=RandomQ(NNew)/NNew 
-        r4[Nf-NNew+Nf*l:Nf+Nf*l]=D*((r4[Nf-NNew+Nf*l:Nf+Nf*l]/np.std(r4[Nf-NNew+Nf*l:Nf+Nf*l]))/2) 
+        r4[Nf-NNew+Nf*l:Nf+Nf*l]=D*((r4[Nf-NNew+Nf*l:Nf+Nf*l]/np.std(r4[Nf-NNew+Nf*l:Nf+Nf*l]))/2+Koe*10) 
                         
     r2=np.asarray(arr_b,np.float16)
     for l in range(NChan):                
@@ -139,8 +140,45 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D):
     w=1
     while w>0:
         try:
-            dQ3=( XFilter.RALF1FilterX(  dQ3*(1-(dQ3<0))+mDD,len(dQ3),len(dQ3[0]),1,0)-                    
-                  XFilter.RALF1FilterX( -dQ3*(1-(dQ3>0))+mDD,len(dQ3),len(dQ3[0]),1,0))            
+            Ndel=3#int(np.ceil(np.sqrt(sz)))
+            NCh=int(np.ceil(sz/Ndel)) 
+            Ndel0=3
+            NCh0=int(np.ceil(sz/Ndel0))                    
+            dQ3mx=np.zeros((sz,sz),np.float16)-np.Inf
+            dQ3mn=np.zeros((sz,sz),np.float16)+np.Inf
+            dQ4=np.zeros((NCh,NCh0),np.float16)
+            mDD4=np.zeros((NCh,NCh0),np.float16)
+            NumFri=RandomQ(sz)
+            NumFri_=RandomQ(sz)                 
+            NumFri=np.concatenate((NumFri, NumFri, NumFri))                  
+            NumFri_=np.concatenate((NumFri_, NumFri_, NumFri_))  
+            zz=Ndel*Ndel0-1#int(np.ceil(np.sqrt(Ndel)))
+            while zz>=0:
+                for kk in range(Ndel):
+                    ii=int(kk*NCh)
+                    for k in range(Ndel0):
+                        i=int(k*NCh0) 
+                        dQ4=[]
+                        mDD4=[]
+                        for ll in range(NCh0):
+                            dQ4.append(dQ3[NumFri[zz+ii+0:zz+ii+NCh],NumFri_[i+ll]])
+                            mDD4.append(mDD[NumFri[zz+ii+0:zz+ii+NCh],NumFri_[i+ll]])
+                        dQ4=np.asarray(dQ4,np.float16).transpose()
+                        mDD4=np.asarray(mDD4,np.float16).transpose()
+                        dQ4mn=np.mean(dQ4*(1-(np.abs(mDD4)<D*Koe)))
+                        dQ4=dQ4-dQ4mn                 
+                        dQ4=( XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+mDD4,len(dQ4),len(dQ4[0]),1,0)-                    
+                              XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))+mDD4,len(dQ4),len(dQ4[0]),1,0))            
+                        dQ4=dQ4+dQ4mn
+                        for ll in range(NCh0):
+                            dQ3mx[NumFri[zz+ii+0:zz+ii+NCh],NumFri_[i+ll]]=np.maximum(dQ3mx[NumFri[zz+ii+0:zz+ii+NCh],NumFri_[i+ll]],dQ4[:,ll])
+                            dQ3mn[NumFri[zz+ii+0:zz+ii+NCh],NumFri_[i+ll]]=np.minimum(dQ3mn[NumFri[zz+ii+0:zz+ii+NCh],NumFri_[i+ll]],dQ4[:,ll])
+                zz=zz-1   
+            dQ3=(dQ3mx+dQ3mn)/2
+            del(dQ3mx)
+            del(dQ3mn)    
+            # dQ3=( XFilter.RALF1FilterX(  dQ3*(1-(dQ3<0))+mDD,len(dQ3),len(dQ3[0]),1,0)-                    
+            #       XFilter.RALF1FilterX( -dQ3*(1-(dQ3>0))+mDD,len(dQ3),len(dQ3[0]),1,0))            
             # dQ3=( XFilter.RALF1FilterX(  dQ3+mDD,len(dQ3),len(dQ3[0]),1,0)-
             #       XFilter.RALF1FilterX(  dQ3+mDD,len(dQ3),len(dQ3[0]),1,1)-                    
             #       XFilter.RALF1FilterX( -(dQ3+mDD),len(dQ3),len(dQ3[0]),1,0)+
@@ -242,7 +280,7 @@ def RALf1FiltrQ(args):
             Nch=int(r2[1][Nhh-1])
             if np.isnan(KoefA[Nch]):
                 KoefA[Nch]=0            
-            if KoefA[Nch]>20:
+            if KoefA[Nch]>10:
                 for l in range(NChan):
                     arr_b[Nf-NNew+Nf*l:Nf+Nf*l]=arr_bbx[Nf-NNew+Nf*l:Nf+Nf*l,Nch].copy()    
                 arr_b=filterFourierQ(arr_b,arr_b,NNew,NChan)
