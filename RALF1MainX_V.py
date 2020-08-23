@@ -331,34 +331,26 @@ if __name__ == '__main__':
                 if msvcrt.kbhit():              
                     key = ord(msvcrt.getch())  
     
-        arr_rezDz=[]
-        file=open(wrkdir + aname+'_rezpy.txt','w')
-        for i in range(len(ar0)):
-            arr_rezDz.append(ar0[i])
-        for i in range(len(arr_rezCz)):
-            arr_rezDz.append(arr_rezCz[i])
-        k=i
-        for i in range(Nf-NNew,Nf):    
-            arr_rezDz.append(arr_rezBz[i])            
-        arr_rezDz=np.asarray(arr_rezDz,float)
-        aln=len(arr_rezDz)-NNew+nnn
-        for i in range(aln):     
-            file.write(str(arr_rezDz[i])+'    ')
-            file.write("\n")
-        file.close()
-        arr_rezDzRez[kkk]=arr_rezDz.copy()
-        df = pd.DataFrame(arr_rezDzRez)
+        df = pd.DataFrame(arr_rezBz)
         df.to_excel (wrkdir +r'export_traces.xlsx', index = None, header=False) 
         
+        mm1=arrr[len(arrr)-int(len(arrr)/2):].copy()                            
+        mm2=arr_rezBz[len(arrr)-int(len(arrr)/2):len(arrr)].copy()  
+        if np.std(mm1)>0 and np.std(mm2)>0:
+            Koef=100*scp.spearmanr(mm1,mm2)[0] 
+            
         fig = plt.figure()
         axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])
         axes_ = fig.add_axes([0, 0, 0.3, 0.3])
         axes.plot(arrr, 'ro-')
-        axes.plot(arr_rezDz, 'cx-', alpha=0.5) #predicted data
+        axes.plot(arr_rezBz, 'cx-', alpha=0.5) #predicted data
         axes.text(4, 4, 'Course = %s, start = %s, step = %s'%(aname,adat0,interv),
                 verticalalignment='bottom', horizontalalignment='right',
                 transform=axes_.transAxes,color='blue', fontsize=14)                
-        axes_.plot(mm1,mm2, 'ok', markersize=3, alpha=0.1)               
+        axes_.plot(mm1,mm2, 'ok', markersize=3, alpha=0.1)    
+        axes_.text(0.2, 0.6, '%d'%int(np.floor(Koef)),
+            verticalalignment='bottom', horizontalalignment='right',
+            transform=axes_.transAxes,color='green', fontsize=30)           
         fig.savefig(wrkdir +'dynamic.png',dpi=300,transparent=False,bbox_inches = 'tight')
         frame=Image.open(wrkdir +'dynamic.png')
         cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)        
@@ -372,5 +364,4 @@ if __name__ == '__main__':
             out.write(cimgx[0:gray_sz2,0:gray_sz1,:])       
         out.release()
         plt.show()
-        kkk=kkk+1
-        
+        kkk=kkk+1    
