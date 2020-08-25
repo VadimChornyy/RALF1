@@ -29,11 +29,11 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&s
 #d_intervals = {"1min","5min","15min","30min","60min"}
 #from scipy.signal import savgol_filter
 
-Lengt=800
+Lengt=1200
 Ngroup=2
 Nproc=Ngroup*4#(mp.cpu_count()-1)
 Lo=0
-aTmStop=6
+aTmStop=3
 NIt=2
 NIter=30
 DT=0.25
@@ -156,6 +156,8 @@ if __name__ == '__main__':
         hh=0
         hhh=0
         hhh_=0
+        hhh0_=hhh_
+        all_rezAzAll_=[]
         Koef=-1
         ZZ=0
         key=0
@@ -225,38 +227,13 @@ if __name__ == '__main__':
                     for future in concurrent.futures.as_completed(future_to):                
                         arezAMx.append(future.result())
         
-                Aprocess=[]
-                for iProc in range(Nproc):
-                    arr_B=arr_z.copy()
-                    if Lo:
-                        arr_B=np.log(arr_z)
-        
-                    arr_B=-arr_B
-                    arr_B=arr_B+Asr
-                    arr_B=arr_B/Klg
-                    
-                    program =wrkdir + "RALF1FiltrX_lg.py"
-                    NChan=1
-                    argss[iProc]=["python", "%s"%NChan, "%s"%NNew, "%s"%NIt]#"%s"%(iProc+1)]
-                    for i in range(Nf):
-                        argss[iProc].append(str("%1.3f"%(arr_B[i])))
-        
-                arezBMx=[]
-                with concurrent.futures.ThreadPoolExecutor(max_workers=Nproc) as executor:
-                    future_to = {executor.submit(RALf1FiltrQ, argss[iProc]) for iProc in range(Nproc)}
-                    for future in concurrent.futures.as_completed(future_to):                
-                        arezBMx.append(future.result())      
-        
                 arezAMx= np.asarray(arezAMx,float)*Klg+Asr
-                arezBMx=-np.asarray(arezBMx,float)*Klg+Asr
                         
-                Arr_AAA=np.zeros((Ngroup,int(Nproc*2*(hhh+1)/Ngroup),Nf),float)  
+                Arr_AAA=np.zeros((Ngroup,int(Nproc*(hhh+1)/Ngroup),Nf),float)  
                 for iGr in range(Ngroup):
                     for iProc in range(int(Nproc/Ngroup)):                
                         Arr_AM[iProc+int(iGr*(Nproc/Ngroup))][hhh]= np.asarray(arezAMx[iProc+int(iGr*(Nproc/Ngroup))],float)
-                        Arr_BM[iProc+int(iGr*(Nproc/Ngroup))][hhh]= np.asarray(arezBMx[iProc+int(iGr*(Nproc/Ngroup))],float)
-                        Arr_AAA[iGr][0*(hhh+1)+iProc*2*(hhh+1):1*(hhh+1)+iProc*2*(hhh+1)]=Arr_AM[iProc+int(iGr*(Nproc/Ngroup))][0:hhh+1].copy()
-                        Arr_AAA[iGr][1*(hhh+1)+iProc*2*(hhh+1):2*(hhh+1)+iProc*2*(hhh+1)]=Arr_BM[iProc+int(iGr*(Nproc/Ngroup))][0:hhh+1].copy()
+                        Arr_AAA[iGr][0*(hhh+1)+iProc*(hhh+1):1*(hhh+1)+iProc*(hhh+1)]=Arr_AM[iProc+int(iGr*(Nproc/Ngroup))][0:hhh+1].copy()
                     
                     Arr_BBB=Arr_AAA[iGr].transpose()
                     for i in range(Nf):
@@ -282,11 +259,15 @@ if __name__ == '__main__':
                 else: 
                     arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(ar0[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)])/np.std(arr_rezBz[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)])                        
                     arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-np.mean(arr_rezBz[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)])+np.mean(ar0[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)])
-               
+                
                 all_rezAz[hhh]=arr_rezBz.copy()        
                 all_rezAz_=all_rezAz[0:hhh+1].transpose()                
                 for i in range(Nf):
                     arr_rezBz[i]=np.mean(all_rezAz_[i])
+                
+                if hhh_>hhh0_:
+                    all_rezAzAll_.append(all_rezAz_)
+                    hhh0_=hhh0_+1
                     
                 if Lo:                       
                     arr_rezBz=np.exp(arr_rezBz) 
@@ -304,6 +285,7 @@ if __name__ == '__main__':
                     axes_ = fig.add_axes([0, 0, 0.3, 0.3])   
                     axes.plot(all_rezAz_,'oy',alpha=0.1)
                     axes.plot(ar0, 'ro-', alpha=0.1)
+                    axes.plot(arrr, 'rx-')
                     axes.plot(arr_rezBz,'cx-', alpha=0.5)
                     axes.text(4, 4, 'Course = %s, start = %s, step = %s'%(aname,adat0,interv),
                             verticalalignment='bottom', horizontalalignment='right',
