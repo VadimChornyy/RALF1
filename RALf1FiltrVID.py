@@ -42,50 +42,6 @@ def filterFourierQ(arxx,arb,NNew,NChan):
         #farxxx2[0:2*Nnl:2]=farxxx.copy()
         farxxx2=farxxx.copy()
         arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l]=np.fft.ifft(farxxx2).real[0:Nnl] 
-        arxr[0+Nfl*l:Nfl-Nnl+Nfl*l]=arb[0+Nfl*l:Nfl-Nnl+Nfl*l].copy() import numpy as np
-from operator import itemgetter
-import time as tm
-import RALF1FilterX as XFilter
-import sys
-import lfib1340 
-from scipy.signal import savgol_filter
-from scipy import stats as scp
-
-def filterFourierQ(arxx,arb,NNew,NChan):  
-    Nfl=int(len(arb)/NChan)
-    Nnl=NNew
-    
-    ar_=np.zeros(Nnl,float)
-    farx=np.zeros(Nnl,float)
-    
-    az=int(np.floor(Nfl/Nnl))-1
-    
-    for l in range(NChan):        
-        for i in range(az):
-            for j in range(Nnl):
-                ar_[j]=arb[Nfl-(az-i+1)*Nnl+j+Nfl*l]
-            ar_=abs(np.fft.fft(ar_))
-            for j in range(Nnl):
-                farx[j]=max(farx[j],ar_[j])
-    
-    farx[0]=1e-32
-    arxr=np.zeros(Nfl*NChan,float)   
-    for l in range(NChan):       
-        farxx=np.fft.fft(arxx[Nfl-Nnl+Nfl*l:Nfl+Nfl*l])    
-        mfarxx=abs(farxx) 
-        mfarxx[0]=1e-32
-        srmfarxx=.62*np.mean(mfarxx[1:])
-        farxxx=np.zeros(Nnl,complex)     
-        for j in range(1,Nnl):
-            if mfarxx[j]>srmfarxx:
-                farxxx[j]=farxx[j]/mfarxx[j]*farx[j]            
-            else:
-                farxxx[j]=0   
-        farxxx[0]=farxx[0]
-        farxxx2=np.zeros(2*Nnl,complex)
-        #farxxx2[0:2*Nnl:2]=farxxx.copy()
-        farxxx2=farxxx.copy()
-        arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l]=np.fft.ifft(farxxx2).real[0:Nnl] 
         arxr[0+Nfl*l:Nfl-Nnl+Nfl*l]=arb[0+Nfl*l:Nfl-Nnl+Nfl*l].copy() 
         #arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l]=arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l]-arxr[Nfl-Nnl]+arb[Nfl-Nnl-1+Nfl*l]
 
