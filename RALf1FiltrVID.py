@@ -85,7 +85,7 @@ def RandomQ(Nfx):
     return liiXX
   
 def RALF1Calculation(arr_bx,Nf,NNew,NChan,D):
-    Koe=1e-6 *0
+    Koe=1e-6 
     arr_bZ=[]
     arr_b=np.asarray(arr_bx,float)
     #arr_b[0]=0
