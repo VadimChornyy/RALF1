@@ -1,3 +1,4 @@
+
 import multiprocessing as mp
 import concurrent.futures
 import pylab as plt
@@ -312,7 +313,8 @@ if __name__ == '__main__':
                     Koef=100*scp.spearmanr(mm1,mm2)[0]
                 else:
                     Koef=-2
-                if (Koef+100)> .62*(TKoef+100):                                        
+                if (Koef+100)> (TKoef+100):  
+                    TKoef=Koef                                  
                     fig = plt.figure()
                     axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])
                     axes_ = fig.add_axes([0, 0, 0.3, 0.3])   
