@@ -20,7 +20,7 @@ wrkdir = r"c:\Work\\"
 api_key = 'ONKTYPV6TAMZK464' 
 
 ticker ="GLD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
-interv="15min"
+interv="30min"
 #interv="Daily"
 url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=%s&interval=%s&outputsize=full&apikey=%s"%(ticker,interv,api_key)        
 #url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=%s&outputsize=full&apikey=%s"%(ticker,api_key)
@@ -29,13 +29,13 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&s
 #d_intervals = {"1min","5min","15min","30min","60min"}
 #from scipy.signal import savgol_filter
 
-Lengt=600
-Ngroup=2
+Lengt=800
+Ngroup=4
 Nproc=Ngroup*4#(mp.cpu_count()-1)
-Lo=0
+Lo=1
 aTmStop=3
-NIt=4
-NIter=10
+NIt=2
+NIter=20
 DT=0.25
 Nf_K=3
     
@@ -163,7 +163,7 @@ if __name__ == '__main__':
         key=0
         TKoef=-100
         
-        nnn=int(nn/2)
+        nnn=int(nn/4)
         arr_rezCz=np.zeros(int(nnn*(aTmStop-1)),float)
         while hhh_<aTmStop and not key == 13: 
             Aprocess=[]
@@ -251,7 +251,15 @@ if __name__ == '__main__':
         
                 arezAMx= np.asarray(arezAMx,float)*Klg+Asr
                 arezBMx=-np.asarray(arezBMx,float)*Klg+Asr
-                        
+                
+                for i in range(len(arezAMx)):
+                    if Lo:
+                        arezAMx[i,Nf-NNew:]=arezAMx[i,Nf-NNew:]-arezAMx[i,Nf-NNew]+np.log(arr_z[Nf-NNew-1])
+                        arezBMx[i,Nf-NNew:]=arezBMx[i,Nf-NNew:]-arezBMx[i,Nf-NNew]+np.log(arr_z[Nf-NNew-1])                  
+                    else:
+                        arezAMx[i,Nf-NNew:]=arezAMx[i,Nf-NNew:]-arezAMx[i,Nf-NNew]+arr_z[Nf-NNew-1]
+                        arezBMx[i,Nf-NNew:]=arezBMx[i,Nf-NNew:]-arezBMx[i,Nf-NNew]+arr_z[Nf-NNew-1]
+                
                 Arr_AAA=np.zeros((Ngroup,int(Nproc*2*(hhh+1)/Ngroup),Nf),float)  
                 for iGr in range(Ngroup):
                     for iProc in range(int(Nproc/Ngroup)):                
