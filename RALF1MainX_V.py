@@ -1,4 +1,3 @@
-
 import multiprocessing as mp
 import concurrent.futures
 import pylab as plt
