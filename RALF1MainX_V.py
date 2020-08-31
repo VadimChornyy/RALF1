@@ -1,3 +1,4 @@
+
 import multiprocessing as mp
 import concurrent.futures
 import pylab as plt
@@ -291,8 +292,7 @@ if __name__ == '__main__':
      
                 else: 
                     #arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(ar0[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)])/np.std(arr_rezBz[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)])                        
-                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-arr_rezBz[Nf-NNew])+ar0[Nf-NNew-1])
-                
+                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-arr_rezBz[Nf-NNew]+ar0[Nf-NNew-1]              
                 all_rezAz[hhh]=arr_rezBz.copy()        
                 all_rezAz_=all_rezAz[0:hhh+1].transpose()                
                 for i in range(Nf):
