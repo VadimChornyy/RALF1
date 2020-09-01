@@ -1,4 +1,3 @@
-
 import multiprocessing as mp
 import concurrent.futures
 import pylab as plt
@@ -32,7 +31,7 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&s
 
 Lengt=800
 Ngroup=4
-Nproc=Ngroup*4#(mp.cpu_count()-1)
+Nproc=Ngroup*2#(mp.cpu_count()-1)
 Lo=1
 aTmStop=3
 NIt=2
@@ -254,13 +253,9 @@ if __name__ == '__main__':
                 arezBMx=-np.asarray(arezBMx,float)*Klg+Asr
                 
                 for i in range(len(arezAMx)):
-                    if Lo:
-                        arezAMx[i,Nf-NNew:]=arezAMx[i,Nf-NNew:]-arezAMx[i,Nf-NNew]+np.log(arr_z[Nf-NNew-1])
-                        arezBMx[i,Nf-NNew:]=arezBMx[i,Nf-NNew:]-arezBMx[i,Nf-NNew]+np.log(arr_z[Nf-NNew-1])                  
-                    else:
-                        arezAMx[i,Nf-NNew:]=arezAMx[i,Nf-NNew:]-arezAMx[i,Nf-NNew]+arr_z[Nf-NNew-1]
-                        arezBMx[i,Nf-NNew:]=arezBMx[i,Nf-NNew:]-arezBMx[i,Nf-NNew]+arr_z[Nf-NNew-1]
-                
+                    arezAMx[i,Nf-NNew:]=arezAMx[i,Nf-NNew:]-arezAMx[i,Nf-NNew]+arr_z[Nf-NNew-1]
+                    arezBMx[i,Nf-NNew:]=arezBMx[i,Nf-NNew:]-arezBMx[i,Nf-NNew]+arr_z[Nf-NNew-1]
+            
                 Arr_AAA=np.zeros((Ngroup,int(Nproc*2*(hhh+1)/Ngroup),Nf),float)  
                 for iGr in range(Ngroup):
                     for iProc in range(int(Nproc/Ngroup)):                
@@ -286,13 +281,7 @@ if __name__ == '__main__':
                     arr_rezBz=filterFourierQ(arr_rezBz,arr_z,NNew,1)  
                     arr_rezBz[0:Nf-NNew]=ar0[0:Nf-NNew].copy()                    
                 
-                if Lo:
-                    #arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(np.log(ar0[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)]))/np.std(arr_rezBz[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)])
-                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-arr_rezBz[Nf-NNew]+np.log(ar0[Nf-NNew-1])
-     
-                else: 
-                    #arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(ar0[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)])/np.std(arr_rezBz[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)])                        
-                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-arr_rezBz[Nf-NNew]+ar0[Nf-NNew-1]              
+                arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]-arr_rezBz[Nf-NNew]+ar0[Nf-NNew-1]              
                 all_rezAz[hhh]=arr_rezBz.copy()        
                 all_rezAz_=all_rezAz[0:hhh+1].transpose()                
                 for i in range(Nf):
