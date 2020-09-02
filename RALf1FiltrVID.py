@@ -4,8 +4,9 @@ import time as tm
 import RALF1FilterX as XFilter
 import sys
 import lfib1340 
-from scipy.signal import savgol_filter
+#from scipy.signal import savgol_filter
 from scipy import stats as scp
+import scipy.interpolate as scpyi 
 
 def filterFourierQ(arxx,arb,NNew,NChan):  
     Nfl=int(len(arb)/NChan)
@@ -86,6 +87,7 @@ def RandomQ(Nfx):
   
 def RALF1Calculation(arr_bx,Nf,NNew,NChan,D):
     Koe=1e-6 
+    tSp=1
     arr_bZ=[]
     arr_b=np.asarray(arr_bx,float)
     #arr_b[0]=0
@@ -114,95 +116,78 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D):
     R4=np.asarray(r4,np.float16)
     K=NNew/(Nf+1)/NChan
     sz=int(NChan*Nf)
-    liix=[[] for kk in range(Nf*NChan)]  
+    liix=[[] for kk in range(sz)]  
     
     w=1
     while w>0:
         try:
-            dQ3=np.zeros((sz,sz),np.float16)
-            mDD=np.zeros((sz,sz),np.float16)
+            dQ3=np.zeros((sz,sz*tSp),np.float16)
+            mDD=np.zeros((sz,sz*tSp),np.float16)
             w=0
         except:
             w=1
     
     for i in range(sz):    
         r1=liiB[int(liiD[i]):sz+int(liiD[i])]                                     
-        liix[i].append(np.asarray(r1,int)) 
-                 
-        dQ3[i]=r2[r1].copy()
+        ge=scpyi.interp1d(np.asarray(range(sz),float),r1)                              
+        liix[i]=np.asarray(ge(np.linspace(0,sz-1,sz*tSp)),int)
+            
+        ge=scpyi.interp1d(np.asarray(range(sz),float),r2) 
+        dQ3[i]=np.asarray(ge(liix[i]),np.float16)
+        
         for l in range(NChan):
             bb=np.asarray(liiC[np.asarray(np.arange(l+int(liiE[i]),l+sz+int(liiE[i]),sz/NNew),int)]*K,int)
             #bb_=np.asarray(liiC[np.asarray(np.arange(l+sz+int(liiE[i]),l+int(liiE[i]),-sz/NNew),int)]*K,int)
             R4[Nf-len(bb)+Nf*l:Nf+Nf*l]=(r4[Nf-len(bb)+Nf*l+bb])#+
                                       #r4[Nf-NNew+Nf*l+bb_[0:NNew]])/np.sqrt(2) 
-        mDD[i]=R4[r1].copy()
+        
+        ge=scpyi.interp1d(np.asarray(range(sz),float),R4)
+        mDD[i]=np.asarray(ge(liix[i]),np.float16)
         tm.sleep(0.002)
     w=1
     while w>0:
-        try:
-            # Ndel=3#int(np.ceil(np.sqrt(sz)))
-            # NCh=int(np.ceil(sz/Ndel)) 
-            # Ndel0=3
-            # NCh0=int(np.ceil(sz/Ndel0))                    
-            # dQ3mx=np.zeros((sz,sz),np.float16)-np.Inf
-            # dQ3mn=np.zeros((sz,sz),np.float16)+np.Inf
-            # dQ4=np.zeros((NCh,NCh0),np.float16)
-            # mDD4=np.zeros((NCh,NCh0),np.float16)
-            # NumFri=RandomQ(sz)
-            # NumFri_=RandomQ(sz)                 
-            # NumFri=np.concatenate((NumFri, NumFri, NumFri))                  
-            # NumFri_=np.concatenate((NumFri_, NumFri_, NumFri_))  
-            # zz=Ndel*Ndel0-1#int(np.ceil(np.sqrt(Ndel)))
-            # while zz>=0:
-            #     for kk in range(Ndel):
-            #         ii=int(kk*NCh)
-            #         for k in range(Ndel0):
-            #             i=int(k*NCh0) 
-            #             dQ4=[]
-            #             mDD4=[]
-            #             for ll in range(NCh0):
-            #                 dQ4.append(dQ3[NumFri[zz+ii+0:zz+ii+NCh],NumFri_[i+ll]])
-            #                 mDD4.append(mDD[NumFri[zz+ii+0:zz+ii+NCh],NumFri_[i+ll]])
-            #             dQ4=np.asarray(dQ4,np.float16).transpose()
-            #             mDD4=np.asarray(mDD4,np.float16).transpose()
-            #             dQ4mn=np.mean(dQ4*(1-(np.abs(mDD4)<D*Koe)))
-            #             dQ4=dQ4-dQ4mn                 
-            #             dQ4=( XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+mDD4,len(dQ4),len(dQ4[0]),1,0)-                    
-            #                   XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))+mDD4,len(dQ4),len(dQ4[0]),1,0))            
-            #             dQ4=dQ4+dQ4mn
-            #             for ll in range(NCh0):
-            #                 dQ3mx[NumFri[zz+ii+0:zz+ii+NCh],NumFri_[i+ll]]=np.maximum(dQ3mx[NumFri[zz+ii+0:zz+ii+NCh],NumFri_[i+ll]],dQ4[:,ll])
-            #                 dQ3mn[NumFri[zz+ii+0:zz+ii+NCh],NumFri_[i+ll]]=np.minimum(dQ3mn[NumFri[zz+ii+0:zz+ii+NCh],NumFri_[i+ll]],dQ4[:,ll])
-            #     zz=zz-1   
-            # dQ3=(dQ3mx+dQ3mn)/2
-            # del(dQ3mx)
-            # del(dQ3mn)    
+        try: 
             dQ3=( XFilter.RALF1FilterX(  dQ3*(1-(dQ3<0))+mDD,len(dQ3),len(dQ3[0]),1,0)-                    
                   XFilter.RALF1FilterX( -dQ3*(1-(dQ3>0))+mDD,len(dQ3),len(dQ3[0]),1,0))            
-            # dQ3=( XFilter.RALF1FilterX(  dQ3+mDD,len(dQ3),len(dQ3[0]),1,0)-
-            #       XFilter.RALF1FilterX(  dQ3+mDD,len(dQ3),len(dQ3[0]),1,1)-                    
-            #       XFilter.RALF1FilterX( -(dQ3+mDD),len(dQ3),len(dQ3[0]),1,0)+
-            #       XFilter.RALF1FilterX( -(dQ3+mDD),len(dQ3),len(dQ3[0]),1,1))
             w=0
         except:
             w=1
        
+    dQ5mx=np.zeros((sz,sz),float)
+    dQ5mn=np.zeros((sz,sz),float)
+    r4=np.zeros((2,sz*tSp),float)
     for i in range(sz):
-        r1=np.asarray(liix[i],int)
-        dQ3[i][r1]=dQ3[i][:].copy()
-    del(liix)
+        r4[0]= np.asarray(liix[i],int).copy()
+        r4[1]= (dQ3[i]).copy()
+        m=[[r4[j][l] for j in range(len(r4))] for l in range(len(r4[0]))]         
+        m.sort(key=itemgetter(0))                  
+        r4=[[m[j][l] for j in range(len(m))] for l in range(len(m[0]))]         
+
+        anum1=-1;
+        for jj in range(sz): 
+            jjj0=anum1;
+            anum0=max(0,min(jjj0,sz*tSp-1));
+            while jjj0<sz*tSp-1 and int(r4[0][anum0])<jj:
+                jjj0=jjj0+1;
+                anum0=max(0,min(jjj0,sz*tSp-1));
+            jjj1=anum0+1;
+            anum1=max(0,min(jjj1,sz*tSp));
+            while jjj1<sz*tSp and int(r4[0][anum1])<jj+1:
+                jjj1=jjj1+1;
+                anum1=max(0,min(jjj1,sz*tSp));
+            dQ5mx[i][jj]=max(r4[1][anum0:anum1])
+            dQ5mn[i][jj]=min(r4[1][anum0:anum1])
+            
+    dQ5mx=dQ5mx.transpose()
+    dQ5mn=dQ5mn.transpose()
     
-    aMx=np.max(dQ3,0)
-    aMn=np.min(dQ3,0) 
-    del(dQ3)
+    aMx=np.zeros(sz,float)
+    aMn=np.zeros(sz,float)
     
-    # for l in range(NChan):    
-    #     try:            
-    #         aMx[0+Nf*l:Nf+Nf*l]= savgol_filter(aMx[0+Nf*l:Nf+Nf*l], 11, 5)
-    #         aMn[0+Nf*l:Nf+Nf*l]= savgol_filter(aMn[0+Nf*l:Nf+Nf*l], 11, 5)
-    #     except:
-    #         aMx[0+Nf*l:Nf+Nf*l]= savgol_filter(aMx[0+Nf*l:Nf+Nf*l], 11, 5)
-    #         aMn[0+Nf*l:Nf+Nf*l]= savgol_filter(aMn[0+Nf*l:Nf+Nf*l], 11, 5)                    
+    for i in range(sz):
+        aMx[i]=max(dQ5mx[i])  
+        aMn[i]=min(dQ5mn[i])          
+    
     arr_bbbxxx=(aMx + aMn)/2 
     arr_bbbxxx=filterFourierQ(arr_bbbxxx,arr_bx,NNew,NChan)+mn
     return arr_bbbxxx
