@@ -13,7 +13,7 @@ import dateutil.parser
 from operator import itemgetter
 #from scipy.signal import savgol_filter
 
-from RALf1FiltrVID import RALf1FiltrQ,filterFourierQ
+from RALf1FiltrVIDX import RALf1FiltrQ,filterFourierQ
 
 wrkdir = r"c:\Work\\"
 api_key = 'ONKTYPV6TAMZK464' 
@@ -28,7 +28,7 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&s
 #d_intervals = {"1min","5min","15min","30min","60min"}
 #from scipy.signal import savgol_filter
 
-Lengt=450
+Lengt=500
 Ngroup=2
 Nproc=Ngroup*2#(mp.cpu_count()-1)
 Lo=0
