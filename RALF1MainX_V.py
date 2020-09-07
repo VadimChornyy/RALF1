@@ -13,7 +13,8 @@ import dateutil.parser
 from operator import itemgetter
 #from scipy.signal import savgol_filter
 
-from RALf1FiltrVIDX import RALf1FiltrQ,filterFourierQ
+from RALf1FiltrVID import filterFourierQ
+from RALf1FiltrVID import RALf1FiltrQ
 
 wrkdir = r"c:\Work\\"
 api_key = 'ONKTYPV6TAMZK464' 
@@ -162,7 +163,7 @@ if __name__ == '__main__':
         key=0
         TKoef=-100
         
-        nnn=int(nn/4)
+        nnn=int(nn/2)
         arr_rezCz=np.zeros(int(nnn*(aTmStop-1)),float)
         while hhh_<aTmStop and not key == 13: 
             Aprocess=[]
@@ -290,11 +291,12 @@ if __name__ == '__main__':
                 else: 
                     #arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(ar0[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)])/np.std(arr_rezBz[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)])                        
                     arr_rezBz[Nf-NNew:]=arr_rezBz[Nf-NNew:]-arr_rezBz[Nf-NNew]+ar0[Nf-NNew-1]              
+
                 all_rezAz[hhh]=arr_rezBz.copy()        
                 all_rezAz_=all_rezAz[0:hhh+1].transpose()                
                 for i in range(Nf):
                     arr_rezBz[i]=np.mean(all_rezAz_[i])
-                
+
                 if hhh_>hhh0_:
                     all_rezAzAll_.append(all_rezAz_)
                     hhh0_=hhh0_+1
