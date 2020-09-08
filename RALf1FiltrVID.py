@@ -97,9 +97,9 @@ def RALF1FilterQ(dQ2):
         SdQj_ = np.std(np.asarray(dQ2[i] - SdQ,float))
         SdQj__ = np.std(np.asarray(dQ2[i],float))            
         if SdQj__ >0. and sSdQ>0.:
-            dQ2[i] = np.asarray(dQ2[i] +SdQ * ((SdQj_ - sSdQ)/ sSdQ ),np.float16)
+            dQ2[i] = np.asarray(dQ2[i] +SdQ * ((SdQj_ - sSdQ)/ sSdQ ),float)
         else:
-            dQ2[i]=np.zeros(Nf,np.float16)        
+            dQ2[i]=np.zeros(Nf,float)        
     return dQ2
 
 def RandomQQ(Nfx):
@@ -154,7 +154,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
             r4[Nf-NNew+Nf*l:Nf+Nf*l]=randomX(NNew)/NNew 
             r4[Nf-NNew+Nf*l:Nf+Nf*l]=D*((r4[Nf-NNew+Nf*l:Nf+Nf*l]/np.std(r4[Nf-NNew+Nf*l:Nf+Nf*l]))/2+Koe*10) 
 
-        r2=np.asarray(arr_b,np.float16)
+        r2=np.asarray(arr_b,float)
         for l in range(NChan):                
             r2[Nf-NNew+Nf*l:Nf+Nf*l]=mn
     
@@ -176,7 +176,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
             ge=scpyi.interp1d(np.asarray(range(sz),float),r1)                              
             liix[i]=np.asarray(ge(np.linspace(0,sz-1,sz*tSp)),int)
             liix[i]=liix[i]-min(liix[i])
-            liix[i]=np.asarray(liix[i]*(sz-1)/max(liix[i]),np.float16)
+            liix[i]=np.asarray(liix[i]*(sz-1)/max(liix[i]),float)
                           
             ge=scpyi.interp1d(np.asarray(range(sz),float) ,r2,kind='linear')
             dQ3[i]=ge(liix[i]) 
@@ -199,7 +199,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
             #                               #r4[Nf-NNew+Nf*l+bb_[0:NNew]])/np.sqrt(2) 
             
             # ge=scpyi.interp1d(np.asarray(range(sz),float),R4)
-            # mDD[i]=np.asarray(ge(liix[i]),np.float16)            
+            # mDD[i]=np.asarray(ge(liix[i]),float)            
 
         dQ3=dQ3-mn
 
@@ -293,7 +293,7 @@ def RALf1FiltrQ(args):
         arr_bZ.append(arr_b[0+Nf*l:Nf-NNew+Nf*l])    
     arr_bZ=np.asarray(arr_bZ,float)
     D=np.std(arr_bZ)
-    arr_b=np.asarray(arr_bb,np.float16)    
+    arr_b=np.asarray(arr_bb,float)    
     NNew=int(NNew*1.1)   
     while 1==1: 
         hh=0
@@ -306,7 +306,7 @@ def RALf1FiltrQ(args):
             arr_bbbxxx=RALF1Calculation(arr_b,Nf,NNew,NChan,D,Nhh)
             Nf_=int(NNew*1.8)
             NNew_=Nf_-NNew
-            arr_bbbxxx_=np.zeros(Nf_*NChan,np.float16)
+            arr_bbbxxx_=np.zeros(Nf_*NChan,float)
             for l in range(NChan):
                 dd_=arr_bbbxxx[Nf-1+Nf*l:Nf-NNew+Nf*l:-1].copy()
                 arr_bbbxxx_[0+Nf_*l:Nf_+Nf_*l]=(np.concatenate((dd_,np.ones(Nf_-len(dd_),float)*dd_[len(dd_)-1])))  
@@ -337,7 +337,7 @@ def RALf1FiltrQ(args):
             else:
                 hh=Nhh+2
         if hh<Nhh+2:
-            arr_bbx=np.asarray(arr_bbx,np.float16).transpose()
+            arr_bbx=np.asarray(arr_bbx,float).transpose()
             
             r2=np.zeros((2,Nhh),float)
             r2[0]= np.asarray(KoefA,float)
