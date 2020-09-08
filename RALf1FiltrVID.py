@@ -202,49 +202,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
             # mDD[i]=np.asarray(ge(liix[i]),np.float16)            
 
         dQ3=dQ3-mn
-        aw=1
-        while aw>0:
-            try: 
-                Ndel=3#int(np.ceil(np.sqrt(sz)))
-                NCh=int(np.ceil(sz/Ndel)) 
-                Ndel0=3
-                NCh0=int(np.ceil(sz/Ndel0*tSp))                    
-                dQ3mx=np.zeros((sz,sz*tSp),np.float16)-np.Inf
-                dQ3mn=np.zeros((sz,sz*tSp),np.float16)+np.Inf
-                dQ4=np.zeros((NCh,NCh0),np.float16)
-                mDD4=np.zeros((NCh,NCh0),np.float16)
-                NumFri=randomX(sz)
-                NumFri_=randomX(sz*tSp)                 
-                NumFri=np.concatenate((NumFri, NumFri, NumFri))                  
-                NumFri_=np.concatenate((NumFri_, NumFri_, NumFri_))  
-                zz=8#int(np.ceil(np.sqrt(Ndel)))
-                while zz>=0:
-                    for kk in range(Ndel):
-                        ii=int(kk*NCh)
-                        for k in range(Ndel0):
-                            i=int(k*NCh0) 
-                            dQ4=[]
-                            mDD4=[]
-                            for ill in range(NCh0):
-                                dQ4.append(dQ3[NumFri[zz+ii+0:zz+ii+NCh],NumFri_[i+ill]])
-                                mDD4.append(mDD[NumFri[zz+ii+0:zz+ii+NCh],NumFri_[i+ill]])
-                            dQ4=np.asarray(dQ4,np.float16).transpose()
-                            mDD4=np.asarray(mDD4,np.float16).transpose()
-                            dQ4mn=np.mean(dQ4*(1-(np.abs(mDD4)<D*Koe)))
-                            dQ4=dQ4-dQ4mn                 
-                            dQ4=( XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+mDD4,len(dQ4),len(dQ4[0]),1,0)-                    
-                                  XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))+mDD4,len(dQ4),len(dQ4[0]),1,0))            
-                            dQ4=dQ4+dQ4mn
-                            for ll in range(NCh0):
-                                dQ3mx[NumFri[zz+ii+0:zz+ii+NCh],NumFri_[i+ll]]=np.maximum(dQ3mx[NumFri[zz+ii+0:zz+ii+NCh],NumFri_[i+ll]],dQ4[:,ll])
-                                dQ3mn[NumFri[zz+ii+0:zz+ii+NCh],NumFri_[i+ll]]=np.minimum(dQ3mn[NumFri[zz+ii+0:zz+ii+NCh],NumFri_[i+ll]],dQ4[:,ll])
-                    zz=zz-1   
-                dQ3=(dQ3mx+dQ3mn)/2
-                del(dQ3mx)
-                del(dQ3mn)    
-                aw=0
-            except:
-                aw=1
+
             
         dQ3A=dQ3.copy()        
         dQ3B=dQ3A-dQ3A*np.asarray(dQ3A<0,int)   
