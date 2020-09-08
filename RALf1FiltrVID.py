@@ -216,7 +216,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
         dQ5mn=np.zeros((sz,sz),float)
         r4=np.zeros((3,sz*tSp),float)
         for i in range(sz):
-            r4[0]= np.asarray(liix[i],int).copy()
+            r4[0]= (liix[i]).copy()
             r4[1]= (dQ2X[i]).copy()
             r4[2]= (dQ2Y[i]).copy()
             m=[[r4[j][l] for j in range(len(r4))] for l in range(len(r4[0]))]         
@@ -227,12 +227,12 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
             for j in range(sz): 
                 jjj0=anum1;
                 anum0=max(0,min(jjj0,sz*tSp-1));
-                while jjj0<sz*tSp-1 and int(r4[0][anum0])<j:
+                while jjj0<sz*tSp-1 and round(r4[0][anum0])<j:
                     jjj0=jjj0+1;
                     anum0=max(0,min(jjj0,sz*tSp-1));
                 jjj1=anum0+1;
                 anum1=max(0,min(jjj1,sz*tSp));
-                while jjj1<sz*tSp and int(r4[0][anum1])<j+1:
+                while jjj1<sz*tSp and round(r4[0][anum1])<j+1:
                     jjj1=jjj1+1;
                     anum1=max(0,min(jjj1,sz*tSp));
                 dQ5mx[i][j]=max(r4[1][anum0:anum1])
