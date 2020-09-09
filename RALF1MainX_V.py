@@ -29,7 +29,7 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&s
 #d_intervals = {"1min","5min","15min","30min","60min"}
 #from scipy.signal import savgol_filter
 
-Lengt=500
+Lengt=650
 Ngroup=2
 Nproc=Ngroup*2#(mp.cpu_count()-1)
 Lo=0
