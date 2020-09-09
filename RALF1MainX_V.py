@@ -30,11 +30,11 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&s
 #from scipy.signal import savgol_filter
 
 Lengt=650
-Ngroup=2
+Ngroup=4
 Nproc=Ngroup*2#(mp.cpu_count()-1)
 Lo=0
 aTmStop=3
-NIt=2
+NIt=4
 NIter=20
 DT=0.25
 Nf_K=3
@@ -219,8 +219,8 @@ if __name__ == '__main__':
                         argss[iProc].append(str("%1.3f"%(arr_A[i])))
                         
                 arezAMx=[]
-                # for iProc in range(Nproc):
-                #     arezAMx.append(RALf1FiltrQ(argss[iProc]))
+                for iProc in range(Nproc):
+                    arezAMx.append(RALf1FiltrQ(argss[iProc]))
 
                 with concurrent.futures.ThreadPoolExecutor(max_workers=Nproc) as executor:
                     future_to = {executor.submit(RALf1FiltrQ, argss[iProc]) for iProc in range(Nproc)}
