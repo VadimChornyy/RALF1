@@ -219,8 +219,8 @@ if __name__ == '__main__':
                         argss[iProc].append(str("%1.3f"%(arr_A[i])))
                         
                 arezAMx=[]
-                for iProc in range(Nproc):
-                    arezAMx.append(RALf1FiltrQ(argss[iProc]))
+                # for iProc in range(Nproc):
+                #     arezAMx.append(RALf1FiltrQ(argss[iProc]))
 
                 with concurrent.futures.ThreadPoolExecutor(max_workers=Nproc) as executor:
                     future_to = {executor.submit(RALf1FiltrQ, argss[iProc]) for iProc in range(Nproc)}
