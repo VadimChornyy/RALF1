@@ -6,11 +6,11 @@ import sys
 import lfib1340 
 from scipy import stats as scp
 import scipy.interpolate as scpyi 
-from scipy.signal import savgol_filter
+#from scipy.signal import savgol_filter
 import win32api,win32process,win32con
 import mersenne_twister as gen
 
-def randomX(Nfx):
+def randomQ(Nfx):
     KK=1e6
     liiX=np.zeros(Nfx,float)
     for ii in range(3):            
@@ -81,7 +81,7 @@ def filterFourierQ(arxx,arb,NNew,NChan):
         #farxxx2[0:2*Nnl:2]=farxxx.copy()
         farxxx2=farxxx.copy()
         arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l]=np.fft.ifft(farxxx2).real[0:Nnl] 
-        arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l]=savgol_filter(arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l], 15, 5)
+        #arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l]=savgol_filter(arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l], 15, 5)
         arxr[0+Nfl*l:Nfl-Nnl+Nfl*l]=arb[0+Nfl*l:Nfl-Nnl+Nfl*l].copy() 
         #arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l]=arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l]-arxr[Nfl-Nnl]+arb[Nfl-Nnl-1+Nfl*l]
 
@@ -102,7 +102,7 @@ def RALF1FilterQ(dQ2):
             dQ2[i]=np.zeros(Nf,np.float16)        
     return dQ2
 
-def RandomQQ(Nfx):
+def randomX(Nfx):
     KK=3e6
     liiX=np.zeros(Nfx,float)
     for ii in range(3): 
@@ -294,9 +294,9 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
             aMn[i]=min(dQ5mn[i])          
             
         Nfl=int(len(arr_bx)/NChan)
-        for l in range(NChan):
-            aMx[Nfl-NNew+Nfl*l:Nfl+Nfl*l]= savgol_filter(aMx[Nfl-NNew+Nfl*l:Nfl+Nfl*l], 15, 5)
-            aMn[Nfl-NNew+Nfl*l:Nfl+Nfl*l]= savgol_filter(aMn[Nfl-NNew+Nfl*l:Nfl+Nfl*l], 15, 5)
+        # for l in range(NChan):
+        #     aMx[Nfl-NNew+Nfl*l:Nfl+Nfl*l]= savgol_filter(aMx[Nfl-NNew+Nfl*l:Nfl+Nfl*l], 15, 5)
+        #     aMn[Nfl-NNew+Nfl*l:Nfl+Nfl*l]= savgol_filter(aMn[Nfl-NNew+Nfl*l:Nfl+Nfl*l], 15, 5)
         
         arr_bbbxxx=aMx + aMn  
             
@@ -390,7 +390,7 @@ def RALf1FiltrQ(args):
             Nch=int(r2[1][Nhh-1])
             if np.isnan(KoefA[Nch]):
                 KoefA[Nch]=0            
-            if KoefA[Nch]>10:
+            if KoefA[Nch]>0:
                 for l in range(NChan):
                     arr_b[Nf-NNew+Nf*l:Nf+Nf*l]=arr_bbx[Nf-NNew+Nf*l:Nf+Nf*l,Nch].copy()    
                 arr_b=filterFourierQ(arr_b,arr_b,NNew,NChan)
