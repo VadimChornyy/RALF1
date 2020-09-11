@@ -105,15 +105,19 @@ def RALF1FilterQ(dQ2):
 def randomX(Nfx):
     KK=3e6
     liiX=np.zeros(Nfx,float)
-    for ii in range(3): 
-        z=np.random.randint(Nfx)/KK           
-        atim0=tm.time()        
-        tm.sleep(z) 
-        atim=tm.time()     
-        dd=int((atim-atim0-z)*KK)
-        zz=np.asarray(range(Nfx),float)/KK
-        lfib1340.LFib1340(dd).shuffle(zz)   
-        liiX=liiX+zz
+    pp=0
+    while pp<0.055:
+        for ii in range(3): 
+            z=np.random.randint(Nfx)/KK           
+            atim0=tm.time()        
+            tm.sleep(z) 
+            atim=tm.time()     
+            dd=int((atim-atim0-z)*KK)
+            zz=np.asarray(range(Nfx),float)/KK
+            lfib1340.LFib1340(dd).shuffle(zz)   
+            liiX=liiX+zz
+        
+        k2, pp = scp.normaltest(liiX)
             
     r2=np.zeros((2,Nfx),float)
     r2[0]= np.asarray(liiX[0:Nfx],float)
@@ -125,7 +129,7 @@ def randomX(Nfx):
     return liiXX
   
 def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
-    Koe=1e-4      
+    Koe=1e-3   
     tSp=1
     arr_bZ=[]
     arr_b=np.asarray(arr_bx,float)
@@ -390,7 +394,7 @@ def RALf1FiltrQ(args):
             Nch=int(r2[1][Nhh-1])
             if np.isnan(KoefA[Nch]):
                 KoefA[Nch]=0            
-            if KoefA[Nch]>0:
+            if KoefA[Nch]>20:
                 for l in range(NChan):
                     arr_b[Nf-NNew+Nf*l:Nf+Nf*l]=arr_bbx[Nf-NNew+Nf*l:Nf+Nf*l,Nch].copy()    
                 arr_b=filterFourierQ(arr_b,arr_b,NNew,NChan)
