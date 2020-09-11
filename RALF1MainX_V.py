@@ -28,7 +28,7 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&s
 #INTRADAY
 #d_intervals = {"1min","5min","15min","30min","60min"}
 
-Lengt=500
+Lengt=100
 Ngroup=2
 Nproc=Ngroup*2#(mp.cpu_count()-1)
 Lo=0
@@ -310,7 +310,7 @@ if __name__ == '__main__':
                     Koef=100*scp.spearmanr(mm1,mm2)[0]
                 else:
                     Koef=-2
-                if (Koef+100)>= (TKoef+100):  
+                if (Koef+100)>= 0.62*(TKoef+100):  
                     TKoef=Koef                                  
                     fig = plt.figure()
                     axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])
