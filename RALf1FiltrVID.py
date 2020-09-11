@@ -130,7 +130,7 @@ def randomX(Nfx):
   
 def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
     Koe=1e-3   
-    tSp=2
+    tSp=1
     arr_bZ=[]
     arr_b=np.asarray(arr_bx,float)
     #arr_b[0]=0
