@@ -173,9 +173,9 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
             ge=scpyi.interp1d(np.asarray(range(sz),np.float16),r1)                              
             liix[i]=np.asarray(ge(np.linspace(0,sz-1,sz*tSp)),np.float16)
             liix[i]=np.asarray(liix[i]-min(liix[i]),float)
-            liix[i]=np.asarray(liix[i]*(sz-1.033)/max(liix[i]),np.float16)
+            liix[i]=np.asarray(liix[i]*(sz-1)/max(liix[i]),np.float16)
                           
-            ge=scpyi.interp1d(np.asarray(range(sz),np.float16) ,r2,kind='linear')
+            ge=scpyi.interp1d(np.asarray(range(sz),float) ,r2,kind='linear')
             dQ3[i]=np.asarray(ge(liix[i]),np.float16)            
             for l in range(NChan):
                 bb=np.asarray(0.5*np.around(2*np.arange(l+int(liiE[i]),l+sz+int(liiE[i]),sz/NNew)),int)
@@ -183,7 +183,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                 #bb_=np.asarray(liiC[np.asarray(np.arange(l+sz+int(liiE[i]),l+int(liiE[i]),-sz/NNew),int)]*K,int)
                 R4[Nf-len(bb)+Nf*l:Nf+Nf*l]=(r4[Nf-len(bb)+Nf*l+bb])#+
                                           #r4[Nf-NNew+Nf*l+bb_[0:NNew]])/np.sqrt(2)        
-            ge=scpyi.interp1d(np.asarray(range(sz),np.float16) ,R4,kind='linear') 
+            ge=scpyi.interp1d(np.asarray(range(sz),float) ,R4,kind='linear') 
             mDD[i]=np.asarray(ge(liix[i]),np.float16)
             
         dQ3=dQ3-mn
