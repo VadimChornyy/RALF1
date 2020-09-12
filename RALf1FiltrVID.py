@@ -129,7 +129,7 @@ def randomX(Nfx):
     return liiXX
   
 def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
-    Koe=1e-3   
+    Koe=1e-4   
     tSp=1
     arr_bZ=[]
     arr_b=np.asarray(arr_bx,float)
@@ -190,9 +190,9 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
         # zz=8
         # dQ3mx=np.zeros((sz,sz*tSp),np.float16)-np.Inf
         # dQ3mn=np.zeros((sz,sz*tSp),np.float16)+np.Inf
-        # Ndel=3#int(np.ceil(np.sqrt(sz)))
+        # Ndel=2#int(np.ceil(np.sqrt(sz)))
         # NCh=int(np.ceil(sz/Ndel)) 
-        # Ndel0=3
+        # Ndel0=2
         # NCh0=int(np.ceil(sz*tSp/Ndel0)) 
         # while zz>=0:        
         #     w=1

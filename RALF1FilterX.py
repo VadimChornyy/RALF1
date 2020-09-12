@@ -3,8 +3,7 @@ def meani(bb):
     aa=0
     sz=len(bb)
     for i in range(sz):
-        aa=aa+bb[i]
-    aa=aa/sz
+        aa=np.float16((aa*i+bb[i])/(i+1))  
     return aa    
     
 def stdeviat(bb):
@@ -12,8 +11,8 @@ def stdeviat(bb):
     sz=len(bb)
     bb=bb-meani(bb)
     for i in range(sz):
-        aa=aa+bb[i]*bb[i]
-    aa=np.sqrt(aa)/sz
+        aa=np.float16((aa*i*i+bb[i]*bb[i])/(i+1)/(i+1))
+    aa=np.sqrt(aa)
     return aa
 
 def RALF1FilterX(dQ1,Np,Nf,key,key2):
