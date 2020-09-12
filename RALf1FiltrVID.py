@@ -130,7 +130,7 @@ def randomX(Nfx):
   
 def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
     Koe=1e-4   
-    tSp=2
+    tSp=1
     arr_bZ=[]
     arr_b=np.asarray(arr_bx,float)
     #arr_b[0]=0
@@ -216,8 +216,8 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                                 dQ4.append(dQ3[NumFri[ii+0:ii+NCh],NumFri_[i+ll]])
                                 mDD4.append(mDD[NumFri[ii+0:ii+NCh],NumFri_[i+ll]])
                             dQ4=np.asarray(dQ4,np.float16).transpose()
-                            mDD4=np.asarray(mDD4,np.float16).transpose()
-                            dQ4mn=np.float16(np.mean(dQ4*(1-(np.abs(mDD4)<D*Koe))))
+                            mDD4=np.asarray(mDD4-mDD4*(mDD4<D*Koe),np.float16).transpose()
+                            dQ4mn=np.float16(np.mean(dQ4*(1-(mDD4<D*Koe))))
                             dQ4=dQ4-dQ4mn 
                             dQ4A=XFilter.RALF1FilterX(  np.asarray(dQ4*(1-(dQ4<0))+mDD4,np.float16),len(dQ4),len(dQ4[0]),1,0)
                             dQ4B=XFilter.RALF1FilterX( np.asarray(-dQ4*(1-(dQ4>0))+mDD4,np.float16),len(dQ4),len(dQ4[0]),1,0)
@@ -380,7 +380,7 @@ def RALf1FiltrQ(args):
             Nch=int(r2[1][Nhh-1])
             if np.isnan(KoefA[Nch]):
                 KoefA[Nch]=0            
-            if KoefA[Nch]>-100:
+            if KoefA[Nch]>10:
                 for l in range(NChan):
                     arr_b[Nf-NNew+Nf*l:Nf+Nf*l]=arr_bbx[Nf-NNew+Nf*l:Nf+Nf*l,Nch].copy()    
                 arr_b=filterFourierQ(arr_b,arr_b,NNew,NChan)
