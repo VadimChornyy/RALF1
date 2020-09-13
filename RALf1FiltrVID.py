@@ -301,8 +301,8 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
         for ii in range(NNew):  
             arr_b[Nfl-NNew+Nfl*l+ii]=(max(arr_bbx[Nfl-NNew+Nfl*l+ii])+min(arr_bbx[Nfl-NNew+Nfl*l+ii]))/2
 
-    arr_b=filterFourierQ(arr_b,arr_b,NNew,NChan)+mn
-    return arr_b
+    #arr_b=filterFourierQ(arr_b,arr_b,NNew,NChan)+
+    return arr_b+mn
 
 def RALf1FiltrQ(args):
     pid = win32api.GetCurrentProcessId()
