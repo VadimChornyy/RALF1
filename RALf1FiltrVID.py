@@ -130,7 +130,7 @@ def randomX(Nfx):
   
 def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
     Koe=1e-4   
-    tSp=1
+    tSp=2
     arr_bZ=[]
     arr_b=np.asarray(arr_bx,float)
     #arr_b[0]=0
@@ -145,7 +145,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
     ann=0
      
     arr_bbx=[]
-    while hh<2:#Nhh:    
+    while hh<Nhh:    
         aa=randomX(sz) 
         liiB=np.concatenate((aa,aa))        
         aa=randomX((Nf+1)*NChan) 
@@ -232,11 +232,11 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                     w=1                     
                 zz=zz-1
                 
-        dQ3=(dQ3mx+dQ3mn)/2
-        del(dQ3mx)
-        del(dQ3mn)  
-        dQ2X=dQ3.copy()
-        dQ2Y=dQ2X.copy()     
+        # dQ3=(dQ3mx+dQ3mn)/2
+        # del(dQ3mx)
+        # del(dQ3mn)  
+        dQ2X=dQ3mx.copy()
+        dQ2Y=dQ3mn.copy()     
         # dQ3A=dQ3.copy()        
         # dQ3B=np.asarray(dQ3A-dQ3A*np.asarray(dQ3A<0,int),np.float16)   
         # dQ2X=XFilter.RALF1FilterX(np.asarray(dQ3B+mDD,np.float16),sz,sz*tSp,1,0)
@@ -290,7 +290,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
         
         arr_bbbxxx=aMx + aMn  
             
-        arr_bbbxxx=filterFourierQ(arr_bbbxxx,arr_bx,NNew,NChan)
+        #arr_bbbxxx=filterFourierQ(arr_bbbxxx,arr_bx,NNew,NChan)
         ann=sum(np.isnan(arr_bbbxxx))
         if ann==0: 
             arr_bbx.append(arr_bbbxxx)           
@@ -301,7 +301,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
         for ii in range(NNew):  
             arr_b[Nfl-NNew+Nfl*l+ii]=(max(arr_bbx[Nfl-NNew+Nfl*l+ii])+min(arr_bbx[Nfl-NNew+Nfl*l+ii]))/2
 
-    #arr_b=filterFourierQ(arr_b,arr_b,NNew,NChan)+
+    arr_b=filterFourierQ(arr_b,arr_b,NNew,NChan)
     return arr_b+mn
 
 def RALf1FiltrQ(args):
