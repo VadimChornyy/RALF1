@@ -129,7 +129,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
             
         K=NNew/(Nf+1)/NChan
         sz=int(NChan*Nf)
-        liix=[[] for kk in range(sz)]  
+        liix=np.zeros((sz,sz),int) 
         dQ3=np.zeros((sz,sz),np.float16)
         mDD=np.zeros((sz,sz),np.float16)        
         for i in range(sz):    
@@ -141,8 +141,6 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                 R4[Nf-len(bb)+Nf*l:Nf+Nf*l]=r4[Nf-len(bb)+Nf*l+bb].copy()                    
             mDD[i]=R4[r1].copy()     
             tm.sleep(0.002)
-            
-        liix=np.asarray(liix,int)
             
         dQ3=dQ3-mn
         zz=1
@@ -185,13 +183,21 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                 except:
                     w=1                     
                 zz=zz-1
-        dQ3mx[:][liix]=dQ3mx.copy()
-        dQ3mn[:][liix]=dQ3mn.copy()       
-        del(liix)
-        del(dQ3)
-        del(mDD)         
-        aMx=np.max(dQ3mx,0)
-        aMn=np.min(dQ3mn,0)        
+        
+        
+        dQ3=(dQ3mx+dQ3mn)/2        
+        del(mDD)
+        dQ3[:][liix]=dQ3.copy()    
+        aMx=np.max(dQ3,0)
+        aMn=np.min(dQ3,0)
+        
+        # dQ3mx[:][liix]=dQ3mx.copy()
+        # dQ3mn[:][liix]=dQ3mn.copy()       
+        # del(liix)
+        # del(dQ3)
+        # del(mDD)         
+        # aMx=np.max(dQ3mx,0)
+        # aMn=np.min(dQ3mn,0)        
 
         Nfl=int(len(arr_bx)/NChan)        
         arr_bbbxxx=aMx + aMn  
