@@ -187,7 +187,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
         
         dQ3=(dQ3mx+dQ3mn)/2        
         del(mDD)
-        dQ3[:][liix]=dQ3.copy()    
+        dQ3[:][liix]=dQ3   
         aMx=np.max(dQ3,0)
         aMn=np.min(dQ3,0)
         
