@@ -28,9 +28,9 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&s
 #INTRADAY
 #d_intervals = {"1min","5min","15min","30min","60min"}
 
-Lengt=200
-Ngroup=2
-Nproc=Ngroup*2#(mp.cpu_count()-1)
+Lengt=600
+Ngroup=4
+Nproc=Ngroup*4#(mp.cpu_count()-1)
 Lo=0
 aTmStop=3
 NIt=4
@@ -284,12 +284,13 @@ if __name__ == '__main__':
                     arr_rezBz=filterFourierQ(arr_rezBz,arr_z,NNew,1)  
                     arr_rezBz[0:Nf-NNew]=ar0[0:Nf-NNew].copy()                    
                 
+                ssss=int(Nf-NNew+(len(ar0)-(Nf-NNew))/2)
                 if Lo:
                     #arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(np.log(ar0[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)]))/np.std(arr_rezBz[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)])
-                    arr_rezBz[Nf-NNew:]=arr_rezBz[Nf-NNew:]-arr_rezBz[Nf-NNew]+np.log(ar0[Nf-NNew-1])     
+                    arr_rezBz[Nf-NNew:]=arr_rezBz[Nf-NNew:]-np.mean(arr_rezBz[Nf-NNew:ssss])+np.mean(np.log(ar0[Nf-NNew:ssss]))    
                 else: 
                     #arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(ar0[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)])/np.std(arr_rezBz[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)])                        
-                    arr_rezBz[Nf-NNew:]=arr_rezBz[Nf-NNew:]-arr_rezBz[Nf-NNew]+ar0[Nf-NNew-1]              
+                    arr_rezBz[Nf-NNew:]=arr_rezBz[Nf-NNew:]-np.mean(arr_rezBz[Nf-NNew:ssss])+np.mean(ar0[Nf-NNew:ssss])              
 
                 all_rezAz[hhh]=arr_rezBz.copy()        
                 all_rezAz_=all_rezAz[0:hhh+1].transpose()                
