@@ -152,7 +152,8 @@ if __name__ == '__main__':
         all_rezAz=np.zeros((NIter,Nf),float)
         arr_z[Nf-NNew:]=arr_z[Nf-NNew-1]  
         argss=[[0] for j in range(Nproc)]    
-        hh=0
+
+        hh0=0
         hhh=0
         hhh_=0
         hhh0_=hhh_
@@ -169,6 +170,7 @@ if __name__ == '__main__':
             if hhh==NIter:
                 if hhh_<aTmStop-1:
                     TKoef=-100
+                    hh0=0
                     hhh=0
                     arr_rezCz[hhh_*nnn:(hhh_+1)*nnn]=arr_rezBz[Nf-NNew:Nf-NNew+nnn].copy()
                     arr_z=np.zeros(Nf+nnn,float)
@@ -199,18 +201,7 @@ if __name__ == '__main__':
                     arr_A=arr_A-Asr
                     Klg=np.power(10,np.floor(np.log10(np.max(abs(arr_A)))))
                     arr_A=arr_A/Klg
-        
-                    if hh==0 and iProc==0:
-                        file=open('datapy%d.tmp'%(iProc+1),'w')
-                        for i in range(Nf):
-                            file.write(str(arr_A[i])+'\n')
-                        file.close()
-        
-                        file=open("anum.tmp",'wt')
-                        file.write("%d\n"%(NNew))
-                        file.write("%d"%(iProc+1))
-                        file.close()
-        
+       
                     program =wrkdir + "RALF1FiltrX_lg.py"
                     NChan=1
                     argss[iProc]=["python", "%s"%NChan, "%s"%NNew, "%s"%NIt]#"%s"%(iProc+1)]
@@ -250,15 +241,7 @@ if __name__ == '__main__':
         
                 arezAMx= np.asarray(arezAMx,float)*Klg+Asr
                 arezBMx=-np.asarray(arezBMx,float)*Klg+Asr
-                
-                # for i in range(len(arezAMx)):
-                #     if Lo:
-                #         arezAMx[i,Nf-NNew:]=arezAMx[i,Nf-NNew:]-arezAMx[i,Nf-NNew]+np.log(arr_z[Nf-NNew-1])
-                #         arezBMx[i,Nf-NNew:]=arezBMx[i,Nf-NNew:]-arezBMx[i,Nf-NNew]+np.log(arr_z[Nf-NNew-1])                  
-                #     else:
-                #         arezAMx[i,Nf-NNew:]=arezAMx[i,Nf-NNew:]-arezAMx[i,Nf-NNew]+arr_z[Nf-NNew-1]
-                #         arezBMx[i,Nf-NNew:]=arezBMx[i,Nf-NNew:]-arezBMx[i,Nf-NNew]+arr_z[Nf-NNew-1]
-                
+                               
                 Arr_AAA=np.zeros((Ngroup,int(Nproc*2*(hhh+1)/Ngroup),Nf),float)  
                 for iGr in range(Ngroup):
                     for iProc in range(int(Nproc/Ngroup)):                
@@ -310,7 +293,7 @@ if __name__ == '__main__':
                 if np.std(mm1)>0 and np.std(mm2)>0:
                     Koef=100*scp.spearmanr(mm1,mm2)[0]
                 else:
-                    Koef=-2
+                    Koef=-2  
                 if (Koef+100)>= (TKoef+100):  
                     TKoef=Koef                                  
                     fig = plt.figure()
@@ -339,13 +322,16 @@ if __name__ == '__main__':
                         out.write(cimgx[0:gray_sz2,0:gray_sz1,:]) 
                     out.release()
                     plt.show()
-                    hh=hh+1
                     hhh=hhh+1
-                    print (hh)
+                    print (hhh)
                     #arr_z=arr_rezBz.copy()
                 if msvcrt.kbhit():              
                     key = ord(msvcrt.getch())  
     
+                hh0=hh0+1
+                if hh0==2*NIter:
+                    hhh=NIter 
+                    
         df = pd.DataFrame(arr_rezBz)
         df.to_excel (wrkdir +r'export_traces.xlsx', index = None, header=False) 
         
