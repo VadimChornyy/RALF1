@@ -196,9 +196,15 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                     w=1                     
                 zz=zz-1
                 
+        dQ3A=(dQ3mx+dQ3mn)/2
+        dQ3B=dQ3A-dQ3A*np.asarray(dQ3A<0,int)   
+        dQ2X=XFilter.RALF1FilterX(dQ3B+mDD,sz,sz,1,0)
+        dQ3C=-(dQ3A-dQ3A*np.asarray(dQ3A>0,int))   
+        dQ2Y=-XFilter.RALF1FilterX(dQ3C+mDD,sz,sz,1,0)       
+
         dQ3=dQ3*0
         for i in  range(sz):    
-            dQ3[:][liix[i]]=(dQ3mx+dQ3mn)/2  
+            dQ3[:][liix[i]]=(dQ2X+dQ2Y)/2
                     
         del(dQ3mx)
         del(dQ3mn) 
@@ -298,7 +304,7 @@ def RALf1FiltrQ(args):
             Nch=int(r2[1][Nhh-1])
             if np.isnan(KoefA[Nch]):
                 KoefA[Nch]=0            
-            if KoefA[Nch]>10:
+            if KoefA[Nch]>20:
                 for l in range(NChan):
                     arr_b[Nf-NNew+Nf*l:Nf+Nf*l]=arr_bbx[Nf-NNew+Nf*l:Nf+Nf*l,Nch].copy()    
                 arr_b=filterFourierQ(arr_b,arr_b,NNew,NChan)
