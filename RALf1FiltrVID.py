@@ -215,8 +215,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
             aMx[0+Nfl*l:Nfl+Nfl*l]= savgol_filter(aMx[0+Nfl*l:Nfl+Nfl*l], 11, 5)
             aMn[0+Nfl*l:Nfl+Nfl*l]= savgol_filter(aMn[0+Nfl*l:Nfl+Nfl*l], 11, 5)
  
-        arr_bbbxxx=aMx + aMn  
-            
+        #arr_bbbxxx=aMx + aMn              
         # ann=sum(np.isnan(arr_bbbxxx))
         # if ann==0: 
         #     arr_bbx.append(arr_bbbxxx)           
@@ -225,22 +224,26 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
         if ann==0: 
             if hh==0:                
                 AMX=aMx.copy()
-                AMN=aMn.copy()
+                AMN=aMn.copy()                
             else:
                 AMX=np.maximum(AMX,aMx)
-                AMN=np.minimum(AMN,aMn)            
-            
-            arr_bbbxxx=AMX+AMN             
-            arr_bbx.append(arr_bbbxxx)           
+                AMN=np.minimum(AMN,aMn)
+                
+            arr_bbbxxx=AMX+AMN
+            arr_bbbxxx=filterFourierQ(arr_bbbxxx,arr_b,NNew,NChan)
+            if hh==0:
+                arr_bbx=arr_bbbxxx.copy()            
+            else:               
+                arr_bbx=(arr_bbx*hh+arr_bbbxxx)/(hh+1)                  
             hh=hh+1
     
-    arr_bbx=np.asarray(arr_bbx,float).transpose()
-    for l in range(NChan):
-        for ii in range(NNew):  
-            arr_b[Nfl-NNew+Nfl*l+ii]=(max(arr_bbx[Nfl-NNew+Nfl*l+ii])+min(arr_bbx[Nfl-NNew+Nfl*l+ii]))/2
+    # arr_bbx=np.asarray(arr_bbx,float).transpose()
+    # for l in range(NChan):
+    #     for ii in range(NNew):  
+    #         arr_b[Nfl-NNew+Nfl*l+ii]=(max(arr_bbx[Nfl-NNew+Nfl*l+ii])+min(arr_bbx[Nfl-NNew+Nfl*l+ii]))/2
 
-    arr_b=filterFourierQ(arr_b,arr_b,NNew,NChan)
-    return arr_b+mn
+    # arr_b=filterFourierQ(arr_b,arr_b,NNew,NChan)
+    return arr_bbx+mn
 
 def RALf1FiltrQ(args):
     pid = win32api.GetCurrentProcessId()
