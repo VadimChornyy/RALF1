@@ -19,21 +19,21 @@ from RALf1FiltrVID import RALf1FiltrQ
 wrkdir = r"c:\Work\\"
 api_key = 'ONKTYPV6TAMZK464' 
 
-ticker ="GLD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
+ticker ="BTC-USD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
 interv="30min"
-#interv="Daily"
+interv="Daily"
 url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=%s&interval=%s&outputsize=full&apikey=%s"%(ticker,interv,api_key)        
-#url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=%s&outputsize=full&apikey=%s"%(ticker,api_key)
+url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=%s&outputsize=full&apikey=%s"%(ticker,api_key)
 
 #INTRADAY
 #d_intervals = {"1min","5min","15min","30min","60min"}
 
-Lengt=200
+Lengt=600
 Ngroup=2
 Nproc=Ngroup*2#(mp.cpu_count()-1)
 Lo=0
 aTmStop=3
-NIt=4
+NIt=6
 NIter=20
 DT=0.25
 Nf_K=3
@@ -216,9 +216,8 @@ if __name__ == '__main__':
                     future_to = {executor.submit(RALf1FiltrQ, argss[iProc]) for iProc in range(Nproc)}
                     for future in concurrent.futures.as_completed(future_to):                
                         arezAMx.append(future.result())
-        
+                
                 arezAMx= np.asarray(arezAMx,float)*Klg+Asr
-                # arezBMx=-np.asarray(arezBMx,float)*Klg+Asr
                 arezBMx=arezAMx.copy()
                                
                 Arr_AAA=np.zeros((Ngroup,int(Nproc*2*(hhh+1)/Ngroup),Nf),float)  
