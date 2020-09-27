@@ -272,7 +272,7 @@ if __name__ == '__main__':
                     Koef=100*scp.spearmanr(mm1,mm2)[0]
                 else:
                     Koef=-2  
-                if (Koef+100)>= 0.62*(TKoef+100):  
+                if (Koef+100)>= (TKoef+100):  
                     TKoef=Koef                                  
                     fig = plt.figure()
                     axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])
@@ -301,7 +301,7 @@ if __name__ == '__main__':
                     out.release()
                     plt.show()
                     hhh=hhh+1
-                    print (hhh)
+                    
                     #arr_z=arr_rezBz.copy()
                 if msvcrt.kbhit():              
                     key = ord(msvcrt.getch())  
@@ -309,6 +309,7 @@ if __name__ == '__main__':
                 hh0=hh0+1
                 if hh0==2*NIter:
                     hhh=NIter 
+                print (hhh+10000*hh0)
                     
         df = pd.DataFrame(arr_rezBz)
         df.to_excel (wrkdir +r'export_traces.xlsx', index = None, header=False) 
