@@ -313,7 +313,7 @@ def RALf1FiltrQ(args):
                 hh=Nhh+2
         if hh<Nhh+2:
             arr_bbx=np.asarray(arr_bbx,np.float16).transpose()
-            
+            Koef=Koef/np.std(Koef)+KoefA/np.std(KoefA)
             r2=np.zeros((2,Nhh),float)
             r2[0]= np.asarray(Koef,float)
             r2[1]= np.asarray(range(Nhh),float)
