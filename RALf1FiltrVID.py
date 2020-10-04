@@ -143,7 +143,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
             mDD[i]=R4[r1].copy()     
             tm.sleep(0.002)
             
-        if not 1==1:            
+        if 1==1:            
             dQ3A=dQ3-mn        
             dQ3B=dQ3A-dQ3A*np.asarray(dQ3A<0,int)   
             dQ2X=XFilter.RALF1FilterX(dQ3B+mDD,sz,sz,1,0)
