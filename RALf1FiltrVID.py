@@ -8,6 +8,36 @@ from scipy import stats as scp
 import win32api,win32process,win32con
 from scipy.signal import savgol_filter
 
+import mersenne_twister as gen
+def randomX(Nfx):
+    KK=1e6
+    liiX=np.zeros(Nfx,float)
+    for ii in range(3):            
+        atim0=tm.time() 
+        z=np.random.randint(Nfx)/KK
+        tm.sleep(z) 
+        atim=tm.time()
+        delt=(atim-atim0-z)*KK            
+        genera = gen.mersenne_rng(int(delt))
+        z=genera.get_random_number()/KK/KK
+        i=0
+        while i<Nfx:
+            atim0=tm.time() 
+            z=genera.get_random_number()/KK/KK#np.random.randint(Nf)/KK
+            tm.sleep(z) 
+            atim=tm.time()
+            i=i+1
+            liiX[i-1]=liiX[i-1]+atim-atim0-z
+            
+    r2=np.zeros((2,Nfx),float)
+    r2[0]= (liiX[0:Nfx]).copy()
+    r2[1]= np.asarray(range(Nfx),int).copy()
+    m=[[r2[j][l] for j in range(len(r2))] for l in range(len(r2[0]))]         
+    m.sort(key=itemgetter(0))                  
+    r2=[[m[j][l] for j in range(len(m))] for l in range(len(m[0]))]  
+    liiX=np.asarray(r2[1].copy(),float)
+    return liiX
+
 priorityclasses = [win32process.IDLE_PRIORITY_CLASS,
                win32process.BELOW_NORMAL_PRIORITY_CLASS,
                win32process.NORMAL_PRIORITY_CLASS,
@@ -195,12 +225,6 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                         w=1                     
                     zz=zz-1
                     
-            dQ3A=(dQ3mx+dQ3mn)/2
-            dQ3B=dQ3A-dQ3A*np.asarray(dQ3A<0,int)   
-            dQ2X=XFilter.RALF1FilterX(dQ3B+mDD,sz,sz,1,0)
-            dQ3C=-(dQ3A-dQ3A*np.asarray(dQ3A>0,int))   
-            dQ2Y=-XFilter.RALF1FilterX(dQ3C+mDD,sz,sz,1,0)       
-    
             dQ3=dQ3*0
             for i in  range(sz):    
                 dQ3[:][liix[i]]=(dQ2X+dQ2Y)/2
