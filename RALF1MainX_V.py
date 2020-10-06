@@ -1,3 +1,4 @@
+import multiprocessing as mp
 import concurrent.futures
 import pylab as plt
 import numpy as np
@@ -19,8 +20,8 @@ from RALf1FiltrVID import RALf1FiltrQ
 wrkdir = r"c:\Work\\"
 api_key = 'ONKTYPV6TAMZK464' 
 
-ticker ="BTC-USD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
-interv="30min"
+ticker ="NDAQ"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
+interv="15min"
 interv="Daily"
 url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=%s&interval=%s&outputsize=full&apikey=%s"%(ticker,interv,api_key)        
 url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=%s&outputsize=full&apikey=%s"%(ticker,api_key)
@@ -28,12 +29,12 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symb
 #INTRADAY
 #d_intervals = {"1min","5min","15min","30min","60min"}
 
-Lengt=600
+Lengt=800
 Ngroup=2
-Nproc=Ngroup*2#(mp.cpu_count()-1)
+Nproc=Ngroup*(mp.cpu_count())
 Lo=0
 aTmStop=3
-NIt=6
+NIt=3
 NIter=20
 DT=0.25
 Nf_K=3
@@ -164,7 +165,6 @@ if __name__ == '__main__':
         TKoef=-100
         
         nnn=int(nn/2)
-        arr_rezCz=np.zeros(int(nnn*(aTmStop-1)),float)
         while hhh_<aTmStop and not key == 13: 
             Aprocess=[]
             if hhh==NIter:
@@ -172,7 +172,6 @@ if __name__ == '__main__':
                     TKoef=-100
                     hh0=0
                     hhh=0
-                    arr_rezCz[hhh_*nnn:(hhh_+1)*nnn]=arr_rezBz[Nf-NNew:Nf-NNew+nnn].copy()
                     arr_z=np.zeros(Nf+nnn,float)
                     arr_z[0:nnn]=arr_rezBz[0:nnn].copy()
                     arr_z[nnn:Nf]=arr_rezBz[nnn:Nf].copy()
@@ -310,6 +309,7 @@ if __name__ == '__main__':
                 if hh0==2*NIter:
                     hhh=NIter 
                 print (hhh+10000*hh0)
+                
                     
         df = pd.DataFrame(arr_rezBz)
         df.to_excel (wrkdir +r'export_traces.xlsx', index = None, header=False) 

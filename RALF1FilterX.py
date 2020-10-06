@@ -1,54 +1,34 @@
 import numpy as np
-def meani(bb):
-    # aa=0
-    # sz=len(bb)
-    # for i in range(sz):
-    #     aa=np.float16((aa*i+bb[i])/(i+1))  
-    aa=np.mean(bb)
-    return aa    
-    
-def stdeviat(bb):
-    # aa=0
-    # sz=len(bb)
-    # bb=bb-meani(bb)
-    # for i in range(sz):
-    #     aa=np.float16((aa*i*i+bb[i]*bb[i])/(i+1)/(i+1))
-    # aa=np.sqrt(aa)
-    aa=np.std(bb)
-    return aa
-
 def RALF1FilterX(dQ1,Np,Nf,key,key2):
-    dQ2=(dQ1).copy()
-    if key>0: 
-        SdQj=np.ones(Np,np.float16)   
-        dSdQj=np.zeros(Np,np.float16)
+    dQ2=dQ1.copy() 
+    if key>0:     
+        SdQj=np.ones(Np,float)   
+        dSdQj=np.zeros(Np,float)
         znakSdQj=np.ones(Np,np.float16) 
         if key2>0:
             for i in range(Np):
-                znakSdQj[i]=meani(dQ2[i])        
-            znakSdQj=((znakSdQj<0)-0.5)*2*(-1) 
- 
+                znakSdQj[i]=np.mean(dQ2[i])        
+            znakSdQj=((znakSdQj<0)-0.5)*2*(-1)
         for i in range(Np): 
-            #SdQj[i]=stdeviat(dQ2[i])
+            #SdQj[i]=np.std(dQ2[i])
             dQ2[i] = dQ2[i] * znakSdQj[i]            
             if SdQj[i]==0:
-                dQ2[i]=np.zeros(Nf,np.float16)
+                dQ2[i]=np.zeros(Nf,float)
             else:
                 dQ2[i]=dQ2[i] / SdQj[i]
         
         dQ2_=dQ2.transpose()
-        SdQ=np.zeros(Nf,np.float16)         
+        SdQ=np.zeros(Nf,float)         
         for j in range(Nf):
-            SdQ[j]=meani(dQ2_[j])  
-        sSdQ=stdeviat(SdQ)
+            SdQ[j]=np.mean(dQ2_[j])  
+        sSdQ=np.std(SdQ)
         for i in range(Np):
-            SdQj_ = stdeviat(dQ2[i] - SdQ)
-            SdQj__ = stdeviat(dQ2[i])            
+            SdQj_ = np.std(dQ2[i] - SdQ)
+            SdQj__ = np.std(dQ2[i])            
             if SdQj__ >0 and sSdQ>0:
                 dQ2[i] = dQ2[i] +SdQ * (SdQj_ / sSdQ - 1)
                 dQ2[i] = dQ2[i] *znakSdQj[i] * SdQj[i]#* (1+sSdQ / SdQj__) / 2 
             else:
-                dQ2[i]=np.zeros(Nf,np.float16)        
+                dQ2[i]=np.zeros(Nf,float)        
             dQ2[i]=dQ2[i]+dSdQj[i]
-        #dQ2=dQ2-np.mean(dQ2)+mQ
     return dQ2
