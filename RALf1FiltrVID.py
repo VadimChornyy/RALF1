@@ -156,7 +156,6 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
             aMn=np.min(dQ3,0)
         else:          
             dQ3=dQ3-mn
-            dQ3_0=dQ3.copy()
             zz=3
             dQ3mx=np.zeros((sz,sz),np.float16)-np.Inf
             dQ3mn=np.zeros((sz,sz),np.float16)+np.Inf
@@ -192,9 +191,9 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                         w=0
                     except:
                         w=1                     
-                    zz=zz-1
+                    zz=zz-1                
                 
-                dQ3A=(dQ3_0+(dQ3mx+dQ3mn)/2.)/2  
+                dQ3A=(dQ3+(dQ3mx+dQ3mn)/2.)/2.             
                 dQ3B=dQ3A-dQ3A*np.asarray(dQ3A<0,int)       
                 dQ2X=XFilter.RALF1FilterX(dQ3B+mDD,sz,sz,1,0)
                 dQ3C=-(dQ3A-dQ3A*np.asarray(dQ3A>0,int))      
