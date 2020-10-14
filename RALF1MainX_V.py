@@ -4,7 +4,7 @@ import pylab as plt
 import numpy as np
 import urllib.request, json
 import pandas as pd
-from PIL import Image
+from PIL import Image 
 import msvcrt
 import cv2 as cv
 #import time as tm
