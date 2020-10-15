@@ -1,6 +1,5 @@
 import numpy as np
-def RALF1FilterX(dQ1,Np,Nf,key,key2):
-    dQ2=dQ1.copy() 
+def RALF1FilterX(dQ2,Np,Nf,key,key2):
     if key>0:     
         SdQj=np.ones(Np,float)   
         dSdQj=np.zeros(Np,float)
@@ -16,11 +15,10 @@ def RALF1FilterX(dQ1,Np,Nf,key,key2):
                 dQ2[i]=np.zeros(Nf,float)
             else:
                 dQ2[i]=dQ2[i] / SdQj[i]
-        
-        dQ2_=dQ2.transpose()
+   
         SdQ=np.zeros(Nf,float)         
         for j in range(Nf):
-            SdQ[j]=np.mean(dQ2_[j])  
+            SdQ[j]=np.mean(dQ2[:,j])  
         sSdQ=np.std(SdQ)
         for i in range(Np):
             SdQj_ = np.std(dQ2[i] - SdQ)
