@@ -34,8 +34,8 @@ Ngroup=2
 Nproc=Ngroup*(mp.cpu_count())
 Lo=1
 aTmStop=3
-NIt=2
-NIter=20
+NIt=3
+NIter=40
 DT=0.25
 Nf_K=3
     
@@ -246,10 +246,10 @@ if __name__ == '__main__':
                 
                 ssss=int(Nf-NNew+(len(ar0)-(Nf-NNew))/2)
                 if Lo:
-                    #arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(np.log(ar0[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)]))/np.std(arr_rezBz[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)])
+                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(np.log(ar0[Nf-NNew:ssss]))/np.std(arr_rezBz[Nf-NNew:ssss])
                     arr_rezBz[Nf-NNew:]=arr_rezBz[Nf-NNew:]-np.mean(arr_rezBz[Nf-NNew:ssss])+np.mean(np.log(ar0[Nf-NNew:ssss]))    
                 else: 
-                    #arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(ar0[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)])/np.std(arr_rezBz[Nf-NNew:len(ar0)-int((len(ar0)-(Nf-NNew))/2)])                        
+                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(ar0[Nf-NNew:ssss])/np.std(arr_rezBz[Nf-NNew:ssss])                        
                     arr_rezBz[Nf-NNew:]=arr_rezBz[Nf-NNew:]-np.mean(arr_rezBz[Nf-NNew:ssss])+np.mean(ar0[Nf-NNew:ssss])              
 
                 all_rezAz[hhh]=arr_rezBz.copy()        
@@ -271,7 +271,7 @@ if __name__ == '__main__':
                     Koef=100*scp.spearmanr(mm1,mm2)[0]
                 else:
                     Koef=-2  
-                if (Koef+100)>= (TKoef+100):  
+                if (Koef+100)>= 0*(TKoef+100):  
                     TKoef=Koef                                  
                     fig = plt.figure()
                     axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])

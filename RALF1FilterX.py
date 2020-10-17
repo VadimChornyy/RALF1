@@ -2,7 +2,6 @@ import numpy as np
 def RALF1FilterX(dQ2,Np,Nf,key,key2):
     if key>0:     
         SdQj=np.ones(Np,float)   
-        dSdQj=np.zeros(Np,float)
         znakSdQj=np.ones(Np,float) 
         if key2>0:
             for i in range(Np):
@@ -28,5 +27,4 @@ def RALF1FilterX(dQ2,Np,Nf,key,key2):
                 dQ2[i] = dQ2[i] *znakSdQj[i] * SdQj[i]#* (1+sSdQ / SdQj__) / 2 
             else:
                 dQ2[i]=np.zeros(Nf,float)        
-            dQ2[i]=dQ2[i]+dSdQj[i]
     return dQ2
