@@ -6,7 +6,7 @@ import sys
 import lfib1340 
 from scipy import stats as scp
 import win32api,win32process,win32con
-#from scipy.signal import savgol_filter
+from scipy.signal import savgol_filter
            
 priorityclasses = [win32process.IDLE_PRIORITY_CLASS,
                win32process.BELOW_NORMAL_PRIORITY_CLASS,
@@ -163,12 +163,12 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
         else:          
             dQ3=dQ3-mn
             
-            zz=4
+            zz=9
             dQ3mx=np.zeros((sz,sz),np.float16)-np.Inf
             dQ3mn=np.zeros((sz,sz),np.float16)+np.Inf
             Ndel=2#int(np.ceil(np.sqrt(sz)))
             NCh=int(np.ceil(sz/Ndel)) 
-            Ndel0=2
+            Ndel0=1
             NCh0=int(np.ceil(sz/Ndel0)) 
             while zz>=0: 
                 w=1
@@ -218,10 +218,10 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
             aMx=np.max(dQ3,0)
             aMn=np.min(dQ3,0)          
             
-        # Nfl=int(len(arr_bx)/NChan)
-        # for l in range(NChan):      
-        #     aMx[0+Nfl*l:Nfl+Nfl*l]= savgol_filter(aMx[0+Nfl*l:Nfl+Nfl*l], 11, 5)
-        #     aMn[0+Nfl*l:Nfl+Nfl*l]= savgol_filter(aMn[0+Nfl*l:Nfl+Nfl*l], 11, 5)
+        Nfl=int(len(arr_bx)/NChan)
+        for l in range(NChan):      
+            aMx[0+Nfl*l:Nfl+Nfl*l]= savgol_filter(aMx[0+Nfl*l:Nfl+Nfl*l], 11, 5)
+            aMn[0+Nfl*l:Nfl+Nfl*l]= savgol_filter(aMn[0+Nfl*l:Nfl+Nfl*l], 11, 5)
         
         ann=sum(np.isnan(aMx + aMn))
         if ann==0: 

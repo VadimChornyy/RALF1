@@ -12,6 +12,7 @@ import cv2 as cv
 from scipy import stats as scp
 import dateutil.parser
 from operator import itemgetter
+import dill 
 #from scipy.signal import savgol_filter
 
 from RALf1FiltrVID import filterFourierQ
@@ -20,7 +21,7 @@ from RALf1FiltrVID import RALf1FiltrQ
 wrkdir = r"c:\Work\\"
 api_key = 'ONKTYPV6TAMZK464' 
 
-ticker ="NDAQ"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
+ticker ="USDRUB"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
 interv="15min"
 interv="Daily"
 url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=%s&interval=%s&outputsize=full&apikey=%s"%(ticker,interv,api_key)        
@@ -35,7 +36,7 @@ Nproc=Ngroup*(mp.cpu_count())
 Lo=1
 aTmStop=3
 NIt=3
-NIter=40
+NIter=20
 DT=0.25
 Nf_K=3
     
@@ -120,30 +121,7 @@ if __name__ == '__main__':
           
         aname=ticker
         adat0=adat_[Nf-NNew]
-
-        fig = plt.figure()
-        axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])
-        axes_ = fig.add_axes([0, 0, 0.3, 0.3])     
-        axes.plot(ar0, 'r.')
-        axes.plot(arr_z, 'go-')  #cut data used for model
-        axes.text(4, 4, 'Course = %s, start = %s, step = %s'%(aname,adat0,interv),
-                verticalalignment='bottom', horizontalalignment='right',
-                transform=axes_.transAxes,color='blue', fontsize=14)        
-        fig.savefig(wrkdir +'dynamic.png',dpi=300,transparent=False,bbox_inches = 'tight')
-        frame=Image.open(wrkdir +'dynamic.png')
-        ImApp.append(frame)
-        cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)        
-        gray_sz1=len(cimg[0])
-        gray_sz2=len(cimg)
-        aDur=4
-        fourcc = cv.VideoWriter_fourcc(*'MP4V')
-        out = cv.VideoWriter(wrkdir + aname+'.mp4',fourcc, aDur, (gray_sz1,gray_sz2))                   
-        for icl in range(len(ImApp)):
-            cimgx=(cv.cvtColor(np.array(ImApp[icl]), cv.COLOR_RGB2BGR)) 
-            out.write(cimgx[0:gray_sz2,0:gray_sz1,:]) 
-        out.release()
-        plt.show()
-       
+        
         arr_rezBz=np.zeros(Nf,float)
         mn=np.mean(arr_z[0:Nf-NNew])
         arr_rezMx=  np.zeros((Ngroup,Nf),float)
@@ -165,6 +143,32 @@ if __name__ == '__main__':
         TKoef=-100
         
         nnn=int(nn/2)
+        try:
+            dill.load_session(wrkdir + aname+".ralf")
+        except:
+            fig = plt.figure()
+            axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])
+            axes_ = fig.add_axes([0, 0, 0.3, 0.3])     
+            axes.plot(ar0, 'r.')
+            axes.plot(arr_z, 'go-')  #cut data used for model
+            axes.text(4, 4, 'Course = %s, start = %s, step = %s'%(aname,adat0,interv),
+                    verticalalignment='bottom', horizontalalignment='right',
+                    transform=axes_.transAxes,color='blue', fontsize=14)        
+            fig.savefig(wrkdir +'dynamic.png',dpi=300,transparent=False,bbox_inches = 'tight')
+            frame=Image.open(wrkdir +'dynamic.png')
+            ImApp.append(frame)
+            cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)        
+            gray_sz1=len(cimg[0])
+            gray_sz2=len(cimg)
+            aDur=4
+            fourcc = cv.VideoWriter_fourcc(*'MP4V')
+            out = cv.VideoWriter(wrkdir + aname+'.mp4',fourcc, aDur, (gray_sz1,gray_sz2))                   
+            for icl in range(len(ImApp)):
+                cimgx=(cv.cvtColor(np.array(ImApp[icl]), cv.COLOR_RGB2BGR)) 
+                out.write(cimgx[0:gray_sz2,0:gray_sz1,:]) 
+            out.release()
+            plt.show()
+
         while hhh_<aTmStop and not key == 13: 
             Aprocess=[]
             if hhh==NIter:
@@ -300,7 +304,10 @@ if __name__ == '__main__':
                     out.release()
                     plt.show()
                     hhh=hhh+1
-                    
+                    del(executor)
+                    del(out)
+                    dill.dump_session(wrkdir + aname+".ralf") 
+                                        
                     #arr_z=arr_rezBz.copy()
                 if msvcrt.kbhit():              
                     key = ord(msvcrt.getch())  
