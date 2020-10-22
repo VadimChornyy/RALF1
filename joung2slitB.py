@@ -59,9 +59,13 @@ for l in range(N):
             UU[k][i]=U[j][i][l]  
 
 Uplot0= XFilter.RALF1FilterX(UU,szN,M,0,0)
-Uplot1= XFilter.RALF1FilterX(UU,szN,M,1,0)
-#Uplot2= -XFilter.FilterX(-UU,szN,M,1,0)
-UU=Uplot1-Uplot0
+UUmn=np.mean(UU)
+UU=UU-UUmn
+UU1=UU-UU*(UU<0)
+UU2=UU-UU*(1-(UU<0))
+Uplot1= XFilter.RALF1FilterX(UU1,szN,M,1,0)+UUmn
+Uplot2= -XFilter.RALF1FilterX(-UU2,szN,M,1,0)+UUmn
+UU=Uplot1+Uplot2-Uplot0
 
 k=-1
 for l in range(N):
@@ -70,7 +74,7 @@ for l in range(N):
         for i in range(M):  
             U[j][i][l]=UU[k][i] 
 
-wrkdir = r"F:\Py\\"
+wrkdir = r"C:\Work\\"
 aname='joung2slit_xxB'
 ImApp=[]
 

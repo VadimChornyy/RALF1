@@ -162,7 +162,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                     w=1
         else:          
             dQ3=dQ3-mn
-            
+            dQ3_0=dQ3.copy()
             zz=9
             dQ3mx=np.zeros((sz,sz),np.float16)-np.Inf
             dQ3mn=np.zeros((sz,sz),np.float16)+np.Inf
@@ -200,14 +200,14 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                         w=1                     
                     zz=zz-1                
                 
-                dQ3A=(dQ3mx+dQ3mn)/2.  
+                dQ3A=(dQ3mx+dQ3mn)/2.*((np.abs(mDD)<0*D*Koe))+dQ3_0*(1-(np.abs(mDD)<0*D*Koe))                
                 dQ4mn=np.mean(dQ3A*(1-(np.abs(mDD)<0*D*Koe)))
                 dQ3A=dQ3A-dQ4mn  
                 dQ3B=dQ3A-dQ3A*np.asarray(dQ3A<0,int)       
                 dQ2X=XFilter.RALF1FilterX(dQ3B+mDD,sz,sz,1,0)+dQ4mn
                 dQ3C=-(dQ3A-dQ3A*np.asarray(dQ3A>0,int))      
                 dQ2Y=-XFilter.RALF1FilterX(dQ3C+mDD,sz,sz,1,0)+dQ4mn
-                dQ3=np.asarray((dQ2X+dQ2Y)/2,np.float16)
+                dQ3=np.asarray((dQ2X+dQ2Y)/2*((np.abs(mDD)<0*D*Koe))+dQ3_0*(1-(np.abs(mDD)<0*D*Koe)) ,np.float16)
 
             dQ3=dQ3*0
             for i in  range(sz):    
