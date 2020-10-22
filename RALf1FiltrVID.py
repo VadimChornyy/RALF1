@@ -172,9 +172,9 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
             NCh0=int(np.ceil(sz/Ndel0)) 
             NumFri=RandomQ(sz)
             NumFri_=RandomQ(sz)                 
-            NumFri=np.concatenate((NumFri, NumFri))                  
-            NumFri_=np.concatenate((NumFri_, NumFri_))  
-            xzz=RandomQ(zz*100)
+            NumFri=np.concatenate((NumFri, NumFri, NumFri))                  
+            NumFri_=np.concatenate((NumFri_, NumFri_, NumFri_)) 
+            xzz=RandomQ(sz)
             while zz>=0: 
                 w=1
                 while w>0:    
@@ -186,15 +186,15 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                                 dQ4=np.zeros((NCh,NCh0),float)
                                 mDD4=np.zeros((NCh,NCh0),float)
                                 for ll in range(NCh0):
-                                    dQ4[:,ll]=dQ3[NumFri[ii+0:ii+NCh+xzz[zz]],NumFri_[i+ll+xzz[zz]]]*1.
-                                    mDD4[:,ll]=mDD[NumFri[ii+0:ii+NCh+xzz[zz]],NumFri_[i+ll+xzz[zz]]]*1.
+                                    dQ4[:,ll]= dQ3[NumFri[ii+xzz[zz]:ii+NCh+xzz[zz]],NumFri_[i+ll+xzz[zz]]]*1.
+                                    mDD4[:,ll]=mDD[NumFri[ii+xzz[zz]:ii+NCh+xzz[zz]],NumFri_[i+ll+xzz[zz]]]*1.
                                 dQ4mn=np.mean(dQ4*(1-(np.abs(mDD4)<0*D*Koe)))
                                 dQ4=dQ4-dQ4mn                        
                                 dQ4_A=np.asarray(XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+mDD4,len(dQ4),len(dQ4[0]),1,0)+dQ4mn,np.float16)
                                 dQ4_B=np.asarray(( -XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))+mDD4,len(dQ4),len(dQ4[0]),1,0))+dQ4mn,np.float16)
                                 for ll in range(NCh0):
-                                    dQ3mx[NumFri[ii+0:ii+NCh],NumFri_[i+ll]]=np.maximum(dQ3mx[NumFri[ii+0:ii+NCh],NumFri_[i+ll]],dQ4_A[:,ll])
-                                    dQ3mn[NumFri[ii+0:ii+NCh],NumFri_[i+ll]]=np.minimum(dQ3mn[NumFri[ii+0:ii+NCh],NumFri_[i+ll]],dQ4_B[:,ll])
+                                    dQ3mx[NumFri[ii+xzz[zz]:ii+NCh+xzz[zz]],NumFri_[i+ll+xzz[zz]]]=np.maximum(dQ3mx[NumFri[ii+xzz[zz]:ii+NCh+xzz[zz]],NumFri_[i+ll+xzz[zz]]],dQ4_A[:,ll])
+                                    dQ3mn[NumFri[ii+xzz[zz]:ii+NCh+xzz[zz]],NumFri_[i+ll+xzz[zz]]]=np.minimum(dQ3mn[NumFri[ii+xzz[zz]:ii+NCh+xzz[zz]],NumFri_[i+ll+xzz[zz]]],dQ4_B[:,ll])
                             
                         w=0
                     except:
