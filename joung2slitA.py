@@ -65,7 +65,7 @@ UU1=UU-UU*(UU<0)
 UU2=UU-UU*(1-(UU<0))
 Uplot1= XFilter.RALF1FilterX(UU1,szN,M,1,0)+UUmn
 Uplot2= -XFilter.RALF1FilterX(-UU2,szN,M,1,0)+UUmn
-UU=Uplot1+Uplot2
+UU=Uplot1+Uplot2-Uplot0
 
 k=-1
 for l in range(N):
