@@ -189,13 +189,20 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                                 ii=int(kk*NCh)
                                 for k in range(Ndel0):
                                     i=int(k*NCh0) 
-                                    dQ4=np.zeros((NCh,NCh0),float)
-                                    mDD4=np.zeros((NCh,NCh0),float)
-                                    for ll in range(NCh0):
-                                        dQ4[:,ll]= dQ3[NumFri[ii+xzz[zz]+yzz[uuu]:ii+NCh+xzz[zz]+yzz[uuu]],NumFri_[i+ll+yzz[zz]+xzz[uuu]]]*1.
-                                        mDD4[:,ll]=mDD[NumFri[ii+xzz[zz]+yzz[uuu]:ii+NCh+xzz[zz]+yzz[uuu]],NumFri_[i+ll+yzz[zz]+xzz[uuu]]]*1.
-                                        mDD4[:,ll]= (mDD4[:,ll]+r5[ii+xzz[zz]+yzz[uuu]:ii+NCh+xzz[zz]+yzz[uuu]])*(1-(np.abs(mDD4[:,ll])<D*Koe))/np.sqrt(2)
-                                    dQ4mn=np.mean(dQ4*((np.abs(mDD4)<D*Koe)))
+                                    Add4=int(NCh0*NCh)                                    
+                                    NDD4=int(NCh0*NCh/2)
+                                    ss4=0
+                                    while Add4>NDD4:
+                                        dQ4=np.zeros((NCh,NCh0),float)
+                                        mDD4=np.zeros((NCh,NCh0),float)
+                                        for ll in range(NCh0):
+                                            dQ4[:,ll]= dQ3[NumFri[ii+xzz[zz]+yzz[uuu]:ii+NCh+xzz[zz]+yzz[uuu]],NumFri_[i+ll+yzz[zz]+xzz[uuu]]]*1.
+                                            mDD4[:,ll]=mDD[NumFri[ii+xzz[zz]+yzz[uuu]:ii+NCh+xzz[zz]+yzz[uuu]],NumFri_[i+ll+yzz[zz]+xzz[uuu]]]*1.
+                                            mDD4[:,ll]= (mDD4[:,ll]+r5[ii+xzz[zz]+yzz[uuu]+ss4:ii+NCh+xzz[zz]+yzz[uuu]+ss4])*(1-(mDD4[:,ll]<D*Koe))/np.sqrt(2) 
+                                        dd4=(1-(np.abs(mDD4)<D*Koe)) 
+                                        Add4=sum(sum((dd4)))
+                                        ss4=ss4+1
+                                    dQ4mn=np.mean(dQ4*(np.abs(mDD4)<D*Koe))
                                     dQ4=dQ4-dQ4mn                        
                                     dQ4_A=np.asarray(XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+mDD4,len(dQ4),len(dQ4[0]),1,0)+dQ4mn,np.float16)
                                     dQ4_B=np.asarray(( -XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))+mDD4,len(dQ4),len(dQ4[0]),1,0))+dQ4mn,np.float16)
