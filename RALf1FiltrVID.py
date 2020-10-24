@@ -190,7 +190,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                                 for k in range(Ndel0):
                                     i=int(k*NCh0) 
                                     Add4=int(NCh0*NCh)                                    
-                                    NDD4=int(NCh0*NCh/2)
+                                    NDD4=int(NCh0*NCh/(Nf/NNew))
                                     ss4=0
                                     while Add4>NDD4:
                                         try:
