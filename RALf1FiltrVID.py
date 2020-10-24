@@ -6,7 +6,7 @@ import sys
 import lfib1340 
 from scipy import stats as scp
 import win32api,win32process,win32con
-from scipy.signal import savgol_filter
+#from scipy.signal import savgol_filter
            
 priorityclasses = [win32process.IDLE_PRIORITY_CLASS,
                win32process.BELOW_NORMAL_PRIORITY_CLASS,
@@ -193,14 +193,17 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                                     NDD4=int(NCh0*NCh/2)
                                     ss4=0
                                     while Add4>NDD4:
-                                        dQ4=np.zeros((NCh,NCh0),float)
-                                        mDD4=np.zeros((NCh,NCh0),float)
-                                        for ll in range(NCh0):
-                                            dQ4[:,ll]= dQ3[NumFri[ii+xzz[zz]+yzz[uuu]:ii+NCh+xzz[zz]+yzz[uuu]],NumFri_[i+ll+yzz[zz]+xzz[uuu]]]*1.
-                                            mDD4[:,ll]=mDD[NumFri[ii+xzz[zz]+yzz[uuu]:ii+NCh+xzz[zz]+yzz[uuu]],NumFri_[i+ll+yzz[zz]+xzz[uuu]]]*1.
-                                            mDD4[:,ll]= (mDD4[:,ll]+r5[ii+xzz[zz]+yzz[uuu]+ss4:ii+NCh+xzz[zz]+yzz[uuu]+ss4])*(1-(mDD4[:,ll]<D*Koe))/np.sqrt(2) 
-                                        dd4=(1-(np.abs(mDD4)<D*Koe)) 
-                                        Add4=sum(sum((dd4)))
+                                        try:
+                                            dQ4=np.zeros((NCh,NCh0),float)
+                                            mDD4=np.zeros((NCh,NCh0),float)
+                                            for ll in range(NCh0):
+                                                dQ4[:,ll]= dQ3[NumFri[ii+xzz[zz]+yzz[uuu]:ii+NCh+xzz[zz]+yzz[uuu]],NumFri_[i+ll+yzz[zz]+xzz[uuu]]]*1.
+                                                mDD4[:,ll]=mDD[NumFri[ii+xzz[zz]+yzz[uuu]:ii+NCh+xzz[zz]+yzz[uuu]],NumFri_[i+ll+yzz[zz]+xzz[uuu]]]*1.
+                                                mDD4[:,ll]= (r5[ii+xzz[zz]+yzz[uuu]+ss4:ii+NCh+xzz[zz]+yzz[uuu]+ss4])*(1-(mDD4[:,ll]<D*Koe))
+                                            dd4=(1-(np.abs(mDD4)<D*Koe)) 
+                                            Add4=sum(sum((dd4)))
+                                        except:
+                                            ss4=ss4
                                         ss4=ss4+1
                                     dQ4mn=np.mean(dQ4*(np.abs(mDD4)<D*Koe))
                                     dQ4=dQ4-dQ4mn                        
@@ -213,17 +216,19 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                         w=0
                     except:
                         w=1  
-                
-                dQ3A=(dQ3mx+dQ3mn)/2.*(1-(np.abs(mDD)<D*Koe))+dQ3_0*((np.abs(mDD)<D*Koe))                
-                dQ4mn=np.mean(dQ3A*((np.abs(mDD)<D*Koe)))
-                dQ3A=dQ3A-dQ4mn  
-                dQ3B=dQ3A-dQ3A*np.asarray(dQ3A<0,int)       
-                dQ2X=XFilter.RALF1FilterX(dQ3B+mDD,sz,sz,1,0)+dQ4mn
-                dQ3C=-(dQ3A-dQ3A*np.asarray(dQ3A>0,int))      
-                dQ2Y=-XFilter.RALF1FilterX(dQ3C+mDD,sz,sz,1,0)+dQ4mn
-                dQ3=np.asarray((dQ2X+dQ2Y)/2*(1-(np.abs(mDD)<D*Koe))+dQ3_0*((np.abs(mDD)<D*Koe)) ,np.float16)
+                try:                
+                    dQ3A=(dQ3mx+dQ3mn)/2.*(1-(np.abs(mDD)<D*Koe))+dQ3_0*((np.abs(mDD)<D*Koe))                
+                    dQ4mn=np.mean(dQ3A*((np.abs(mDD)<D*Koe)))
+                    dQ3A=dQ3A-dQ4mn  
+                    dQ3B=dQ3A-dQ3A*np.asarray(dQ3A<0,int)       
+                    dQ2X=XFilter.RALF1FilterX(dQ3B+mDD,sz,sz,1,0)+dQ4mn
+                    dQ3C=-(dQ3A-dQ3A*np.asarray(dQ3A>0,int))      
+                    dQ2Y=-XFilter.RALF1FilterX(dQ3C+mDD,sz,sz,1,0)+dQ4mn
+                    dQ3=np.asarray((dQ2X+dQ2Y)/2*(1-(np.abs(mDD)<D*Koe))+dQ3_0*((np.abs(mDD)<D*Koe)) ,np.float16)
+                except:
+                    zz=zz
                 zz=zz-1   
-                                    
+                                        
             dQ3=dQ3*0
             for i in  range(sz):    
                 dQ3[:][liix[i]]=np.asarray((dQ2X[i]+dQ2Y[i])/2,np.float16)
@@ -234,9 +239,9 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
             aMn=np.min(dQ3,0)          
             
         Nfl=int(len(arr_bx)/NChan)
-        for l in range(NChan):      
-            aMx[0+Nfl*l:Nfl+Nfl*l]= savgol_filter(aMx[0+Nfl*l:Nfl+Nfl*l], 11, 5)
-            aMn[0+Nfl*l:Nfl+Nfl*l]= savgol_filter(aMn[0+Nfl*l:Nfl+Nfl*l], 11, 5)
+        # for l in range(NChan):      
+        #     aMx[0+Nfl*l:Nfl+Nfl*l]= savgol_filter(aMx[0+Nfl*l:Nfl+Nfl*l], 11, 5)
+        #     aMn[0+Nfl*l:Nfl+Nfl*l]= savgol_filter(aMn[0+Nfl*l:Nfl+Nfl*l], 11, 5)
         
         ann=sum(np.isnan(aMx + aMn))
         if ann==0: 
