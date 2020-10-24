@@ -173,7 +173,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
             NumFri=RandomQ(sz)
             NumFri_=RandomQ(sz) 
             r5=RandomQ(sz) 
-            r5=D*((r5/np.std(r5))/2) 
+            r5=D*((r5/np.std(r5))/2+Koe*10) 
             
             NumFri=np.concatenate((NumFri, NumFri, NumFri))                  
             NumFri_=np.concatenate((NumFri_, NumFri_, NumFri_))
@@ -194,7 +194,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                                     for ll in range(NCh0):
                                         dQ4[:,ll]= dQ3[NumFri[ii+xzz[zz]+yzz[uuu]:ii+NCh+xzz[zz]+yzz[uuu]],NumFri_[i+ll+yzz[zz]+xzz[uuu]]]*1.
                                         mDD4[:,ll]=mDD[NumFri[ii+xzz[zz]+yzz[uuu]:ii+NCh+xzz[zz]+yzz[uuu]],NumFri_[i+ll+yzz[zz]+xzz[uuu]]]*1.
-                                        mDD4[:,ll]= (mDD4[:,ll]+r5[ii+xzz[zz]+yzz[uuu]:ii+NCh+xzz[zz]+yzz[uuu]])*(1-(np.abs(mDD4[:,ll])<D*Koe))*np.sqrt(2)
+                                        mDD4[:,ll]= (mDD4[:,ll]+r5[ii+xzz[zz]+yzz[uuu]:ii+NCh+xzz[zz]+yzz[uuu]])*(1-(np.abs(mDD4[:,ll])<D*Koe))/np.sqrt(2)
                                     dQ4mn=np.mean(dQ4*((np.abs(mDD4)<D*Koe)))
                                     dQ4=dQ4-dQ4mn                        
                                     dQ4_A=np.asarray(XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+mDD4,len(dQ4),len(dQ4[0]),1,0)+dQ4mn,np.float16)
@@ -285,7 +285,7 @@ def RALf1FiltrQ(args):
     arr_bZ=np.asarray(arr_bZ,float)
     D=np.std(arr_bZ)
     arr_b=np.asarray(arr_bb,np.float16)    
-    #NNew=int(NNew*1.1)   
+    NNew=int(NNew*1.1)   
     while 1==1: 
         hh=0
         ann=0
