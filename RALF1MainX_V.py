@@ -30,12 +30,12 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symb
 #INTRADAY
 #d_intervals = {"1min","5min","15min","30min","60min"}
 
-Lengt=800
+Lengt=80
 Ngroup=2
 Nproc=Ngroup*(mp.cpu_count())
 Lo=1
 aTmStop=3
-NIt=3
+NIt=2
 NIter=20
 DT=0.25
 Nf_K=3
@@ -304,8 +304,12 @@ if __name__ == '__main__':
                     out.release()
                     plt.show()
                     hhh=hhh+1
-                    del(executor)
-                    del(out)
+                    try:
+                        del(out)
+                        del(future)                        
+                        del(executor)
+                    except:
+                        hhh=hhh
                     dill.dump_session(wrkdir + aname+".ralf") 
                                         
                     #arr_z=arr_rezBz.copy()
