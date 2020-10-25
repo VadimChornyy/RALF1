@@ -35,16 +35,11 @@ Ngroup=2
 Nproc=Ngroup*(mp.cpu_count())
 Lo=1
 aTmStop=3
-NIt=2
+NIt=3
 NIter=20
 DT=0.25
 Nf_K=3
     
-anamef="fralf.tmp"
-fo = open(anamef, "w")
-fo.write(str(0)+'\n')
-fo.close()  
-
 def loaddata(aLengt,key):
     adat_=[]
     if key>0:  
