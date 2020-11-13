@@ -5,7 +5,6 @@ import numpy as np
 import urllib.request, json
 import pandas as pd
 from PIL import Image 
-import msvcrt
 import cv2 as cv
 #import time as tm
 
@@ -21,7 +20,7 @@ from RALf1FiltrVID import RALf1FiltrQ
 wrkdir = r"c:\Work\\"
 api_key = 'ONKTYPV6TAMZK464' 
 
-ticker ="USDRUB"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
+ticker ="ETHUSD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
 interv="15min"
 interv="Daily"
 url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=%s&interval=%s&outputsize=full&apikey=%s"%(ticker,interv,api_key)        
@@ -30,7 +29,7 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symb
 #INTRADAY
 #d_intervals = {"1min","5min","15min","30min","60min"}
 
-Lengt=80
+Lengt=300
 Ngroup=2
 Nproc=Ngroup*(mp.cpu_count())
 Lo=1
@@ -155,7 +154,7 @@ if __name__ == '__main__':
             cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)        
             gray_sz1=len(cimg[0])
             gray_sz2=len(cimg)
-            aDur=4
+            aDur=2
             fourcc = cv.VideoWriter_fourcc(*'MP4V')
             out = cv.VideoWriter(wrkdir + aname+'.mp4',fourcc, aDur, (gray_sz1,gray_sz2))                   
             for icl in range(len(ImApp)):
@@ -163,6 +162,7 @@ if __name__ == '__main__':
                 out.write(cimgx[0:gray_sz2,0:gray_sz1,:]) 
             out.release()
             plt.show()
+            del(out)
 
         while hhh_<aTmStop and not key == 13: 
             Aprocess=[]
@@ -214,6 +214,8 @@ if __name__ == '__main__':
                     future_to = {executor.submit(RALf1FiltrQ, argss[iProc]) for iProc in range(Nproc)}
                     for future in concurrent.futures.as_completed(future_to):                
                         arezAMx.append(future.result())
+                del(future)                        
+                del(executor)
                 
                 arezAMx= np.asarray(arezAMx,float)*Klg+Asr
                 arezBMx=arezAMx.copy()
@@ -228,13 +230,13 @@ if __name__ == '__main__':
                     
                     Arr_BBB=Arr_AAA[iGr].transpose()
                     for i in range(Nf):
-                        arr_rezMx[iGr][i]=max(Arr_BBB[i])
-                        arr_rezMn[iGr][i]=min(Arr_BBB[i])
+                        arr_rezMx[iGr][i]=np.mean(Arr_BBB[i])
+                        arr_rezMn[iGr][i]=np.mean(Arr_BBB[i])
                         
                 aMx=arr_rezMx.transpose()
                 aMn=arr_rezMn.transpose()                 
                 for i in range(Nf-NNew,Nf):
-                    arr_rezBz[i]=(max(aMx[i])+min(aMn[i]))/2
+                    arr_rezBz[i]=np.mean(aMx[i]+aMn[i])/2
                 
                 if Lo:           
                     arr_rezBz=filterFourierQ(arr_rezBz,np.log(arr_z),NNew,1)
@@ -243,7 +245,7 @@ if __name__ == '__main__':
                     arr_rezBz=filterFourierQ(arr_rezBz,arr_z,NNew,1)  
                     arr_rezBz[0:Nf-NNew]=ar0[0:Nf-NNew].copy()                    
                 
-                ssss=int(Nf-NNew+(len(ar0)-(Nf-NNew))/2)
+                ssss=int(Nf-NNew+(len(ar0)-(Nf-NNew)))
                 if Lo:
                     arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(np.log(ar0[Nf-NNew:ssss]))/np.std(arr_rezBz[Nf-NNew:ssss])
                     arr_rezBz[Nf-NNew:]=arr_rezBz[Nf-NNew:]-np.mean(arr_rezBz[Nf-NNew:ssss])+np.mean(np.log(ar0[Nf-NNew:ssss]))    
@@ -254,7 +256,7 @@ if __name__ == '__main__':
                 all_rezAz[hhh]=arr_rezBz.copy()        
                 all_rezAz_=all_rezAz[0:hhh+1].transpose()                
                 for i in range(Nf):
-                    arr_rezBz[i]=np.mean(all_rezAz_[i])
+                    arr_rezBz[i]=np.mean(all_rezAz_[i][max(0,hhh-int(NIter/2)):hhh+1])
 
                 if hhh_>hhh0_:
                     all_rezAzAll_.append(all_rezAz_)
@@ -270,7 +272,7 @@ if __name__ == '__main__':
                     Koef=100*scp.spearmanr(mm1,mm2)[0]
                 else:
                     Koef=-2  
-                if (Koef+100)>= 0*(TKoef+100):  
+                if (Koef+100)>= (TKoef+100):  
                     TKoef=Koef                                  
                     fig = plt.figure()
                     axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])
@@ -298,20 +300,16 @@ if __name__ == '__main__':
                         out.write(cimgx[0:gray_sz2,0:gray_sz1,:]) 
                     out.release()
                     plt.show()
+                    del(out)
                     hhh=hhh+1
-                    try:
-                        del(out)
-                        del(future)                        
-                        del(executor)
-                    except:
-                        hhh=hhh
-                    dill.dump_session(wrkdir + aname+".ralf") 
-                                        
                     #arr_z=arr_rezBz.copy()
-                if msvcrt.kbhit():              
-                    key = ord(msvcrt.getch())  
-    
+                else:
+                    try:
+                        dill.load_session(wrkdir + aname+".ralf")
+                    except:
+                        hh0=hh0                  
                 hh0=hh0+1
+                dill.dump_session(wrkdir + aname+".ralf")   
                 if hh0==2*NIter:
                     hhh=NIter 
                 print (hhh+10000*hh0)
@@ -350,4 +348,5 @@ if __name__ == '__main__':
             out.write(cimgx[0:gray_sz2,0:gray_sz1,:])       
         out.release()
         plt.show()
+        del(out)
         kkk=kkk+1    
