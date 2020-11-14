@@ -201,23 +201,17 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                     zz=zz+1
                     Asr=(Asr*(zz-1)+(dQ3mx+dQ3mn)/2)/zz
                     
-                    Asr_=np.asarray(np.std(np.asarray(dQ3_0,float)*(mDD<D*Koe))/np.std(np.asarray(Asr,float)*(mDD<D*Koe)),np.float16)    
-                    Asr=Asr*Asr_
-                    Asr_=np.mean(dQ3_0*(mDD<D*Koe))-np.mean(Asr*(mDD<D*Koe))
-                    Asr=Asr-Asr_
-                    Asr=Asr*(np.asarray(1,np.float16)-(mDD<D*Koe))+dQ3_0*(mDD<D*Koe)
-                        
-                    Asr_=np.mean(Asr)
-                    Asr=Asr-Asr_
-        
-                    Asr=( XFilter.RALF1FilterX(Asr*(1-(Asr<0))+mDD,sz,sz,1,0)-
-                         XFilter.RALF1FilterX(-Asr*(1-(Asr>0))+mDD,sz,sz,1,0)+Asr_ )  
+                Asr_=np.asarray(np.std(np.asarray(dQ3_0,float)*(mDD<D*Koe))/np.std(np.asarray(Asr,float)*(mDD<D*Koe)),np.float16)    
+                Asr=Asr*Asr_
+                Asr_=np.mean(Asr*(mDD<D*Koe))-np.mean(dQ3_0*(mDD<D*Koe))
+                Asr=Asr-Asr_
+                Asr=Asr*(np.asarray(1,np.float16)-(mDD<D*Koe))+dQ3_0*(mDD<D*Koe)
                     
-                    Asr_=np.asarray(np.std(np.asarray(dQ3_0,float)*(mDD<D*Koe))/np.std(np.asarray(Asr,float)*(mDD<D*Koe)),np.float16)    
-                    Asr=Asr*Asr_
-                    Asr_=np.mean(dQ3_0*(mDD<D*Koe))-np.mean(Asr*(mDD<D*Koe))
-                    Asr=Asr-Asr_
-                    dQ3=Asr*(np.asarray(1,np.float16)-(mDD<D*Koe))+dQ3_0*(mDD<D*Koe)  
+                Asr_=np.mean(Asr)
+                Asr=Asr-Asr_
+    
+                dQ3=( XFilter.RALF1FilterX(Asr*(1-(Asr<0))+mDD,sz,sz,1,0)-
+                     XFilter.RALF1FilterX(-Asr*(1-(Asr>0))+mDD,sz,sz,1,0)+Asr_ )  
                           
                 w=w-1
             except:
