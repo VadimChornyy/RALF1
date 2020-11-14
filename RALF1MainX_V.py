@@ -34,7 +34,7 @@ Ngroup=2
 Nproc=Ngroup*(mp.cpu_count())
 Lo=1
 aTmStop=3
-NIt=2
+NIt=3
 NIter=20
 DT=0.25
 Nf_K=3
@@ -272,7 +272,7 @@ if __name__ == '__main__':
                     Koef=100*scp.spearmanr(mm1,mm2)[0]
                 else:
                     Koef=-2  
-                if (Koef+100)>= 0*(TKoef+100):  
+                if (Koef+100)>= (TKoef+100):  
                     TKoef=Koef                                  
                     fig = plt.figure()
                     axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])
