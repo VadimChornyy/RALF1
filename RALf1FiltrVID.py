@@ -156,7 +156,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
         dQ3_0=dQ3_0-mn   
 
         ##########################################
-        w=1
+        w=2
         ss4=0
         while w>0:
             try:   
@@ -209,9 +209,11 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                     
                 Asr_=np.mean(Asr)
                 Asr=Asr-Asr_
-    
+               
                 dQ3=( XFilter.RALF1FilterX(Asr*(1-(Asr<0))+mDD,sz,sz,1,0)-
                      XFilter.RALF1FilterX(-Asr*(1-(Asr>0))+mDD,sz,sz,1,0)+Asr_ )  
+                ddd=(mDD+mDD.transpose()+D*Koe*10)*(1-(mDD<D*Koe))
+                mDD=np.asarray(ddd*np.std(np.asarray(mDD,float))/np.std(ddd),np.float16)
                                           
                 w=w-1
             except:
