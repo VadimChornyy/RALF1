@@ -34,7 +34,7 @@ Ngroup=2
 Nproc=Ngroup*(mp.cpu_count())
 Lo=1
 aTmStop=3
-NIt=3
+NIt=2
 NIter=20
 DT=0.25
 Nf_K=3
@@ -230,13 +230,13 @@ if __name__ == '__main__':
                     
                     Arr_BBB=Arr_AAA[iGr].transpose()
                     for i in range(Nf):
-                        arr_rezMx[iGr][i]=np.mean(Arr_BBB[i])
-                        arr_rezMn[iGr][i]=np.mean(Arr_BBB[i])
+                        arr_rezMx[iGr][i]=np.max(Arr_BBB[i])
+                        arr_rezMn[iGr][i]=np.min(Arr_BBB[i])
                         
                 aMx=arr_rezMx.transpose()
                 aMn=arr_rezMn.transpose()                 
                 for i in range(Nf-NNew,Nf):
-                    arr_rezBz[i]=np.mean(aMx[i]+aMn[i])/2
+                    arr_rezBz[i]=max(aMx[i])+min(aMn[i]) 
                 
                 if Lo:           
                     arr_rezBz=filterFourierQ(arr_rezBz,np.log(arr_z),NNew,1)
