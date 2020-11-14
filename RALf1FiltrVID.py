@@ -163,7 +163,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                 AsrX=0*dQ3_0.copy()
                 dQ3=dQ3_0.copy()                
        
-                Nzz=8*Nhh#int(np.ceil(np.sqrt(Ndel)))
+                Nzz=10*Nhh#int(np.ceil(np.sqrt(Ndel)))
                 NumFri0=RandomQ(sz)
                 NumFri0_=RandomQ(sz)                 
                 NumFri0=np.concatenate((NumFri0, NumFri0, NumFri0))                  

@@ -29,12 +29,12 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symb
 #INTRADAY
 #d_intervals = {"1min","5min","15min","30min","60min"}
 
-Lengt=300
+Lengt=400
 Ngroup=2
 Nproc=Ngroup*(mp.cpu_count())
 Lo=1
 aTmStop=3
-NIt=3
+NIt=2
 NIter=20
 DT=0.25
 Nf_K=3
