@@ -190,8 +190,8 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                                 mDD4[:,ll]=(r5[ll+k+kk:ll+k+kk+NCh]*(1-(mDD[NumFri[ii:ii+NCh],NumFri_[i+ll]]<D*Koe)))*1.
                                 #mDD4[:,ll]=(mDD[NumFri[ii:ii+NCh],NumFri_[i+ll]])
                             dQ4=dQ4-np.mean(dQ4*(mDD4<D*Koe))
-                            dQ4_A= XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+mDD4,len(dQ4),len(dQ4[0]),1,0)
-                            dQ4_B=-XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))+mDD4,len(dQ4),len(dQ4[0]),1,0)
+                            dQ4_A= np.asarray(XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16)
+                            dQ4_B=-np.asarray(XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))+mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16)
                             
                             for ll in range(NCh0):
                                 dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]=np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_A[:,ll])
@@ -210,8 +210,12 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                 Asr_=np.mean(Asr*(mDD<D*Koe))
                 Asr=Asr-Asr_
                
-                dQ3=( XFilter.RALF1FilterX(Asr*(1-(Asr<0))+mDD,sz,sz,1,0)-
-                     XFilter.RALF1FilterX(-Asr*(1-(Asr>0))+mDD,sz,sz,1,0)+Asr_ )  
+                Asr=np.asarray( XFilter.RALF1FilterX(Asr*(1-(Asr<0))+mDD,sz,sz,1,0)-
+                     XFilter.RALF1FilterX(-Asr*(1-(Asr>0))+mDD,sz,sz,1,0),np.float16)  
+                
+                ddd=np.asarray(np.std(np.asarray(dQ3_0,float)*(mDD<D*Koe))/np.std(np.asarray(Asr,float)*(mDD<D*Koe)),np.float16) 
+                dQ3=Asr*ddd   
+                dQ3=dQ3+Asr_
                 ddd=(mDD+mDD.transpose()+D*Koe*10)*(1-(mDD<D*Koe))
                 mDD=np.asarray(ddd*np.std(np.asarray(mDD,float))/np.std(ddd),np.float16)
                                           
