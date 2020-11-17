@@ -192,7 +192,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                             dQ4=dQ4-dQ4_
                             dQ4_A= np.asarray(XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16)
                             dQ4_B=-np.asarray(XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))+mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16)
-                            dQ4A=dQ4_A+dQ4_B#+dQ4_
+                            dQ4A=dQ4_A+dQ4_B+dQ4_
                             dQ4_A=dQ4A.copy()
                             dQ4_B=dQ4A.copy()
                             for ll in range(NCh0):
@@ -203,8 +203,8 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                     AsrX=(AsrX*(zz-1)+(dQ3mx+dQ3mn))/zz
                     
                 Asr=AsrX.copy()
-                Asr_=np.mean(Asr*(mDD<D*Koe))
-                Asr=Asr-Asr_
+                # Asr_=np.mean(Asr*(mDD<D*Koe))
+                # Asr=Asr-Asr_
                
                 dQ3=np.asarray( XFilter.RALF1FilterX(Asr*(1-(Asr<0))+mDD,sz,sz,1,0)-
                      XFilter.RALF1FilterX(-Asr*(1-(Asr>0))+mDD,sz,sz,1,0),np.float16) #+Asr_ 
