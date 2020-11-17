@@ -204,7 +204,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                     AsrX=(AsrX*(zz-1)+(dQ3mx+dQ3mn))/zz
                     
                 Asr=AsrX.copy()
-                Asr_=-np.mean(Asr*(mDD<D*Koe))
+                Asr_=np.mean(Asr*(mDD<D*Koe))
                 Asr=Asr-Asr_
                
                 dQ3=np.asarray( XFilter.RALF1FilterX(Asr*(1-(Asr<0))+mDD,sz,sz,1,0)-
