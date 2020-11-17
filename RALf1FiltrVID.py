@@ -138,7 +138,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
 
     Ndel=2#int(np.ceil(np.sqrt(sz)))
     NCh=int(np.ceil(sz/Ndel)) 
-    Ndel0=1
+    Ndel0=2
     NCh0=int(np.ceil(sz/Ndel0))    
     dQ4=np.zeros((NCh,NCh0),np.float16)
     mDD4=np.zeros((NCh,NCh0),np.float16)      
@@ -163,7 +163,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                 AsrX=0*dQ3_0.copy()
                 dQ3=dQ3_0.copy()                
        
-                Nzz=10*Nhh#int(np.ceil(np.sqrt(Ndel)))
+                Nzz=8*Nhh#int(np.ceil(np.sqrt(Ndel)))
                 NumFri0=RandomQ(sz)
                 NumFri0_=RandomQ(sz)                 
                 NumFri0=np.concatenate((NumFri0, NumFri0, NumFri0))                  
@@ -189,10 +189,13 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                                 dQ4[:,ll]=(dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]])*1.
                                 mDD4[:,ll]=(r5[ll+k+kk:ll+k+kk+NCh]*(1-(mDD[NumFri[ii:ii+NCh],NumFri_[i+ll]]<D*Koe)))*1.
                                 #mDD4[:,ll]=(mDD[NumFri[ii:ii+NCh],NumFri_[i+ll]])
-                            dQ4=dQ4-np.mean(dQ4*(mDD4<D*Koe))
+                            dQ4_=np.mean(dQ4*(mDD4<D*Koe))
+                            dQ4=dQ4-dQ4_
                             dQ4_A= np.asarray(XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16)
                             dQ4_B=-np.asarray(XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))+mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16)
-                            
+                            dQ4A=dQ4_A+dQ4_B+dQ4_
+                            dQ4_A=dQ4A.copy()
+                            dQ4_B=dQ4A.copy()
                             for ll in range(NCh0):
                                 dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]=np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_A[:,ll])
                                 dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]=np.minimum(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_B[:,ll])
@@ -201,23 +204,16 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                     AsrX=(AsrX*(zz-1)+(dQ3mx+dQ3mn))/zz
                     
                 Asr=AsrX.copy()
-                Asr_=np.asarray(np.std(np.asarray(dQ3_0,float)*(mDD<D*Koe))/np.std(np.asarray(Asr,float)*(mDD<D*Koe)),np.float16)    
-                Asr=Asr*Asr_
-                Asr_=np.mean(Asr*(mDD<D*Koe))-np.mean(dQ3_0*(mDD<D*Koe))
-                Asr=Asr-Asr_
-                Asr=Asr*(np.asarray(1,np.float16)-(mDD<D*Koe))+dQ3_0*(mDD<D*Koe)
-                    
-                Asr_=np.mean(Asr*(mDD<D*Koe))
+                Asr_=-np.mean(Asr*(mDD<D*Koe))
                 Asr=Asr-Asr_
                
-                Asr=np.asarray( XFilter.RALF1FilterX(Asr*(1-(Asr<0))+mDD,sz,sz,1,0)-
-                     XFilter.RALF1FilterX(-Asr*(1-(Asr>0))+mDD,sz,sz,1,0),np.float16)  
+                dQ3=np.asarray( XFilter.RALF1FilterX(Asr*(1-(Asr<0))+mDD,sz,sz,1,0)-
+                     XFilter.RALF1FilterX(-Asr*(1-(Asr>0))+mDD,sz,sz,1,0),np.float16) +Asr_ 
                 
-                ddd=np.asarray(np.std(np.asarray(dQ3_0,float)*(mDD<D*Koe))/np.std(np.asarray(Asr,float)*(mDD<D*Koe)),np.float16) 
-                dQ3=Asr*ddd   
-                dQ3=dQ3+Asr_
-                ddd=(mDD+mDD.transpose()+D*Koe*10)*(1-(mDD<D*Koe))
-                mDD=np.asarray(ddd*np.std(np.asarray(mDD,float))/np.std(ddd),np.float16)
+                Asr=(mDD+mDD.transpose()+D*Koe*10)*(np.asarray(1,np.float16)-(mDD<D*Koe))                
+                mDD=np.asarray(Asr*np.std(np.asarray(mDD*(1-(mDD<D*Koe)),float))/np.std(Asr*(1-(mDD<D*Koe))),np.float16)
+                
+                dQ3=dQ3*np.std(mDD*(1-(mDD<D*Koe)))/np.std(dQ3*((mDD<D*Koe)*1))
                                           
                 w=w-1
             except:
