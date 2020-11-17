@@ -139,6 +139,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
     Ndel=2#int(np.ceil(np.sqrt(sz)))
     NCh=int(np.ceil(sz/Ndel)) 
     Ndel0=2
+    Nzz=10*Nhh#int(np.ceil(np.sqrt(Ndel)))
     NCh0=int(np.ceil(sz/Ndel0))    
     dQ4=np.zeros((NCh,NCh0),np.float16)
     mDD4=np.zeros((NCh,NCh0),np.float16)      
@@ -161,9 +162,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
         while w>0:
             try:   
                 AsrX=0*dQ3_0.copy()
-                dQ3=dQ3_0.copy()                
-       
-                Nzz=8*Nhh#int(np.ceil(np.sqrt(Ndel)))
+                dQ3=dQ3_0.copy()      
                 NumFri0=RandomQ(sz)
                 NumFri0_=RandomQ(sz)                 
                 NumFri0=np.concatenate((NumFri0, NumFri0, NumFri0))                  
@@ -210,8 +209,9 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                 dQ3=np.asarray( XFilter.RALF1FilterX(Asr*(1-(Asr<0))+mDD,sz,sz,1,0)-
                      XFilter.RALF1FilterX(-Asr*(1-(Asr>0))+mDD,sz,sz,1,0),np.float16) +Asr_ 
                 
-                Asr=(mDD+mDD.transpose()+D*Koe*10)*(np.asarray(1,np.float16)-(mDD<D*Koe))                
-                mDD=np.asarray(Asr*np.std(np.asarray(mDD*(1-(mDD<D*Koe)),float))/np.std(Asr*(1-(mDD<D*Koe))),np.float16)
+                Asr=(mDD+mDD.transpose()+D*Koe*10)*(np.asarray(1,np.float16)-(mDD<D*Koe))    
+                ddd=np.std(np.asarray(mDD*(1-(mDD<D*Koe)),float))/np.std(np.asarray(Asr*(1-(mDD<D*Koe)),float))
+                mDD=np.asarray(Asr*ddd,np.float16)
                 
                 dQ3=dQ3*np.std(mDD*(1-(mDD<D*Koe)))/np.std(dQ3*((mDD<D*Koe)*1))
                                           
