@@ -157,7 +157,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
         dQ3_0=dQ3_0-mn   
 
         ##########################################
-        w=2
+        w=1
         ss4=0
         while w>0:
             try:   
@@ -192,7 +192,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                             dQ4=dQ4-dQ4_
                             dQ4_A= np.asarray(XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16)
                             dQ4_B=-np.asarray(XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))+mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16)
-                            dQ4A=dQ4_A+dQ4_B+dQ4_
+                            dQ4A=dQ4_A+dQ4_B#+dQ4_
                             dQ4_A=dQ4A.copy()
                             dQ4_B=dQ4A.copy()
                             for ll in range(NCh0):
@@ -207,13 +207,14 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                 Asr=Asr-Asr_
                
                 dQ3=np.asarray( XFilter.RALF1FilterX(Asr*(1-(Asr<0))+mDD,sz,sz,1,0)-
-                     XFilter.RALF1FilterX(-Asr*(1-(Asr>0))+mDD,sz,sz,1,0),np.float16) +Asr_ 
+                     XFilter.RALF1FilterX(-Asr*(1-(Asr>0))+mDD,sz,sz,1,0),np.float16) #+Asr_ 
                 
-                Asr=(mDD+mDD.transpose()+D*Koe*10)*(np.asarray(1,np.float16)-(mDD<D*Koe))    
-                ddd=np.std(np.asarray(mDD*(1-(mDD<D*Koe)),float))/np.std(np.asarray(Asr*(1-(mDD<D*Koe)),float))
-                mDD=np.asarray(Asr*ddd,np.float16)
+                # Asr=(mDD+mDD.transpose()+D*Koe*10)*(np.asarray(1,np.float16)-(mDD<D*Koe))    
+                # ddd=np.std(np.asarray(mDD*(1-(mDD<D*Koe)),float))/np.std(np.asarray(Asr*(1-(mDD<D*Koe)),float))
+                # mDD=np.asarray(Asr*ddd,np.float16)
                 
-                dQ3=dQ3*np.std(mDD*(1-(mDD<D*Koe)))/np.std(dQ3*((mDD<D*Koe)*1))
+                # dQ3=dQ3*np.std(mDD*(1-(mDD<D*Koe)))/np.std(dQ3*((mDD<D*Koe)*1))
+                # dQ3=dQ3_0*(mDD<D*Koe)+dQ3*(np.asarray(1,np.float16)-(mDD<D*Koe))
                                           
                 w=w-1
             except:
