@@ -38,7 +38,7 @@ def filterFourierQ(arxx,arb,NNew,NChan):
         farxx=np.fft.fft(arxx[Nfl-Nnl+Nfl*l:Nfl+Nfl*l])    
         mfarxx=abs(farxx) 
         mfarxx[0]=1e-32
-        srmfarxx=.62*np.mean(mfarxx[1:])
+        srmfarxx=.062*np.mean(mfarxx[1:])
         farxxx=np.zeros(Nnl,complex)     
         for j in range(1,Nnl):
             if mfarxx[j]>srmfarxx:
@@ -200,15 +200,22 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                                 dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]=np.minimum(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_B[:,ll])
 
                     zz=zz+1
-                    AsrX=(AsrX*(zz-1)+(dQ3mx+dQ3mn))/zz
+                    if zz==1:
+                        AsrXMx=dQ3mx.copy()
+                        AsrXMn=dQ3mn.copy()
+                    else:
+                        AsrXMx=(AsrXMx*(zz-1)+(dQ3mx))/zz
+                        AsrXMn=(AsrXMn*(zz-1)+(dQ3mn))/zz
                     
-                Asr=AsrX.copy()
-                Asr_=np.mean(Asr)
+                Asr=AsrXMx+AsrXMn
+                Asr=Asr*np.std(mDD*(1-(mDD<D*Koe)))/np.std(Asr*((mDD<D*Koe)*1))
+                Asr_=np.mean(Asr*(mDD<D*Koe))
                 Asr=Asr-Asr_
+                Asr=dQ3_0*(mDD<D*Koe)+Asr*(np.asarray(1,np.float16)-(mDD<D*Koe))
                
                 dQ3=np.asarray( XFilter.RALF1FilterX(Asr*(1-(Asr<0))+mDD,sz,sz,1,0)-
                      XFilter.RALF1FilterX(-Asr*(1-(Asr>0))+mDD,sz,sz,1,0),np.float16) #+Asr_ 
-                dQ3=dQ3+Asr_
+                #dQ3=dQ3+Asr_
                 
                 # Asr=(mDD+mDD.transpose()+D*Koe*10)*(np.asarray(1,np.float16)-(mDD<D*Koe))    
                 # ddd=np.std(np.asarray(mDD*(1-(mDD<D*Koe)),float))/np.std(np.asarray(Asr*(1-(mDD<D*Koe)),float))
