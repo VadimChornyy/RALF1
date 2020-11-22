@@ -1,4 +1,3 @@
-import multiprocessing as mp
 import concurrent.futures
 import pylab as plt
 import numpy as np
@@ -20,7 +19,7 @@ from RALf1FiltrVID import RALf1FiltrQ
 wrkdir = r"c:\Work\\"
 api_key = 'ONKTYPV6TAMZK464' 
 
-ticker ="ETHUSD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
+ticker ="USDRUB"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
 interv="15min"
 interv="Daily"
 url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=%s&interval=%s&outputsize=full&apikey=%s"%(ticker,interv,api_key)        
@@ -29,7 +28,7 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symb
 #INTRADAY
 #d_intervals = {"1min","5min","15min","30min","60min"}
 
-Lengt=400
+Lengt=2000
 Ngroup=3
 Nproc=3#Ngroup*(mp.cpu_count())
 Lo=1
@@ -247,16 +246,23 @@ if __name__ == '__main__':
                 
                 ssss=int(Nf-NNew+(len(ar0)-(Nf-NNew)))
                 if Lo:
-                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(np.log(ar0[Nf-NNew:ssss]))/np.std(arr_rezBz[Nf-NNew:ssss])
+                    #arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(np.log(ar0[Nf-NNew:ssss]))/np.std(arr_rezBz[Nf-NNew:ssss])
                     arr_rezBz[Nf-NNew:]=arr_rezBz[Nf-NNew:]-np.mean(arr_rezBz[Nf-NNew:ssss])+np.mean(np.log(ar0[Nf-NNew:ssss]))    
                 else: 
-                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(ar0[Nf-NNew:ssss])/np.std(arr_rezBz[Nf-NNew:ssss])                        
+                    #arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(ar0[Nf-NNew:ssss])/np.std(arr_rezBz[Nf-NNew:ssss])                        
                     arr_rezBz[Nf-NNew:]=arr_rezBz[Nf-NNew:]-np.mean(arr_rezBz[Nf-NNew:ssss])+np.mean(ar0[Nf-NNew:ssss])              
 
                 all_rezAz[hhh]=arr_rezBz.copy()        
                 all_rezAz_=all_rezAz[0:hhh+1].transpose()                
                 for i in range(Nf):
                     arr_rezBz[i]=np.mean(all_rezAz_[i][max(0,hhh-int(NIter/2)):hhh+1])
+                if Lo:
+                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(np.log(ar0[Nf-NNew:ssss]))/np.std(arr_rezBz[Nf-NNew:ssss])
+                    arr_rezBz[Nf-NNew:]=arr_rezBz[Nf-NNew:]-np.mean(arr_rezBz[Nf-NNew:ssss])+np.mean(np.log(ar0[Nf-NNew:ssss]))    
+                else: 
+                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(ar0[Nf-NNew:ssss])/np.std(arr_rezBz[Nf-NNew:ssss])                        
+                    arr_rezBz[Nf-NNew:]=arr_rezBz[Nf-NNew:]-np.mean(arr_rezBz[Nf-NNew:ssss])+np.mean(ar0[Nf-NNew:ssss])              
+
 
                 if hhh_>hhh0_:
                     all_rezAzAll_.append(all_rezAz_)
