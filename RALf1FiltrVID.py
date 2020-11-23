@@ -38,7 +38,7 @@ def filterFourierQ(arxx,arb,NNew,NChan):
         farxx=np.fft.fft(arxx[Nfl-Nnl+Nfl*l:Nfl+Nfl*l])    
         mfarxx=abs(farxx) 
         mfarxx[0]=1e-32
-        srmfarxx=.62*np.mean(mfarxx[1:])
+        srmfarxx=.062*np.mean(mfarxx[1:])
         farxxx=np.zeros(Nnl,complex)     
         for j in range(1,Nnl):
             if mfarxx[j]>srmfarxx:
@@ -157,11 +157,13 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
 
     liix=np.zeros((sz,sz),int) 
     dQ3_0=np.zeros((sz,sz),np.float16)
-    mDD=np.zeros((sz,sz),np.float16)        
+    mDD=np.zeros((sz,sz),np.float16)  
 
-    Ndel=2#int(np.ceil(np.sqrt(sz)))
+    MM=int(np.ceil(sz/500)+1)
+
+    Ndel=MM#int(np.ceil(np.sqrt(sz)))
     NCh=int(np.ceil(sz/Ndel)) 
-    Ndel0=2
+    Ndel0=MM
     Nzz=10*Nhh#int(np.ceil(np.sqrt(Ndel)))
     NCh0=int(np.ceil(sz/Ndel0))    
     dQ4=np.zeros((NCh,NCh0),np.float16)
