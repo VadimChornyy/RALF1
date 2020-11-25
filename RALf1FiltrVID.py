@@ -159,12 +159,12 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
     dQ3_0=np.zeros((sz,sz),np.float16)
     mDD=np.zeros((sz,sz),np.float16)  
 
-    MM=int(np.ceil(sz/500)+1)
+    MM=int(np.ceil(sz/300)+1)
 
     Ndel=MM#int(np.ceil(np.sqrt(sz)))
     NCh=int(np.ceil(sz/Ndel)) 
     Ndel0=MM
-    Nzz=10*Nhh#int(np.ceil(np.sqrt(Ndel)))
+    Nzz=Nhh#*10#int(np.ceil(np.sqrt(Ndel)))
     NCh0=int(np.ceil(sz/Ndel0))    
     dQ4=np.zeros((NCh,NCh0),np.float16)
     mDD4=np.zeros((NCh,NCh0),np.float16)      

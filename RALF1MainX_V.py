@@ -28,12 +28,12 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symb
 #INTRADAY
 #d_intervals = {"1min","5min","15min","30min","60min"}
 
-Lengt=2000
+Lengt=1000
 Ngroup=3
 Nproc=3#Ngroup*(mp.cpu_count())
 Lo=1
 aTmStop=3
-NIt=2
+NIt=3
 NIter=20
 DT=0.25
 Nf_K=3
@@ -229,8 +229,8 @@ if __name__ == '__main__':
                     
                     Arr_BBB=Arr_AAA[iGr].transpose()
                     for i in range(Nf):
-                        arr_rezMx[iGr][i]=np.max(Arr_BBB[i])
-                        arr_rezMn[iGr][i]=np.min(Arr_BBB[i])
+                        arr_rezMx[iGr][i]=np.mean(Arr_BBB[i])
+                        arr_rezMn[iGr][i]=np.mean(Arr_BBB[i])
                         
                 aMx=arr_rezMx.transpose()
                 aMn=arr_rezMn.transpose()                 
