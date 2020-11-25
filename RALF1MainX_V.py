@@ -229,8 +229,8 @@ if __name__ == '__main__':
                     
                     Arr_BBB=Arr_AAA[iGr].transpose()
                     for i in range(Nf):
-                        arr_rezMx[iGr][i]=np.mean(Arr_BBB[i])
-                        arr_rezMn[iGr][i]=np.mean(Arr_BBB[i])
+                        arr_rezMx[iGr][i]=np.max(Arr_BBB[i])
+                        arr_rezMn[iGr][i]=np.min(Arr_BBB[i])
                         
                 aMx=arr_rezMx.transpose()
                 aMn=arr_rezMn.transpose()                 
