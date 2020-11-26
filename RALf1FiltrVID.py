@@ -214,11 +214,11 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                                 #mDD4[:,ll]=(mDD[NumFri[ii:ii+NCh],NumFri_[i+ll]])
                             dQ4_=np.mean(dQ4*(mDD4<D*Koe))
                             dQ4=dQ4-dQ4_
-                            dQ4_A= np.asarray(XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16)
-                            dQ4_B=-np.asarray(XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))+mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16)
-                            dQ4A=dQ4_A+dQ4_B+dQ4_
-                            dQ4_A=dQ4A.copy()
-                            dQ4_B=dQ4A.copy()
+                            dQ4_A= np.asarray(XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16)+dQ4_
+                            dQ4_B=-np.asarray(XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))+mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16)+dQ4_
+                            # dQ4A=dQ4_A+dQ4_B+dQ4_
+                            # dQ4_A=dQ4A.copy()
+                            # dQ4_B=dQ4A.copy()
                             for ll in range(NCh0):
                                 dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]=np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_A[:,ll])
                                 dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]=np.minimum(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_B[:,ll])
