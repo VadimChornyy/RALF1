@@ -262,20 +262,29 @@ if __name__ == '__main__':
                 all_rezAz_=all_rezAz[0:hhh+1].transpose()                
                 for i in range(Nf):
                     arr_rezBz[i]=np.mean(all_rezAz_[i][max(0,hhh-int(NIter/2)):hhh+1])
+                    
                 if Lo:
-                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(np.log(ar0[Nf-NNew:ssss]))/np.std(arr_rezBz[Nf-NNew:ssss])
+                    KKK=np.std(np.log(ar0[Nf-NNew:ssss]))/np.std(arr_rezBz[Nf-NNew:ssss])
+                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*KKK
                     arr_rezBz[Nf-NNew:]=arr_rezBz[Nf-NNew:]-arr_rezBz[Nf-NNew]+np.log(ar0[Nf-NNew-1])    
                 else: 
-                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(ar0[Nf-NNew:ssss])/np.std(arr_rezBz[Nf-NNew:ssss])                        
+                    KKK=np.std(ar0[Nf-NNew:ssss])/np.std(arr_rezBz[Nf-NNew:ssss])                      
+                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*KKK                      
                     arr_rezBz[Nf-NNew:]=arr_rezBz[Nf-NNew:]-arr_rezBz[Nf-NNew]+ar0[Nf-NNew+1]              
 
                 if hhh_>hhh0_:
                     all_rezAzAll_.append(all_rezAz_)
                     hhh0_=hhh0_+1
                     
-                if Lo:                       
+                if Lo:   
                     arr_rezBz=np.exp(arr_rezBz) 
+                    all_rezAz_[Nf-NNew:Nf,:]=all_rezAz_[Nf-NNew:Nf,:]*KKK
+                    all_rezAz_[Nf-NNew:Nf,:]=all_rezAz_[Nf-NNew:Nf,:]-all_rezAz_[Nf-NNew]+all_rezAz_[Nf-NNew-1]
                     all_rezAz_=np.exp(all_rezAz_)
+                else:
+                    all_rezAz_[Nf-NNew:Nf,:]=all_rezAz_[Nf-NNew:Nf,:]*KKK
+                    all_rezAz_[Nf-NNew:Nf,:]=all_rezAz_[Nf-NNew:Nf,:]-all_rezAz_[Nf-NNew]+all_rezAz_[Nf-NNew-1]
+
 
                 mm1=ar0[Nf-NNew:].copy()                            
                 mm2=arr_rezBz[Nf-NNew:len(ar0)].copy()   
