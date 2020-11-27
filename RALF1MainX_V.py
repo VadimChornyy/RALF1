@@ -87,16 +87,23 @@ def loaddata(aLengt,key):
 
 if __name__ == '__main__':   
     ImApp=[]
-
-    arrrxx,adat_=loaddata(Lengt,1)
-    arrrxx=np.asarray(arrrxx,float)
-    arrrxx_=[]
-    arrrxx_.append(arrrxx)
-    
-    esz=len(arrrxx_)
-    arr_rezDzRez=[[] for j in range(esz)]
-    kkk=0
-    out=0
+    aname=ticker
+    try:
+        arrrxx,adat_=loaddata(Lengt,1)
+        arrrxx=np.asarray(arrrxx,float)
+        arrrxx_=[]
+        arrrxx_.append(arrrxx)
+        
+        esz=len(arrrxx_)
+        arr_rezDzRez=[[] for j in range(esz)]
+        kkk=0
+        out=0
+    except:
+        try:
+            dill.load_session(wrkdir + aname+".ralf")
+        except:
+            aname=aname            
+            
     while kkk <esz:        
         arrr=arrrxx_[kkk].copy()    
         arrr=np.asarray(arrr,float)    
@@ -112,7 +119,6 @@ if __name__ == '__main__':
         arr_z[0:Nf-NNew]=arrr[0:Nf-NNew].copy()
         arr_z[Nf-NNew:]=arr_z[Nf-NNew-1]
           
-        aname=ticker
         adat0=adat_[Nf-NNew]
         
         arr_rezBz=np.zeros(Nf,float)
@@ -247,10 +253,10 @@ if __name__ == '__main__':
                 ssss=int(Nf-NNew+(len(ar0)-(Nf-NNew)))
                 if Lo:
                     #arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(np.log(ar0[Nf-NNew:ssss]))/np.std(arr_rezBz[Nf-NNew:ssss])
-                    arr_rezBz[Nf-NNew:]=arr_rezBz[Nf-NNew:]-np.mean(arr_rezBz[Nf-NNew:ssss])+np.mean(np.log(ar0[Nf-NNew:ssss]))    
+                    arr_rezBz[Nf-NNew:]=arr_rezBz[Nf-NNew:]-arr_rezBz[Nf-NNew]+np.log(ar0[Nf-NNew-1])    
                 else: 
                     #arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(ar0[Nf-NNew:ssss])/np.std(arr_rezBz[Nf-NNew:ssss])                        
-                    arr_rezBz[Nf-NNew:]=arr_rezBz[Nf-NNew:]-np.mean(arr_rezBz[Nf-NNew:ssss])+np.mean(ar0[Nf-NNew:ssss])              
+                    arr_rezBz[Nf-NNew:]=arr_rezBz[Nf-NNew:]-arr_rezBz[Nf-NNew]+ar0[Nf-NNew+1]              
 
                 all_rezAz[hhh]=arr_rezBz.copy()        
                 all_rezAz_=all_rezAz[0:hhh+1].transpose()                
@@ -258,11 +264,10 @@ if __name__ == '__main__':
                     arr_rezBz[i]=np.mean(all_rezAz_[i][max(0,hhh-int(NIter/2)):hhh+1])
                 if Lo:
                     arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(np.log(ar0[Nf-NNew:ssss]))/np.std(arr_rezBz[Nf-NNew:ssss])
-                    arr_rezBz[Nf-NNew:]=arr_rezBz[Nf-NNew:]-np.mean(arr_rezBz[Nf-NNew:ssss])+np.mean(np.log(ar0[Nf-NNew:ssss]))    
+                    arr_rezBz[Nf-NNew:]=arr_rezBz[Nf-NNew:]-arr_rezBz[Nf-NNew]+np.log(ar0[Nf-NNew-1])    
                 else: 
                     arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(ar0[Nf-NNew:ssss])/np.std(arr_rezBz[Nf-NNew:ssss])                        
-                    arr_rezBz[Nf-NNew:]=arr_rezBz[Nf-NNew:]-np.mean(arr_rezBz[Nf-NNew:ssss])+np.mean(ar0[Nf-NNew:ssss])              
-
+                    arr_rezBz[Nf-NNew:]=arr_rezBz[Nf-NNew:]-arr_rezBz[Nf-NNew]+ar0[Nf-NNew+1]              
 
                 if hhh_>hhh0_:
                     all_rezAzAll_.append(all_rezAz_)

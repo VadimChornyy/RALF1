@@ -38,7 +38,7 @@ def filterFourierQ(arxx,arb,NNew,NChan):
         farxx=np.fft.fft(arxx[Nfl-Nnl+Nfl*l:Nfl+Nfl*l])    
         mfarxx=abs(farxx) 
         mfarxx[0]=1e-32
-        srmfarxx=.062*np.mean(mfarxx[1:])
+        srmfarxx=.62*np.mean(mfarxx[1:])
         farxxx=np.zeros(Nnl,complex)     
         for j in range(1,Nnl):
             if mfarxx[j]>srmfarxx:
@@ -67,42 +67,20 @@ def RALF1FilterQ(dQ2):
             dQ2[i]=np.zeros(Nf,np.float16)        
     return dQ2
 
-import quantumrandom 
-NNQRandm=512
-NQRandm=NNQRandm
 
 def RandomQ(Nfx):
-    global NQRandm
-    global QRandm
     KK=3e6
-    zz=np.asarray(range(Nfx),float)/KK
     liiX=np.zeros(Nfx,float)
     pp=0
     while pp<0.055:
         for ii in range(3):
-            if NQRandm>=NNQRandm:
-                w=0
-                while w==0:
-                    try:
-                        QRandm=quantumrandom.get_data(data_type='uint16', array_length=NNQRandm)
-                        QRandm=np.asarray(QRandm,float)
-                        z=np.random.randint(NNQRandm)
-                        QRandm=np.concatenate((QRandm,QRandm))
-                        QRandm=QRandm[z:]+QRandm[0:2*NNQRandm-z]
-                        w=1
-                    except:
-                        print("Lost connection with Q")   
-                   
-                NQRandm=0
-
-            #z=(np.random.randint(Nfx)+1)/KK           
-            z=(QRandm[NQRandm]+1)/KK   
-            NQRandm=NQRandm+1
+            z=np.random.randint(Nfx)/KK           
             atim0=tm.time()        
             tm.sleep(z) 
             atim=tm.time()     
             dd=int((atim-atim0-z)*KK)
-            lfib1340.LFib1340(dd).shuffle(zz)             
+            zz=np.asarray(range(Nfx),float)/KK
+            lfib1340.LFib1340(dd).shuffle(zz)   
             liiX=liiX+zz
         
         k2, pp = scp.normaltest(liiX)
@@ -214,11 +192,11 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                                 #mDD4[:,ll]=(mDD[NumFri[ii:ii+NCh],NumFri_[i+ll]])
                             dQ4_=np.mean(dQ4*(mDD4<D*Koe))
                             dQ4=dQ4-dQ4_
-                            dQ4_A= np.asarray(XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16)+dQ4_
-                            dQ4_B=-np.asarray(XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))+mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16)+dQ4_
-                            # dQ4A=dQ4_A+dQ4_B+dQ4_
-                            # dQ4_A=dQ4A.copy()
-                            # dQ4_B=dQ4A.copy()
+                            dQ4_A= np.asarray(XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16)
+                            dQ4_B=-np.asarray(XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))+mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16)
+                            dQ4A=dQ4_A+dQ4_B+dQ4_
+                            dQ4_A=dQ4A.copy()
+                            dQ4_B=dQ4A.copy()
                             for ll in range(NCh0):
                                 dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]=np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_A[:,ll])
                                 dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]=np.minimum(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_B[:,ll])
