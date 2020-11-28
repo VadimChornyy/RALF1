@@ -271,21 +271,20 @@ if __name__ == '__main__':
                     KKK=np.std(ar0[Nf-NNew:ssss])/np.std(arr_rezBz[Nf-NNew:ssss])                      
                     arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*KKK                      
                     arr_rezBz[Nf-NNew:]=arr_rezBz[Nf-NNew:]-arr_rezBz[Nf-NNew]+ar0[Nf-NNew+1]              
+                    
+                if Lo:   
+                    arr_rezBz=np.exp(arr_rezBz) 
+                    # all_rezAz_[Nf-NNew:Nf,:]=all_rezAz_[Nf-NNew:Nf,:]*KKK
+                    # all_rezAz_[Nf-NNew:Nf,:]=all_rezAz_[Nf-NNew:Nf,:]-all_rezAz_[Nf-NNew]+all_rezAz_[Nf-NNew-1]
+                    all_rezAz_=np.exp(all_rezAz_)
+                # else:
+                #     all_rezAz_[Nf-NNew:Nf,:]=all_rezAz_[Nf-NNew:Nf,:]*KKK
+                #     all_rezAz_[Nf-NNew:Nf,:]=all_rezAz_[Nf-NNew:Nf,:]-all_rezAz_[Nf-NNew]+all_rezAz_[Nf-NNew-1]
 
                 if hhh_>hhh0_:
                     all_rezAzAll_.append(all_rezAz_)
                     hhh0_=hhh0_+1
                     
-                if Lo:   
-                    arr_rezBz=np.exp(arr_rezBz) 
-                    all_rezAz_[Nf-NNew:Nf,:]=all_rezAz_[Nf-NNew:Nf,:]*KKK
-                    all_rezAz_[Nf-NNew:Nf,:]=all_rezAz_[Nf-NNew:Nf,:]-all_rezAz_[Nf-NNew]+all_rezAz_[Nf-NNew-1]
-                    all_rezAz_=np.exp(all_rezAz_)
-                else:
-                    all_rezAz_[Nf-NNew:Nf,:]=all_rezAz_[Nf-NNew:Nf,:]*KKK
-                    all_rezAz_[Nf-NNew:Nf,:]=all_rezAz_[Nf-NNew:Nf,:]-all_rezAz_[Nf-NNew]+all_rezAz_[Nf-NNew-1]
-
-
                 mm1=ar0[Nf-NNew:].copy()                            
                 mm2=arr_rezBz[Nf-NNew:len(ar0)].copy()   
                 if np.std(mm1)>0 and np.std(mm2)>0:
