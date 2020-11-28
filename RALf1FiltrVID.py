@@ -257,7 +257,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                 # Asr=Asr-Asr_
                 Asr=dQ3_0*(mDD<D*Koe)+Asr*(np.asarray(1,np.float16)-(mDD<D*Koe))
 
-                AsrDD=(mDD+mDD.transpose()+D*Koe*10)*(np.asarray(1,np.float16)-(mDD<D*Koe))    
+                AsrDD=(mDD[RandomQ(sz),:]+D*Koe*10)*(np.asarray(1,np.float16)-(mDD<D*Koe))    
                 ddd=np.std(np.asarray(mDD*(1-(mDD<D*Koe)),float))/np.std(np.asarray(AsrDD*(1-(mDD<D*Koe)),float))
                 mDD=np.asarray(AsrDD*ddd,np.float16)
                 
