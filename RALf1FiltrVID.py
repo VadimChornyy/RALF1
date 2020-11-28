@@ -165,7 +165,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
     r4=np.zeros(sz,np.float16)
     for l in range(NChan):            
         r4[Nf-NNew+Nf*l:Nf+Nf*l]=RandomQ(NNew)/NNew 
-        r4[Nf-NNew+Nf*l:Nf+Nf*l]=D*((r4[Nf-NNew+Nf*l:Nf+Nf*l]/np.std(r4[Nf-NNew+Nf*l:Nf+Nf*l]))/2+Koe*10) 
+        r4[Nf-NNew+Nf*l:Nf+Nf*l]=D*((r4[Nf-NNew+Nf*l:Nf+Nf*l]/np.std(r4[Nf-NNew+Nf*l:Nf+Nf*l]))/2+Koe*2) 
 
     r2=np.asarray(arr_b,np.float16)
     for l in range(NChan):                
@@ -257,7 +257,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                 # Asr=Asr-Asr_
                 Asr=dQ3_0*(mDD<D*Koe)+Asr*(np.asarray(1,np.float16)-(mDD<D*Koe))
 
-                AsrDD=(mDD[RandomQ(sz),:]+D*Koe*10)*(np.asarray(1,np.float16)-(mDD<D*Koe))    
+                AsrDD=((D/2-mDD)*(mDD<D/2)+mDD[RandomQ(sz),:]/2+D*Koe*2)*(np.asarray(1,np.float16)-(mDD<D*Koe))    
                 ddd=np.std(np.asarray(mDD*(1-(mDD<D*Koe)),float))/np.std(np.asarray(AsrDD*(1-(mDD<D*Koe)),float))
                 mDD=np.asarray(AsrDD*ddd,np.float16)
                 
