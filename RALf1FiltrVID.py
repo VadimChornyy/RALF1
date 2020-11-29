@@ -153,32 +153,24 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
      
     arr_bbx=[]
     aa=RandomQ(sz) 
-    liiC=np.concatenate((aa,aa))
-    
+    liiB=np.concatenate((aa,aa))  
     aa=RandomQ(sz) 
-    liiB=np.concatenate((aa,aa))   
+    liiC=np.concatenate((aa,aa))   
     aa=RandomQ(sz) 
     liiD=np.concatenate((aa,aa))
-    aa=RandomQ(sz) 
-    liiE=np.concatenate((aa,aa))
-    
-    r4=np.zeros(sz,np.float16)
-    for l in range(NChan):            
-        r4[Nf-NNew+Nf*l:Nf+Nf*l]=RandomQ(NNew)/NNew 
-        r4[Nf-NNew+Nf*l:Nf+Nf*l]=D*((r4[Nf-NNew+Nf*l:Nf+Nf*l]/np.std(r4[Nf-NNew+Nf*l:Nf+Nf*l]))/2+Koe*2) 
 
     r2=np.asarray(arr_b,np.float16)
     for l in range(NChan):                
         r2[Nf-NNew+Nf*l:Nf+Nf*l]=mn
-
-    R4=np.asarray(r4,np.float16)       
         
-    K=NNew/(Nf+1)/NChan
-
+    R4=np.zeros(sz,np.float16)  
+    for l in range(NChan):
+        R4[Nf-NNew+Nf*l:Nf+Nf*l]=D*Koe*2       
+        
     liix=np.zeros((sz,sz),int) 
     dQ3_0=np.zeros((sz,sz),np.float16)
     mDD=np.zeros((sz,sz),np.float16)        
-    MM=int(np.ceil(sz/300)+1)
+    MM=int(np.ceil(sz/400)+1)
 
     Ndel=MM#int(np.ceil(np.sqrt(sz)))
     NCh=int(np.ceil(sz/Ndel)) 
@@ -187,17 +179,13 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
 
     NCh0=int(np.ceil(sz/Ndel0))    
     dQ4=np.zeros((NCh,NCh0),np.float16)
-    mDD4=np.zeros((NCh,NCh0),np.float16)      
+    mDD4=np.zeros((NCh,NCh0),np.float16) 
+      
     while hh<Nhh:              
         for i in range(sz):    
-            r1=liiB[int(liiD[i+hh]):sz+int(liiD[i+hh])]                                     
-            liix[i]=r1.copy()                    
-            dQ3_0[i]=r2[r1].copy()   
-            for l in range(NChan):
-                bb=np.asarray(liiC[np.asarray(np.arange(l+int(liiE[i+hh]),l+sz+int(liiE[i+hh]),sz/NNew),int)]*K,int)
-                R4[Nf-len(bb)+Nf*l:Nf+Nf*l]=r4[Nf-len(bb)+Nf*l+bb].copy()                    
-            mDD[i]=R4[r1].copy()     
-            tm.sleep(0.002) 
+            liix[i]=liiB[liiD[i+liiC[hh]]:sz+liiD[i+liiC[hh]]]
+            dQ3_0[i]=r2[liix[i]].copy()
+            mDD[i]=R4[liix[i]].copy()     
         
         dQ3_0=dQ3_0-mn   
 
@@ -212,7 +200,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                 NumFri0=np.concatenate((NumFri0, NumFri0, NumFri0))                  
                 NumFri0_=np.concatenate((NumFri0_, NumFri0_, NumFri0_))  
                 r5=RandomQ(sz) 
-                r5=D*((r5/np.std(r5))/2+Koe*10) 
+                r5=D*((r5/np.std(r5))/2+Koe*2) 
                 r5=np.concatenate((r5, r5))
                 zz=0
                 while zz<Nzz:
@@ -251,24 +239,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                         AsrXMx=(AsrXMx*(zz-1)+(dQ3mx))/zz
                         AsrXMn=(AsrXMn*(zz-1)+(dQ3mn))/zz
                     
-                Asr=AsrXMx+AsrXMn
-                # Asr=Asr*np.std(mDD*(1-(mDD<D*Koe)))/np.std(Asr*((mDD<D*Koe)*1))
-                # Asr_=np.mean(Asr*(mDD<D*Koe))
-                # Asr=Asr-Asr_
-                Asr=dQ3_0*(mDD<D*Koe)+Asr*(np.asarray(1,np.float16)-(mDD<D*Koe))
-
-                AsrDD=((D/2-mDD)*(mDD<D/2)+mDD[RandomQ(sz),:]/2+D*Koe*2)*(np.asarray(1,np.float16)-(mDD<D*Koe))    
-                ddd=np.std(np.asarray(mDD*(1-(mDD<D*Koe)),float))/np.std(np.asarray(AsrDD*(1-(mDD<D*Koe)),float))
-                mDD=np.asarray(AsrDD*ddd,np.float16)
-                
-                dQ3=np.asarray( XFilter.RALF1FilterX(Asr*(1-(Asr<0))+mDD,sz,sz,1,0)-
-                     XFilter.RALF1FilterX(-Asr*(1-(Asr>0))+mDD,sz,sz,1,0),np.float16) #+Asr_ 
-                #dQ3=dQ3+Asr_
-                
-                
-                # dQ3=dQ3*np.std(mDD*(1-(mDD<D*Koe)))/np.std(dQ3*((mDD<D*Koe)*1))
-                # dQ3=dQ3_0*(mDD<D*Koe)+dQ3*(np.asarray(1,np.float16)-(mDD<D*Koe))
-                                          
+                dQ3=dQ3_0*(mDD<D*Koe)+(AsrXMx+AsrXMn)*(np.asarray(1,np.float16)-(mDD<D*Koe))/2                                         
                 w=w-1
             except:
                 w=w
