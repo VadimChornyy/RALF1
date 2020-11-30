@@ -170,7 +170,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
     liix=np.zeros((sz,sz),int) 
     dQ3_0=np.zeros((sz,sz),np.float16)
     mDD=np.zeros((sz,sz),np.float16)        
-    MM=int(np.ceil(sz/400)+1)
+    MM=int(np.ceil(sz/300)+1)
 
     Ndel=MM#int(np.ceil(np.sqrt(sz)))
     NCh=int(np.ceil(sz/Ndel)) 
@@ -242,8 +242,18 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                 dQ3=dQ3_0*(mDD<D*Koe)+(AsrXMx+AsrXMn)*(np.asarray(1,np.float16)-(mDD<D*Koe))/2   
                 dQ3_=np.mean(dQ3*(mDD<D*Koe))
                 dQ3=dQ3-dQ3_
-                dQ3= (np.asarray(XFilter.RALF1FilterX(  dQ3*(1-(dQ3<0)),sz,sz,1,0),np.float16)
-                      -np.asarray(XFilter.RALF1FilterX( -dQ3*(1-(dQ3>0)),sz,sz,1,0),np.float16))+dQ3_                                    
+                mDDx=mDD.copy()
+                r4=RandomQ(sz)
+                r4=np.concatenate((r4, r4))
+                for i in range(sz):
+                    mDDx[i]=r5[r4[i:i+sz]].copy()
+                mDDx=mDDx*(mDD>D*Koe)                    
+                    
+                dQ3= (np.asarray(XFilter.RALF1FilterX(  dQ3*(1-(dQ3<0))+mDDx,sz,sz,1,0),np.float16)
+                      -np.asarray(XFilter.RALF1FilterX( -dQ3*(1-(dQ3>0))+mDDx,sz,sz,1,0),np.float16))+dQ3_   
+
+                dQ3=dQ3_0*(mDD<D*Koe)+dQ3*(np.asarray(1,np.float16)-(mDD<D*Koe))
+                                 
                 w=w-1
             except:
                 w=w
