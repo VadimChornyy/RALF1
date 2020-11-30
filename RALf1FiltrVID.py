@@ -220,7 +220,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                                 dQ4[:,ll]=(dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]])*1.
                                 mDD4[:,ll]=(r5[ll+k+kk:ll+k+kk+NCh]*(1-(mDD[NumFri[ii:ii+NCh],NumFri_[i+ll]]<D*Koe)))*1.
                                 #mDD4[:,ll]=(mDD[NumFri[ii:ii+NCh],NumFri_[i+ll]])
-                            dQ4_=np.mean(dQ4)#*(mDD4<D*Koe))
+                            dQ4_=np.mean(dQ4*(mDD4<D*Koe))
                             dQ4=dQ4-dQ4_
                             dQ4_A= np.asarray(XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16)
                             dQ4_B=-np.asarray(XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))+mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16)
@@ -240,7 +240,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                         AsrXMn=(AsrXMn*(zz-1)+(dQ3mn))/zz
                     
                 dQ3=dQ3_0*(mDD<D*Koe)+(AsrXMx+AsrXMn)*(np.asarray(1,np.float16)-(mDD<D*Koe))/2   
-                dQ3_=np.mean(dQ3)#*(mDD4<D*Koe))
+                dQ3_=np.mean(dQ3*(mDD<D*Koe))
                 dQ3=dQ3-dQ3_
                 dQ3= (np.asarray(XFilter.RALF1FilterX(  dQ3*(1-(dQ3<0)),sz,sz,1,0),np.float16)
                       -np.asarray(XFilter.RALF1FilterX( -dQ3*(1-(dQ3>0)),sz,sz,1,0),np.float16))+dQ3_                                    
