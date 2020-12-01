@@ -235,8 +235,8 @@ if __name__ == '__main__':
                     
                     Arr_BBB=Arr_AAA[iGr].transpose()
                     for i in range(Nf):
-                        arr_rezMx[iGr][i]=np.max(Arr_BBB[i])
-                        arr_rezMn[iGr][i]=np.min(Arr_BBB[i])
+                        arr_rezMx[iGr][i]=np.mean(Arr_BBB[i])
+                        arr_rezMn[iGr][i]=np.mean(Arr_BBB[i])
                         
                 aMx=arr_rezMx.transpose()
                 aMn=arr_rezMn.transpose()                 
@@ -296,7 +296,7 @@ if __name__ == '__main__':
                     fig = plt.figure()
                     axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])
                     axes_ = fig.add_axes([0, 0, 0.3, 0.3])   
-                    axes.plot(all_rezAz_,'oy',alpha=0.1)
+                    axes.plot(all_rezAz_,'oy',alpha=0.03)
                     axes.plot(ar0, 'ro-', alpha=0.1)
                     axes.plot(arrr, 'rx-')
                     axes.plot(arr_rezBz,'cx-', alpha=0.5)
