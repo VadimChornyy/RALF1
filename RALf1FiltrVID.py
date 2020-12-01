@@ -203,7 +203,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                 zz=0
                 dQ3mx=np.zeros((sz,sz),np.float16)-np.Inf
                 dQ3mn=np.zeros((sz,sz),np.float16)+np.Inf 
-                while zz<12*Nzz:
+                while zz<3*Nzz:
                     
                     ss4_=ss4-int(ss4/sz)*sz
                     ss4=ss4+1
