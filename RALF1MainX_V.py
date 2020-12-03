@@ -29,8 +29,8 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symb
 #d_intervals = {"1min","5min","15min","30min","60min"}
 
 Lengt=1000
-Ngroup=3
-Nproc=3#Ngroup*(mp.cpu_count())
+Ngroup=2
+Nproc=2#Ngroup*(mp.cpu_count())
 Lo=1
 aTmStop=3
 NIt=2
