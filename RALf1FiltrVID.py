@@ -188,7 +188,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
         dQ3_0=dQ3_0-mn   
         dQ3=dQ3_0.copy() 
         ##########################################
-        w=1
+        w=2
         ss4=0
         while w>0:
             try:       
@@ -206,7 +206,6 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                 dQ3mn=np.zeros((sz,sz),np.float16)+np.Inf 
                 while zz<12*Nzz:                    
                     ss4_=ss4-int(ss4/sz)*sz
-                    ss4=ss4+1
                     ss4=ss4+1
                     NumFri=NumFri0[NumFri0_[ss4_]:NumFri0_[ss4_]+2*sz].copy()
                     NumFri_=NumFri0_[NumFri0[ss4_]:NumFri0[ss4_]+2*sz].copy()
@@ -238,25 +237,25 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh):
                         AsrXMx=(AsrXMx*(zz-1)+(dQ3mx))/zz	
                         AsrXMn=(AsrXMn*(zz-1)+(dQ3mn))/zz
                 
-                dQ3=(AsrXMx+AsrXMn) 
+                dQ3=(AsrXMx+AsrXMn) /2
                 dQ3=dQ3_0*(mDD<D*Koe)+(dQ3)*(np.asarray(1,np.float16)-(mDD<D*Koe))
                 w=w-1
             except:
                 w=w
                        
-        mDD4=mDD.copy()
-        r4=RandomQ(sz)
-        r4=np.concatenate((r4, r4))
-        for i in range(sz):
-            mDD4[i]=r5[r4[rR[i]:rR[i]+sz]].copy()
-        mDD4=mDD4*(mDD>D*Koe)       
-        dQ3_=np.mean(dQ3)
-        dQ3=dQ3-dQ3_
+        # mDD4=mDD.copy()
+        # r4=RandomQ(sz)
+        # r4=np.concatenate((r4, r4))
+        # for i in range(sz):
+        #     mDD4[i]=r5[r4[rR[i]:rR[i]+sz]].copy()
+        # mDD4=mDD4*(mDD>D*Koe)       
+        # dQ3_=np.mean(dQ3)
+        # dQ3=dQ3-dQ3_
             
-        dQ3=  ( np.asarray(XFilter.RALF1FilterX(  dQ3*(1-(dQ3<0))+mDD4,sz,sz,1,0),np.float16)
-         -np.asarray(XFilter.RALF1FilterX( -dQ3*(1-(dQ3>0))+mDD4,sz,sz,1,0),np.float16))
+        # dQ3=  ( np.asarray(XFilter.RALF1FilterX(  dQ3*(1-(dQ3<0))+mDD4,sz,sz,1,0),np.float16)
+        #  -np.asarray(XFilter.RALF1FilterX( -dQ3*(1-(dQ3>0))+mDD4,sz,sz,1,0),np.float16))
 
-        dQ3=dQ3+dQ3_
+        # dQ3=dQ3+dQ3_
 
             ##########################################
         #dQ3_0[:][liix]=dQ3
