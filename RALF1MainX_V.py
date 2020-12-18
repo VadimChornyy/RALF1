@@ -19,7 +19,7 @@ from RALf1FiltrVID import RALf1FiltrQ
 wrkdir = r"c:\Work\\"
 api_key = 'ONKTYPV6TAMZK464' 
 
-ticker ="USDRUB"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
+ticker ="BTCUSD" # "BTCUSD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
 interv="15min"
 interv="Daily"
 url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=%s&interval=%s&outputsize=full&apikey=%s"%(ticker,interv,api_key)        
@@ -28,9 +28,9 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symb
 #INTRADAY
 #d_intervals = {"1min","5min","15min","30min","60min"}
 
-Lengt=1000
+Lengt=300
 Ngroup=2
-Nproc=2#Ngroup*(mp.cpu_count())
+Nproc=1*Ngroup#*(mp.cpu_count())
 Lo=1
 aTmStop=3
 NIt=3
@@ -207,7 +207,7 @@ if __name__ == '__main__':
        
                     program =wrkdir + "RALF1FiltrX_lg.py"
                     NChan=1
-                    argss[iProc]=["python", "%s"%NChan, "%s"%NNew, "%s"%NIt]#"%s"%(iProc+1)]
+                    argss[iProc]=["%s"%iProc, "%s"%NChan, "%s"%NNew, "%s"%NIt]#"%s"%(iProc+1)]
                     for i in range(Nf):
                         argss[iProc].append(str("%1.3f"%(arr_A[i])))
                         
@@ -235,51 +235,59 @@ if __name__ == '__main__':
                     
                     Arr_BBB=Arr_AAA[iGr].transpose()
                     for i in range(Nf):
-                        arr_rezMx[iGr][i]=np.mean(Arr_BBB[i])
-                        arr_rezMn[iGr][i]=np.mean(Arr_BBB[i])
+                        arr_rezMx[iGr][i]=np.max(Arr_BBB[i])
+                        arr_rezMn[iGr][i]=np.min(Arr_BBB[i])
                         
                 aMx=arr_rezMx.transpose()
                 aMn=arr_rezMn.transpose()                 
-                for i in range(Nf-NNew,Nf):
-                    arr_rezBz[i]=max(aMx[i])+min(aMn[i]) 
+                for i in range(Nf):
+                    arr_rezBz[i]=(max(aMx[i])+min(aMn[i]))/2 
                 
                 if Lo:           
-                    arr_rezBz=filterFourierQ(arr_rezBz,np.log(arr_z),NNew,1)
+                    arr_rezBz=filterFourierQ(arr_rezBz,np.log(arr_z),int(1.05*NNew),1)
                     arr_rezBz[0:Nf-NNew]=np.log(ar0[0:Nf-NNew]) 
                 else:
-                    arr_rezBz=filterFourierQ(arr_rezBz,arr_z,NNew,1)  
+                    arr_rezBz=filterFourierQ(arr_rezBz,arr_z,int(1.05*NNew),1)  
                     arr_rezBz[0:Nf-NNew]=ar0[0:Nf-NNew].copy()                    
                 
                 ssss=int(Nf-NNew+(len(ar0)-(Nf-NNew)))
+                P=np.zeros(3,float)                    
                 if Lo:
-                    #arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(np.log(ar0[Nf-NNew:ssss]))/np.std(arr_rezBz[Nf-NNew:ssss])
-                    arr_rezBz[Nf-NNew:]=arr_rezBz[Nf-NNew:]-arr_rezBz[Nf-NNew]+np.log(ar0[Nf-NNew-1])    
+                    P[2]=np.mean(np.log(ar0[Nf-NNew:ssss]))
+                    P[1]=np.mean(arr_rezBz[Nf-NNew:ssss])                                         
+                    P[0]=np.std(arr_rezBz[Nf-NNew:ssss])/np.std(np.log(ar0[Nf-NNew:ssss]))
+                    arr_rezBz[Nf-NNew:]=(arr_rezBz[Nf-NNew:]-P[1])/P[0]+P[2]
                 else: 
-                    #arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*np.std(ar0[Nf-NNew:ssss])/np.std(arr_rezBz[Nf-NNew:ssss])                        
-                    arr_rezBz[Nf-NNew:]=arr_rezBz[Nf-NNew:]-arr_rezBz[Nf-NNew]+ar0[Nf-NNew+1]              
+                    P[2]=np.mean(ar0[Nf-NNew:ssss])
+                    P[1]=np.mean(arr_rezBz[Nf-NNew:ssss])                                            
+                    P[0]=np.std(arr_rezBz[Nf-NNew:ssss])/np.std(np.log(ar0[Nf-NNew:ssss]))
+                    arr_rezBz[Nf-NNew:]=(arr_rezBz[Nf-NNew:]-P[1])/P[0] +P[2] 
 
                 all_rezAz[hhh]=arr_rezBz.copy()        
                 all_rezAz_=all_rezAz[0:hhh+1].transpose()                
                 for i in range(Nf):
                     arr_rezBz[i]=np.mean(all_rezAz_[i][max(0,hhh-int(NIter/2)):hhh+1])
                     
+                P=np.zeros(3,float)                    
                 if Lo:
-                    KKK=np.std(np.log(ar0[Nf-NNew:ssss]))/np.std(arr_rezBz[Nf-NNew:ssss])
-                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*KKK
-                    arr_rezBz[Nf-NNew:]=arr_rezBz[Nf-NNew:]-arr_rezBz[Nf-NNew]+np.log(ar0[Nf-NNew-1])    
+                    P[2]=np.mean(np.log(ar0[Nf-NNew:ssss]))
+                    P[1]=np.mean(arr_rezBz[Nf-NNew:ssss])                                         
+                    P[0]=np.std(arr_rezBz[Nf-NNew:ssss])/np.std(np.log(ar0[Nf-NNew:ssss]))
+                    arr_rezBz[Nf-NNew:]=(arr_rezBz[Nf-NNew:]-P[1])/P[0]+P[2]
                 else: 
-                    KKK=np.std(ar0[Nf-NNew:ssss])/np.std(arr_rezBz[Nf-NNew:ssss])                      
-                    arr_rezBz[Nf-NNew:Nf]=arr_rezBz[Nf-NNew:Nf]*KKK                      
-                    arr_rezBz[Nf-NNew:]=arr_rezBz[Nf-NNew:]-arr_rezBz[Nf-NNew]+ar0[Nf-NNew+1]              
-                    
+                    P[2]=np.mean(ar0[Nf-NNew:ssss])
+                    P[1]=np.mean(arr_rezBz[Nf-NNew:ssss])                                            
+                    P[0]=np.std(arr_rezBz[Nf-NNew:ssss])/np.std(np.log(ar0[Nf-NNew:ssss]))
+                    arr_rezBz[Nf-NNew:]=(arr_rezBz[Nf-NNew:]-P[1])/P[0] +P[2] 
+                     
                 if Lo:   
                     arr_rezBz=np.exp(arr_rezBz) 
                     # all_rezAz_[Nf-NNew:Nf,:]=all_rezAz_[Nf-NNew:Nf,:]*KKK
-                    # all_rezAz_[Nf-NNew:Nf,:]=all_rezAz_[Nf-NNew:Nf,:]-all_rezAz_[Nf-NNew]+all_rezAz_[Nf-NNew-1]
+                    # all_rezAz_[Nf-NNew:Nf,:]=all_rezAz_[Nf-NNew:Nf,:]-np.mean(all_rezAz_[Nf-NNew:ssss]-all_rezAz_[Nf-NNew:ssss])
                     all_rezAz_=np.exp(all_rezAz_)
                 # else:
-                #     all_rezAz_[Nf-NNew:Nf,:]=all_rezAz_[Nf-NNew:Nf,:]*KKK
-                #     all_rezAz_[Nf-NNew:Nf,:]=all_rezAz_[Nf-NNew:Nf,:]-all_rezAz_[Nf-NNew]+all_rezAz_[Nf-NNew-1]
+                #      all_rezAz_[Nf-NNew:Nf,:]=all_rezAz_[Nf-NNew:Nf,:]*KKK
+                #      all_rezAz_[Nf-NNew:Nf,:]=all_rezAz_[Nf-NNew:Nf,:]-np.mean(all_rezAz_[Nf-NNew:ssss]-all_rezAz_[Nf-NNew:ssss])
 
                 if hhh_>hhh0_:
                     all_rezAzAll_.append(all_rezAz_)
@@ -296,7 +304,7 @@ if __name__ == '__main__':
                     fig = plt.figure()
                     axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])
                     axes_ = fig.add_axes([0, 0, 0.3, 0.3])   
-                    axes.plot(all_rezAz_,'oy',alpha=0.03)
+                    #axes.plot(all_rezAz_,'oy',alpha=0.03)
                     axes.plot(ar0, 'ro-', alpha=0.1)
                     axes.plot(arrr, 'rx-')
                     axes.plot(arr_rezBz,'cx-', alpha=0.5)
