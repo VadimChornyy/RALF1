@@ -169,8 +169,8 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
     liix=np.zeros((sz,sz),int) 
     dQ3_0=np.zeros((sz,sz),np.float16)
     mDD=np.zeros((sz,sz),np.float16)        
-    MM=int(np.ceil(sz/400)+1)
-    Nzz=12#*MM#*10#int(np.ceil(np.sqrt(Ndel)))
+    MM=2
+    Nzz=8#*MM#*10#int(np.ceil(np.sqrt(Ndel)))
 
     Ndel=MM#int(np.ceil(np.sqrt(sz)))
     NCh=int(np.ceil(sz/Ndel)) 
@@ -217,7 +217,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                 while zz<Nzz:                    
                     ss4_=ss4-int(ss4/sz)*sz
                     ss4=ss4+1
-                    
+                                    
                     NumFri=NumFri0_[NumFri0[ss4_]:NumFri0[ss4_]+2*sz].copy()
                     NumFri_=NumFri0[NumFri0_[ss4_]:NumFri0_[ss4_]+2*sz].copy()
                     rR=rR0[rR0[ss4_]:rR0[ss4_]+2*sz].copy()  
@@ -246,17 +246,19 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                             dQ4=dQ4-dQ4_
                             dQ4_A= dQ4_+2*np.asarray(XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16)
                             dQ4_B= dQ4_+2*(   -np.asarray(XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))+mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16))
-                            
-                            seq=0.5*(dQ4_A+dQ4_B).reshape(NCh*NCh0)*(1/(mDD4.reshape(NCh*NCh0)<D*Koe)) 
+                            dQ4=(dQ4_A+dQ4_B)/2
+                            # dQ4_A=dQ4.copy()
+                            # dQ4_B=dQ4.copy()
+                            seq=(dQ4).reshape(NCh*NCh0)*(1/(mDD4.reshape(NCh*NCh0)<D*Koe)) 
                             seq=np.asarray(list(filter(lambda x: abs(x)!= np.Inf, seq)),float) 
                             seq=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seq)),float)
                             P=np.zeros(3,float)
                             P[2]=np.mean(seq_)
-                            P[1]=np.mean(seq)                                            
+                            P[1]=np.mean(seq)                                         
                             P[0]=np.std(seq)/np.std(seq_)
                             dQ4_A=(dQ4_A-P[1])/P[0] +P[2]
-                            dQ4_B=(dQ4_B-P[1])/P[0] +P[2]                            
-                            
+                            dQ4_B=(dQ4_B-P[1])/P[0] +P[2]  
+                                      
                             for ll in range(NCh0):
                                 ss4=ss4+1
                                 dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]=np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_A[:,ll])
@@ -274,12 +276,12 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                     seq=np.asarray(list(filter(lambda x: abs(x)!= np.Inf, seq)),float) 
                     seq=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seq)),float)
                     
-                    if scp.spearmanr(sseq_,seq)[0]>0.7: 
-                        P=np.zeros(3,float)
-                        P[2]=np.mean(sseq_)
-                        P[1]=np.mean(seq)                                            
-                        P[0]=np.std(seq)/np.std(sseq_)
-                        dQ4=(dQ4-P[1])/P[0] +P[2]
+                    if scp.spearmanr(sseq_,seq)[0]>0.7 or zz==0: 
+                        # P=np.zeros(3,float)
+                        # P[2]=np.mean(sseq_)
+                        # P[1]=np.mean(seq)                                            
+                        # P[0]=np.std(seq)/np.std(sseq_)
+                        # dQ4=(dQ4-P[1])/P[0] +P[2]            
                         dQ3=dQ3_0*(mDD<D*Koe)+(dQ4)*(np.asarray(1,np.float16)-(mDD<D*Koe))
                         
                     else:                               

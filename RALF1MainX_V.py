@@ -254,14 +254,12 @@ if __name__ == '__main__':
                 P=np.zeros(3,float)                    
                 if Lo:
                     P[2]=np.mean(np.log(ar0[Nf-NNew:ssss]))
-                    P[1]=np.mean(arr_rezBz[Nf-NNew:ssss])                                         
-                    P[0]=np.std(arr_rezBz[Nf-NNew:ssss])/np.std(np.log(ar0[Nf-NNew:ssss]))
-                    arr_rezBz[Nf-NNew:]=(arr_rezBz[Nf-NNew:]-P[1])/P[0]+P[2]
+                    P[1]=np.mean(arr_rezBz[Nf-NNew:ssss]) 
+                    arr_rezBz[Nf-NNew:]=(arr_rezBz[Nf-NNew:]-P[1])+P[2]
                 else: 
                     P[2]=np.mean(ar0[Nf-NNew:ssss])
-                    P[1]=np.mean(arr_rezBz[Nf-NNew:ssss])                                            
-                    P[0]=np.std(arr_rezBz[Nf-NNew:ssss])/np.std(np.log(ar0[Nf-NNew:ssss]))
-                    arr_rezBz[Nf-NNew:]=(arr_rezBz[Nf-NNew:]-P[1])/P[0] +P[2] 
+                    P[1]=np.mean(arr_rezBz[Nf-NNew:ssss]) 
+                    arr_rezBz[Nf-NNew:]=(arr_rezBz[Nf-NNew:]-P[1]) +P[2] 
 
                 all_rezAz[hhh]=arr_rezBz.copy()        
                 all_rezAz_=all_rezAz[0:hhh+1].transpose()                
