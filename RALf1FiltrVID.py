@@ -326,15 +326,16 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
             else:               
                 arr_bbx=(arr_bbx*(hh-1)+arr_bbbxxx)/hh   
             
+            arr_res=r2.copy()
             for l in range(NChan):   
-                r2[Nf-NNew+Nf*l:Nf+Nf*l]=arr_bbx[Nf-NNew+Nf*l:Nf+Nf*l]   
+                arr_res[Nf-NNew+Nf*l:Nf+Nf*l]=arr_bbx[Nf-NNew+Nf*l:Nf+Nf*l]   
            
             anamef="fralf.tmp"
             fo = open(anamef, "w")
             fo.write(str(iProc)+'\n')
             fo.close()  
         
-    return r2+mn
+    return arr_res+mn
 
 def RALf1FiltrQ(args):
     pid = win32api.GetCurrentProcessId()
