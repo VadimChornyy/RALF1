@@ -40,7 +40,7 @@ def filterFourierQ(arxx,arb,NNew,NChan):
         farxx=np.fft.fft(dd)    
         mfarxx=abs(farxx) 
         mfarxx[0]=1e-32
-        srmfarxx=.62*np.mean(mfarxx[1:])
+        srmfarxx=.062*np.mean(mfarxx[1:])
         farxxx=np.zeros(Nnl,complex)     
         for j in range(1,Nnl):
             if mfarxx[j]>srmfarxx:
@@ -251,8 +251,8 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                             dQ4_A= dQ4_+2*np.asarray(XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16)
                             dQ4_B= dQ4_+2*(   -np.asarray(XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))+mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16))
                             dQ4=(dQ4_A+dQ4_B)/2
-                            # dQ4_A=dQ4.copy()
-                            # dQ4_B=dQ4.copy()
+                            dQ4_A=dQ4.copy()
+                            dQ4_B=dQ4.copy()
                             seq=(dQ4).reshape(NCh*NCh0)*(1/(mDD4.reshape(NCh*NCh0)<D*Koe)) 
                             seq=np.asarray(list(filter(lambda x: abs(x)!= np.Inf, seq)),float) 
                             seq=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seq)),float)
@@ -329,7 +329,8 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
             arr_res=r2.copy()
             for l in range(NChan):   
                 arr_res[Nf-NNew+Nf*l:Nf+Nf*l]=arr_bbx[Nf-NNew+Nf*l:Nf+Nf*l]   
-           
+            r2=arr_res.copy()
+            
             anamef="fralf.tmp"
             fo = open(anamef, "w")
             fo.write(str(iProc)+'\n')
