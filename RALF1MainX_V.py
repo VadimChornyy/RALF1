@@ -30,10 +30,10 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symb
 
 Lengt=250
 Ngroup=5
-Nproc=1*Ngroup#*(mp.cpu_count())
+Nproc=2*Ngroup#*(mp.cpu_count())
 Lo=1
 aTmStop=3
-NIt=4
+NIt=3
 NIter=10
 DT=0.25
 Nf_K=3
@@ -120,12 +120,11 @@ if __name__ == '__main__':
         arr_z[Nf-NNew:]=arr_z[Nf-NNew-1]
           
         adat0=adat_[Nf-NNew]
-        
+                               
+        Arr_AAA=np.zeros((Ngroup,int(Nproc*NIter/Ngroup),Nf),float) 
         arr_rezBz=np.zeros(Nf,float)
         mn=np.mean(arr_z[0:Nf-NNew])
-        arr_RezM=  np.zeros((Ngroup,Nf),float)
-        Arr_AM=   np.asarray([[[0 for k in range(Nf)] for j in range(NIter)] for i in range(Nproc)],float)
-        Arr_BM=   np.asarray([[[0 for k in range(Nf)] for j in range(NIter)] for i in range(Nproc)],float)
+        
         all_rezAz=np.zeros((NIter,Nf),float)
         arr_z[Nf-NNew:]=arr_z[Nf-NNew-1]  
         all_RezM=np.zeros((Ngroup,NIter,Nf),float)
@@ -186,8 +185,7 @@ if __name__ == '__main__':
                     mn=np.mean(arr_z[0:Nf-NNew])
                     arr_rezMx=  np.zeros((Ngroup,Nf),float)
                     arr_rezMn=  np.zeros((Ngroup,Nf),float)
-                    Arr_AM=   np.asarray([[[0 for k in range(Nf)] for j in range(NIter)] for i in range(Nproc)],float)
-                    Arr_BM=   np.asarray([[[0 for k in range(Nf)] for j in range(NIter)] for i in range(Nproc)],float)
+                    Arr_AAA=np.zeros((Ngroup,int(Nproc*NIter/Ngroup),Nf),float) 
                     all_rezAz=np.zeros((NIter,Nf),float)
                     arr_z[Nf-NNew:]=arr_z[Nf-NNew-1]  
                     all_RezM=np.zeros((Ngroup,NIter,Nf),float)
@@ -225,17 +223,10 @@ if __name__ == '__main__':
                 del(executor)
                 
                 arezAMx= np.asarray(arezAMx,float)*Klg+Asr
-                arezBMx=arezAMx.copy()
-                               
-                Arr_AAA=np.zeros((Ngroup,int(Nproc*2*(hhh+1)/Ngroup),Nf),float)  
+                arr_RezM=  np.zeros((Ngroup,Nf),float)
                 for iGr in range(Ngroup):
-                    for iProc in range(int(Nproc/Ngroup)):                
-                        Arr_AM[iProc+int(iGr*(Nproc/Ngroup))][hhh]= np.asarray(arezAMx[iProc+int(iGr*(Nproc/Ngroup))],float)
-                        Arr_BM[iProc+int(iGr*(Nproc/Ngroup))][hhh]= np.asarray(arezBMx[iProc+int(iGr*(Nproc/Ngroup))],float)
-                        Arr_AAA[iGr][0*(hhh+1)+iProc*2*(hhh+1):1*(hhh+1)+iProc*2*(hhh+1)]=Arr_AM[iProc+int(iGr*(Nproc/Ngroup))][0:hhh+1].copy()
-                        Arr_AAA[iGr][1*(hhh+1)+iProc*2*(hhh+1):2*(hhh+1)+iProc*2*(hhh+1)]=Arr_BM[iProc+int(iGr*(Nproc/Ngroup))][0:hhh+1].copy()
-                    
-                    Arr_BBB=Arr_AAA[iGr].transpose()
+                    Arr_AAA[iGr][hhh*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup)]=np.asarray(arezAMx[int(iGr*(Nproc/Ngroup)):int((iGr+1)*(Nproc/Ngroup))],float)
+                    Arr_BBB=Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup)].transpose()
                     for i in range(Nf):
                         arr_RezM[iGr][i]=np.mean(Arr_BBB[i])
 
@@ -334,8 +325,8 @@ if __name__ == '__main__':
                 print (hhh+10000*hh0)
                 
                     
-        df = pd.DataFrame(arr_rezBz)
-        df.to_excel (wrkdir +r'export_traces.xlsx', index = None, header=False) 
+#        df = pd.DataFrame(arr_rezBz)
+#        df.to_excel (wrkdir +r'export_traces.xlsx', index = None, header=False) 
         
         mm1=arrr[len(arrr)-int(len(arrr)/2):].copy()                            
         mm2=arr_rezBz[len(arrr)-int(len(arrr)/2):len(arrr)].copy()  

@@ -119,6 +119,7 @@ def filterFourierQ(arxx,arb,NNew,NChan):
         farxxx2=farxxx.copy()
         arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l]=np.fft.ifft(farxxx2).real[0:Nnl] 
         arxr[Nfl-Nnl+Nfl*l]=arxr[Nfl-Nnl+Nfl*l+1]
+        arxr[Nfl+Nfl*l-1]=arxr[Nfl+Nfl*l-2]
         
     return arxr
 
