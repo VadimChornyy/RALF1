@@ -218,16 +218,15 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                 ss4=np.concatenate((aa, aa, aa))  
                 aa=RandomQ(sz)
                 liiC=np.concatenate((aa, aa, aa)) 
-                
-                r5=RandomQ(sz) 
-                r5=D*((r5/np.std(r5))/2+Koe*2) 
-                r5=np.concatenate((r5, r5))
-                
+                                
                 zz=0                
                 while zz<Nzz:                                                        
                     NumFri=NumFri0_[NumFri0[ss4[zz]]:NumFri0[ss4[zz]]+2*sz].copy()
                     NumFri_=NumFri0[NumFri0_[ss4[zz]]:NumFri0_[ss4[zz]]+2*sz].copy()
                     rR=rR0[liiC[ss4[zz]]:liiC[ss4[zz]]+2*sz].copy()  
+                    r5=RandomQ(sz) 
+                    r5=D*((r5/np.std(r5))/2+Koe*2) 
+                    r5=np.concatenate((r5, r5))
                     
                     for kk in range(Ndel):                        
                         ii=int(kk*NCh)
@@ -315,7 +314,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                     AMX=np.maximum(AMX,aMx)
                     AMN=np.minimum(AMN,aMn)
                     
-                arr_bbbxxx=(AMX+AMN)/2
+                arr_bbbxxx=(AMX+AMN)/2-r2  
                 arr_bbbxxx=filterFourierQ(arr_bbbxxx,arr_b,NNew,NChan)
                 
                 for l in range(NChan):
