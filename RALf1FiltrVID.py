@@ -15,59 +15,6 @@ priorityclasses = [win32process.IDLE_PRIORITY_CLASS,
                win32process.HIGH_PRIORITY_CLASS,
                win32process.REALTIME_PRIORITY_CLASS]  
 
-def filterFourierQ(arxx,arb,NNew,NChan):  
-    Nfl=int(len(arb)/NChan)
-    Nnl=NNew
-    
-    ar_=np.zeros(Nnl,float)
-    farx=np.zeros(Nnl,float)
-    
-    az=int(np.floor(Nfl/Nnl))-1
-    
-    for l in range(NChan):        
-        for i in range(az):
-            for j in range(Nnl):
-                ar_[j]=arb[Nfl-(az-i+1)*Nnl+j+Nfl*l]
-            ar_=abs(np.fft.fft(ar_))
-            for j in range(Nnl):
-                farx[j]=max(farx[j],ar_[j])
-    
-    farx[0]=1e-32
-    arxr=arb.copy()
-    for l in range(NChan):    
-        dd=arxx[Nfl-Nnl+Nfl*l:Nfl+Nfl*l]
-        mn=np.mean(dd)
-        farxx=np.fft.fft(dd)    
-        mfarxx=abs(farxx) 
-        mfarxx[0]=1e-32
-        srmfarxx=.62*np.mean(mfarxx[1:])
-        farxxx=np.zeros(Nnl,complex)     
-        for j in range(1,Nnl):
-            if mfarxx[j]>srmfarxx:
-                farxxx[j]=farxx[j]/mfarxx[j]*farx[j]            
-            else:
-                farxxx[j]=0   
-        farxxx2=np.zeros(2*Nnl,complex)
-        farxxx2=farxxx.copy()
-        arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l]=np.fft.ifft(farxxx2).real[0:Nnl]+mn
-        
-    return arxr
-
-def RALF1FilterQ(dQ2):    
-    Np=len(dQ2)
-    Nf=len(dQ2[0])
-       
-    SdQ=np.mean(dQ2,0)  
-    sSdQ=np.std(np.asarray(SdQ,float))
-    for i in range(Np):
-        SdQj_ = np.std(np.asarray(dQ2[i] - SdQ,float))
-        SdQj__ = np.std(np.asarray(dQ2[i],float))            
-        if SdQj__ >0. and sSdQ>0.:
-            dQ2[i] = np.asarray(dQ2[i] +SdQ * ((SdQj_ - sSdQ)/ sSdQ ),np.float16)
-        else:
-            dQ2[i]=np.zeros(Nf,np.float16)        
-    return dQ2
-
 # import quantumrandom 
 # NNQRandm=512
 # QRandm_=np.asarray(range(NNQRandm),float)
@@ -136,6 +83,59 @@ def RandomQ(Nfx):
     r2=[[m[j][l] for j in range(len(m))] for l in range(len(m[0]))]  
     liiXX=np.asarray(r2[1],int)
     return liiXX
+
+def filterFourierQ(arxx,arb,NNew,NChan):  
+    Nfl=int(len(arb)/NChan)
+    Nnl=NNew
+    
+    ar_=np.zeros(Nnl,float)
+    farx=np.zeros(Nnl,float)
+    
+    az=int(np.floor(Nfl/Nnl))-1
+    
+    for l in range(NChan):        
+        for i in range(az):
+            for j in range(Nnl):
+                ar_[j]=arb[Nfl-(az-i+1)*Nnl+j+Nfl*l]
+            ar_=abs(np.fft.fft(ar_))
+            for j in range(Nnl):
+                farx[j]=max(farx[j],ar_[j])
+    
+    farx[0]=1e-32
+    arxr=arb.copy()
+    for l in range(NChan):       
+        farxx=np.fft.fft(arxx[Nfl-Nnl+Nfl*l:Nfl+Nfl*l])    
+        mfarxx=abs(farxx) 
+        mfarxx[0]=1e-32
+        srmfarxx=.02*np.mean(mfarxx[1:])
+        farxxx=np.zeros(Nnl,complex)     
+        for j in range(1,Nnl):
+            if mfarxx[j]>srmfarxx:
+                farxxx[j]=farxx[j]/mfarxx[j]*farx[j]            
+            else:
+                farxxx[j]=0   
+        farxxx[0]=farxx[0]
+        farxxx2=np.zeros(2*Nnl,complex)
+        farxxx2=farxxx.copy()
+        arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l]=np.fft.ifft(farxxx2).real[0:Nnl] 
+        arxr[Nfl-Nnl+Nfl*l]=arxr[Nfl-Nnl+Nfl*l+1]
+        
+    return arxr
+
+def RALF1FilterQ(dQ2):    
+    Np=len(dQ2)
+    Nf=len(dQ2[0])
+       
+    SdQ=np.mean(dQ2,0)  
+    sSdQ=np.std(np.asarray(SdQ,float))
+    for i in range(Np):
+        SdQj_ = np.std(np.asarray(dQ2[i] - SdQ,float))
+        SdQj__ = np.std(np.asarray(dQ2[i],float))            
+        if SdQj__ >0. and sSdQ>0.:
+            dQ2[i] = np.asarray(dQ2[i] +SdQ * ((SdQj_ - sSdQ)/ sSdQ ),np.float16)
+        else:
+            dQ2[i]=np.zeros(Nf,np.float16)        
+    return dQ2
  
 import warnings
 
@@ -237,7 +237,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                             for ll in range(NCh0):
                                 dQ4[:,ll]=(dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]])*1.
                                 if hh==0:
-                                    mDD4[:,ll]=(r5[rR[ss4[ll+zz]]:rR[ss4[ll+zz]]+NCh]*(1-(mDD[NumFri[ii:ii+NCh],NumFri_[i+ll]]<D*Koe)))*1.
+                                    mDD4[:,ll]=(r5[rR[ss4[ll]+zz]:rR[ss4[ll]+zz]+NCh]*(1-(mDD[NumFri[ii:ii+NCh],NumFri_[i+ll]]<D*Koe)))*1.
                                                                
                             seq_=dQ4.reshape(NCh*NCh0)*(1/(mDD4.reshape(NCh*NCh0)<D*Koe)) 
                             seq_=np.asarray(list(filter(lambda x: abs(x)!= np.Inf, seq_)),float) 
