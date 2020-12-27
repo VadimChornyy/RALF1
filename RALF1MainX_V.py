@@ -28,9 +28,9 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symb
 #INTRADAY
 #d_intervals = {"1min","5min","15min","30min","60min"}
 
-Lengt=250
-Ngroup=3
-Nproc=1*Ngroup*2#*(mp.cpu_count())
+Lengt=100
+Ngroup=2
+Nproc=2*Ngroup#*(mp.cpu_count())
 Lo=1
 aTmStop=3
 NIt=4
@@ -225,9 +225,10 @@ if __name__ == '__main__':
                 arezAMx= np.asarray(arezAMx,float)*Klg+Asr
                 arr_RezM=  np.zeros((Ngroup,Nf),float)
                 for iGr in range(Ngroup):
-                    Arr_AAA[iGr][hhh*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup)]=np.asarray(arezAMx[int(iGr*(Nproc/Ngroup)):int((iGr+1)*(Nproc/Ngroup))],float)
+                    Arr_AAA[iGr][hhh*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup)]=np.asarray(
+                        arezAMx[int(iGr*(Nproc/Ngroup)):int((iGr+1)*(Nproc/Ngroup))],float)
                     for i in range(Nf):
-                        arr_RezM[iGr][i]=np.mean((Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup)])[:,i])
+                        arr_RezM[iGr][i]=np.mean(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup)][:,i])
 
                     P=np.zeros(3,float)                    
                     if Lo:
@@ -242,9 +243,8 @@ if __name__ == '__main__':
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-P[1])+P[2]                         
                     all_RezM[iGr][hhh]=arr_RezM[iGr].copy()                
                          
-                    all_RezM_=all_RezM[iGr][0:hhh+1].transpose()    
                     for i in range(Nf):
-                        arr_RezM[iGr][i]=np.mean(all_RezM_[i][max(0,hhh-int(NIter/2)):hhh+1])                    
+                        arr_RezM[iGr][i]=np.mean(all_RezM[iGr][0:hhh+1][:,i][max(0,hhh-int(NIter/2)):hhh+1])                    
 
                     if Lo:
                         arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),int(1.05*NNew),1)
@@ -262,7 +262,7 @@ if __name__ == '__main__':
                     else: 
                         P[2]=np.mean(ar0[Nf-NNew:ssss])
                         P[1]=np.mean(arr_RezM[iGr][Nf-NNew:ssss])                                            
-                        P[0]=np.std(arr_RezM[iGr][Nf-NNew:ssss])/np.std(ar0[Nf-NNew:ssss])
+                        P[0]=np.std(arr_RezM[iGr][Nf-NNew:ssss])/np.std((ar0[Nf-NNew:ssss]))
                   
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-P[1])/P[0] +P[2] 
                 
