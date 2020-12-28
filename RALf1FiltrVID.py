@@ -167,7 +167,8 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
     for l in range(NChan):
         R4[Nf-NNew+Nf*l:Nf+Nf*l]=D*Koe*2  
     
-    hh=0               
+    hh=0 
+    WW=0              
     while hh<Nhh:  
         if hh==0:
             mn=np.mean(arr_bZ)     
@@ -175,9 +176,8 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
             r2=np.asarray(arr_b,np.float16)
             for l in range(NChan):                
                 r2[Nf-NNew+Nf*l:Nf+Nf*l]=mn   
-            r2=r2-mn   
-            
-        WW=0
+            r2=r2-mn               
+       
         liix=np.zeros((sz,sz),int) 
         dQ3_0=np.zeros((sz,sz),np.float16)
         mDD=np.zeros((sz,sz),np.float16)  
