@@ -29,7 +29,7 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symb
 #d_intervals = {"1min","5min","15min","30min","60min"}
 
 Lengt=100
-Ngroup=2
+Ngroup=3
 Nproc=2*Ngroup#*(mp.cpu_count())
 Lo=1
 aTmStop=3
@@ -212,15 +212,15 @@ if __name__ == '__main__':
                 ssss=int(Nf-NNew+(len(ar0)-(Nf-NNew)))
                 
                 arezAMx=[]
-                # for iProc in range(Nproc):
-                #     arezAMx.append(RALf1FiltrQ(argss[iProc]))
+                for iProc in range(Nproc):
+                    arezAMx.append(RALf1FiltrQ(argss[iProc]))
 
-                with concurrent.futures.ThreadPoolExecutor(max_workers=Nproc) as executor:
-                    future_to = {executor.submit(RALf1FiltrQ, argss[iProc]) for iProc in range(Nproc)}
-                    for future in concurrent.futures.as_completed(future_to):                
-                        arezAMx.append(future.result())
-                del(future)                        
-                del(executor)
+                # with concurrent.futures.ThreadPoolExecutor(max_workers=Nproc) as executor:
+                #     future_to = {executor.submit(RALf1FiltrQ, argss[iProc]) for iProc in range(Nproc)}
+                #     for future in concurrent.futures.as_completed(future_to):                
+                #         arezAMx.append(future.result())
+                # del(future)                        
+                # del(executor)
                 
                 arezAMx= np.asarray(arezAMx,float)*Klg+Asr
                 arr_RezM=  np.zeros((Ngroup,Nf),float)
