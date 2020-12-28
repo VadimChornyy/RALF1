@@ -218,16 +218,15 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                 ss4=np.concatenate((aa, aa, aa))  
                 aa=RandomQ(sz)
                 liiC=np.concatenate((aa, aa, aa)) 
-                                
+                r5=RandomQ(sz) 
+                r5=D*((r5/np.std(r5))/2+Koe*2) 
+                r5=np.concatenate((r5, r5))
+                            
                 zz=0                
-                while zz<Nzz:   
-                    r5=RandomQ(sz) 
-                    r5=D*((r5/np.std(r5))/2+Koe*2) 
-                    r5=np.concatenate((r5, r5))                                                     
+                while zz<Nzz:                                                        
                     NumFri=NumFri0_[NumFri0[ss4[zz]]:NumFri0[ss4[zz]]+2*sz].copy()
                     NumFri_=NumFri0[NumFri0_[ss4[zz]]:NumFri0_[ss4[zz]]+2*sz].copy()
-                    rR=rR0[liiC[ss4[zz]]:liiC[ss4[zz]]+2*sz].copy()  
-                    
+                    rR=rR0[liiC[ss4[zz]]:liiC[ss4[zz]]+2*sz].copy()                      
                     for kk in range(Ndel):                        
                         ii=int(kk*NCh)
                         for k in range(Ndel0):                            
