@@ -31,7 +31,7 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symb
 Lengt=300
 Ngroup=6
 Nproc=2*Ngroup#*(mp.cpu_count())
-Lo=1
+Lo=0
 aTmStop=3
 NIt=4
 NIter=20
@@ -225,8 +225,12 @@ if __name__ == '__main__':
                 arezAMx= np.asarray(arezAMx,float)*Klg+Asr
                 arr_RezM=  np.zeros((Ngroup,Nf),float)
                 for iGr in range(Ngroup):
-                    Arr_AAA[iGr][hhh*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup)]=np.asarray(
-                        arezAMx[int(iGr*(Nproc/Ngroup)):int((iGr+1)*(Nproc/Ngroup))],float)
+                    try:
+                        Arr_AAA[iGr][hhh*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup)]=np.asarray(
+                            arezAMx[int(iGr*(Nproc/Ngroup)):int((iGr+1)*(Nproc/Ngroup))],float)
+                    except:
+                        Arr_AAA[iGr][hhh*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup)]=Arr_AAA[iGr][(hhh-1)*int(Nproc/Ngroup):(hhh)*int(Nproc/Ngroup)].copy()
+                        
                     for i in range(Nf):
                         arr_RezM[iGr][i]=(np.max(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup)][:,i])+
                                           np.min(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup)][:,i]))/2
