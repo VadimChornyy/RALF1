@@ -19,7 +19,7 @@ from RALf1FiltrVID import RALf1FiltrQ
 wrkdir = r"c:\Work\\"
 api_key = 'ONKTYPV6TAMZK464' 
 
-ticker ="BTCUSD" # "BTCUSD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
+ticker ="USDUAH" # "BTCUSD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
 interv="15min"
 interv="Daily"
 url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=%s&interval=%s&outputsize=full&apikey=%s"%(ticker,interv,api_key)        
@@ -28,12 +28,12 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symb
 #INTRADAY
 #d_intervals = {"1min","5min","15min","30min","60min"}
 
-Lengt=300
-Ngroup=6
+Lengt=600
+Ngroup=2
 Nproc=2*Ngroup#*(mp.cpu_count())
 Lo=1
 aTmStop=3
-NIt=4
+NIt=3
 NIter=20
 DT=0.25
 Nf_K=3
@@ -207,7 +207,7 @@ if __name__ == '__main__':
                     NChan=1
                     argss[iProc]=["%s"%iProc, "%s"%NChan, "%s"%NNew, "%s"%NIt]#"%s"%(iProc+1)]
                     for i in range(Nf):
-                        argss[iProc].append(str("%1.3f"%(arr_A[i])))
+                        argss[iProc].append(str("%1.6f"%(arr_A[i])))
                 
                 ssss=int(Nf-NNew+(len(ar0)-(Nf-NNew)))
                 
@@ -290,10 +290,10 @@ if __name__ == '__main__':
                     fig = plt.figure()
                     axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])
                     axes_ = fig.add_axes([0, 0, 0.3, 0.3])   
-                    for iGr in range(Ngroup):
-                        axes.plot(arr_RezM[iGr],alpha=0.2)
                     axes.plot(ar0, 'ro-', alpha=0.1)
                     axes.plot(arrr, 'rx-')
+                    for iGr in range(Ngroup):
+                        axes.plot(arr_RezM[iGr],linewidth=3.,alpha=0.33)
                     axes.plot(arr_rezBz,'cx-', alpha=0.5)
                     axes.text(4, 4, 'Course = %s, start = %s, step = %s'%(aname,adat0,interv),
                             verticalalignment='bottom', horizontalalignment='right',
