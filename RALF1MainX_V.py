@@ -249,8 +249,8 @@ if __name__ == '__main__':
                         arezAMx[int(iGr*(Nproc/Ngroup)):int((iGr+1)*(Nproc/Ngroup))],float)
                         
                     for i in range(Nf):
-                        arr_RezM[iGr][i]=(np.max(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup)][:,i])+
-                                          np.min(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup)][:,i]))/2
+                        arr_RezM[iGr][i]=(np.mean(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup)][:,i])+
+                                          np.mean(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup)][:,i]))/2
 
                     P=np.zeros(3,float)                    
                     if Lo:

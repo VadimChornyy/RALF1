@@ -145,7 +145,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
     Koe=1e-4 
     sz=Nf*NChan
       
-    MM=3
+    MM=2
     Nzz=8
     
     Ndel=MM
