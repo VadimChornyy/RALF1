@@ -19,7 +19,7 @@ from RALf1FiltrVID import RALf1FiltrQ
 wrkdir = r"c:\Work\\"
 api_key = 'ONKTYPV6TAMZK464' 
 
-ticker ="USDUAH" # "BTCUSD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
+ticker ="USDRUB" # "BTCUSD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
 interv="15min"
 interv="Daily"
 url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=%s&interval=%s&outputsize=full&apikey=%s"%(ticker,interv,api_key)        
@@ -28,8 +28,8 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symb
 #INTRADAY
 #d_intervals = {"1min","5min","15min","30min","60min"}
 
-Lengt=600
-Ngroup=2
+Lengt=1000
+Ngroup=3
 Nproc=2*Ngroup#*(mp.cpu_count())
 Lo=1
 aTmStop=3
@@ -37,6 +37,7 @@ NIt=3
 NIter=20
 DT=0.25
 Nf_K=3
+aDecm=3
     
 def loaddata(aLengt,key):
     adat_=[]
@@ -83,7 +84,20 @@ def loaddata(aLengt,key):
         if len(arrr)>aLengt:
             arrr=arrr[len(arrr)-aLengt:]
         file.close()
-    return arrr,adat_ 
+        
+    return arrr,adat_
+
+def decimat(adat_):
+    adatx=0
+    k=0
+    adat__=np.zeros(int(len(adat_)/aDecm),float)
+    for i in range(len(adat_)):
+        adatx=adatx+adat_[i]
+        if int(i/aDecm)*aDecm==i and i>0:
+            adat__[k]=adatx/aDecm
+            k=k+1
+            adatx=0
+    return adat__
 
 if __name__ == '__main__':   
     ImApp=[]
@@ -105,7 +119,13 @@ if __name__ == '__main__':
             aname=aname            
             
     while kkk <esz:        
-        arrr=arrrxx_[kkk].copy()    
+        arrr=arrrxx_[kkk].copy()  
+        if Lo:
+            arrr=np.exp(decimat(np.log(arrr)))
+            arrr=arrr[1:len(arrr)-1]
+        else:
+            arrr=decimat(arrr)
+            arrr=arrr[1:len(arrr)-1]
         arrr=np.asarray(arrr,float)    
         Lengt=arrr.size  
         Nf=Lengt
@@ -225,11 +245,8 @@ if __name__ == '__main__':
                 arezAMx= np.asarray(arezAMx,float)*Klg+Asr
                 arr_RezM=  np.zeros((Ngroup,Nf),float)
                 for iGr in range(Ngroup):
-                    try:
-                        Arr_AAA[iGr][hhh*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup)]=np.asarray(
-                            arezAMx[int(iGr*(Nproc/Ngroup)):int((iGr+1)*(Nproc/Ngroup))],float)
-                    except:
-                        Arr_AAA[iGr][hhh*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup)]=Arr_AAA[iGr][(hhh-1)*int(Nproc/Ngroup):(hhh)*int(Nproc/Ngroup)].copy()
+                    Arr_AAA[iGr][hhh*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup)]=np.asarray(
+                        arezAMx[int(iGr*(Nproc/Ngroup)):int((iGr+1)*(Nproc/Ngroup))],float)
                         
                     for i in range(Nf):
                         arr_RezM[iGr][i]=(np.max(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup)][:,i])+
