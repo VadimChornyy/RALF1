@@ -266,7 +266,7 @@ if __name__ == '__main__':
                     all_RezM[iGr][hhh]=arr_RezM[iGr].copy()                
                          
                     for i in range(Nf):
-                        arr_RezM[iGr][i]=np.mean(all_RezM[iGr][0:hhh+1][:,i][max(0,hhh-int(NIter/2)):hhh+1])                    
+                        arr_RezM[iGr][i]=np.mean(all_RezM[iGr][max(0,hhh-int(NIter/2)):hhh+1,i])                    
 
                     if Lo:
                         arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),int(1.05*NNew),1)
@@ -285,7 +285,7 @@ if __name__ == '__main__':
                         P[2]=np.mean(ar0[Nf-NNew:ssss])
                         P[1]=np.mean(arr_RezM[iGr][Nf-NNew:ssss])                                            
                         P[0]=np.std(arr_RezM[iGr][Nf-NNew:ssss])/np.std((ar0[Nf-NNew:ssss]))
-                  
+                        
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-P[1])/P[0] +P[2] 
                 
                 RezM=arr_RezM.transpose()             
