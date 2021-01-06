@@ -214,17 +214,19 @@ if __name__ == '__main__':
                     hhh_=hhh_+1
                     ZZ=1
             if ZZ==0:                                                          
-                for iProc in range(Nproc):
+                 if Lo:
+                    arr_A=np.log(arr_z)
+                else:
                     arr_A=arr_z.copy()
-                    if Lo:
-                        arr_A=np.log(arr_z)
-                    Asr=np.mean(arr_A[0:Nf-NNew])
-                    arr_A=arr_A-Asr
-                    Klg=np.power(10,np.floor(np.log10(np.max(abs(arr_A)))))
-                    arr_A=arr_A/Klg
+                    
+                Asr=np.mean(arr_A[0:Nf-NNew])
+                arr_A=arr_A-Asr
+                Klg=np.power(10,np.floor(np.log10(np.max(abs(arr_A)))))
+                arr_A=arr_A/Klg
        
-                    program =wrkdir + "RALF1FiltrX_lg.py"
-                    NChan=1
+                program =wrkdir + "RALF1FiltrX_lg.py"
+                NChan=1
+                for iProc in range(Nproc):
                     argss[iProc]=["%s"%iProc, "%s"%NChan, "%s"%NNew, "%s"%NIt]#"%s"%(iProc+1)]
                     for i in range(Nf):
                         argss[iProc].append(str("%1.6f"%(arr_A[i])))
@@ -245,12 +247,11 @@ if __name__ == '__main__':
                 arezAMx= np.asarray(arezAMx,float)*Klg+Asr
                 arr_RezM=  np.zeros((Ngroup,Nf),float)
                 for iGr in range(Ngroup):
-                    Arr_AAA[iGr][hhh*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup)]=np.asarray(
-                        arezAMx[int(iGr*(Nproc/Ngroup)):int((iGr+1)*(Nproc/Ngroup))],float)
+                    Arr_AAA[iGr][hhh*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup)]=(
+                        arezAMx[int(iGr*(Nproc/Ngroup)):int((iGr+1)*(Nproc/Ngroup))]).copy()
                         
-                    for i in range(Nf):
-                        arr_RezM[iGr][i]=(np.mean(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup)][:,i])+
-                                          np.mean(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup)][:,i]))/2
+                    arr_RezM[iGr]=(
+                        np.mean(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0))
 
                     P=np.zeros(3,float)                    
                     if Lo:
@@ -263,10 +264,9 @@ if __name__ == '__main__':
                         P[1]=np.mean(arr_RezM[iGr][Nf-NNew:ssss]) 
                         
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-P[1])+P[2]                         
-                    all_RezM[iGr][hhh]=arr_RezM[iGr].copy()                
-                         
-                    for i in range(Nf):
-                        arr_RezM[iGr][i]=np.mean(all_RezM[iGr][max(0,hhh-int(NIter/2)):hhh+1,i])                    
+                    all_RezM[iGr][hhh]=arr_RezM[iGr].copy()   
+
+                    arr_RezM[iGr]=np.mean(all_RezM[iGr][max(0,hhh-int(NIter/2)):hhh+1,:],axis = 0)                  
 
                     if Lo:
                         arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1)
@@ -285,7 +285,7 @@ if __name__ == '__main__':
                         P[2]=np.mean(ar0[Nf-NNew:ssss])
                         P[1]=np.mean(arr_RezM[iGr][Nf-NNew:ssss])                                            
                         P[0]=np.std(arr_RezM[iGr][Nf-NNew:ssss])/np.std((ar0[Nf-NNew:ssss]))
-                        
+                  
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-P[1])/P[0] +P[2] 
                 
                 RezM=arr_RezM.transpose()             
@@ -302,6 +302,7 @@ if __name__ == '__main__':
                     Koef=100*scp.spearmanr(mm1,mm2)[0]
                 else:
                     Koef=-2  
+
                 if (Koef+100)>=0*(TKoef+100):  
                     TKoef=Koef                                  
                     fig = plt.figure()
