@@ -214,7 +214,7 @@ if __name__ == '__main__':
                     hhh_=hhh_+1
                     ZZ=1
             if ZZ==0:                                                          
-                 if Lo:
+                if Lo:
                     arr_A=np.log(arr_z)
                 else:
                     arr_A=arr_z.copy()
@@ -288,9 +288,7 @@ if __name__ == '__main__':
                   
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-P[1])/P[0] +P[2] 
                 
-                RezM=arr_RezM.transpose()             
-                for i in range(Nf):
-                    arr_rezBz[i]=np.mean(RezM[i]) 
+                arr_rezBz=np.mean(arr_RezM, axis=0) 
                 if Lo:   
                     for iGr in range(Ngroup):    
                         arr_RezM[iGr]=np.exp(arr_RezM[iGr]) 
