@@ -6,6 +6,7 @@ import sys
 import lfib1340 
 from scipy import stats as scp
 import win32api,win32process,win32con
+from random import sample 
 #from scipy.signal import savgol_filter
            
 priorityclasses = [win32process.IDLE_PRIORITY_CLASS,
@@ -53,7 +54,8 @@ def RandomQ(Nfx):
             tm.sleep(z) 
             atim=tm.time()     
             dd=int((atim-atim0-z)*KK)
-            zz=np.asarray(range(Nfx),float)/KK
+            
+            zz=np.asarray(sample(list(range(Nfx)),Nfx),float)/KK
             lfib1340.LFib1340(dd).shuffle(zz) 
             lfib1340.LFib1340(int(2*dd/(1+np.sqrt(5)))).shuffle(QRandm_)             
             liiX=liiX+zz

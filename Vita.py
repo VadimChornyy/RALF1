@@ -1,174 +1,109 @@
 import concurrent.futures
 import pylab as plt
 import numpy as np
-import urllib.request, json
 import pandas as pd
 from PIL import Image 
 import cv2 as cv
 #import time as tm
 
 from scipy import stats as scp
-import dateutil.parser
-from operator import itemgetter
 import dill 
 #from scipy.signal import savgol_filter
 
 from RALf1FiltrVID import filterFourierQ
 from RALf1FiltrVID import RALf1FiltrQ
+import scipy.interpolate as interp
 
 wrkdir = r"c:\Work\\"
-api_key = 'ONKTYPV6TAMZK464' 
-
-ticker ="USDRUB" # "BTCUSD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
-interv="15min"
-interv="Daily"
-url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=%s&interval=%s&outputsize=full&apikey=%s"%(ticker,interv,api_key)        
-url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=%s&outputsize=full&apikey=%s"%(ticker,api_key)
-
-#INTRADAY
-#d_intervals = {"1min","5min","15min","30min","60min"}
-
 Lengt=1000
 Ngroup=3
 Nproc=2*Ngroup#*(mp.cpu_count())
-Lo=1
+Lo=0
 aTmStop=3
 NIt=3
 NIter=20
 DT=0.25
 Nf_K=3
-aDecm=3
     
 def loaddata(aLengt,key):
     adat_=[]
-    if key>0:  
-        data = json.loads(urllib.request.urlopen(url_string).read().decode())['Time Series (%s)'%(interv)]
-        df = pd.DataFrame(columns=['Date','Low','High','Close','Open'])
-        arrr=[]
-        adate=[]
-        adt=[]
-        for k,v in data.items():
-            date = dateutil.parser.parse(k)
-            data_row = [date.date(),float(v['3. low']),float(v['2. high']),
-                                float(v['4. close']),float(v['1. open'])]
-            df.loc[-1,:] = data_row
-            rr=(np.asarray(data_row)[1]+np.asarray(data_row)[2])/2
-            if rr!=0:
-                adate.append(date.timestamp())
-                adt.append(k)
-                arrr.append(rr)
-            df.index = df.index + 1
-    #        if np.asarray(arrr,int).size>=aLengt:#495:1023:
-    #            break
-        aa=[[] for i in range(3)]
-        aa[0]=adate
-        aa[1]=arrr  
-        aa[2]=adt
-        m=aa
-        aa=[[m[j][l] for j in range(len(m))] for l in range(len(m[0]))]   
-        aa.sort(key=itemgetter(0))
-        m=aa
-        aa=[[m[j][l] for j in range(len(m))] for l in range(len(m[0]))]     
-        ada=list(aa)[2]
-        arrr=list(aa)[1]
-        sz=np.asarray(arrr).size
-        ln=min(sz,aLengt)
-        arr=np.asarray(arrr).copy()
-        arrr=[]        
-        for i in range(ln-1):
-            arrr.append(arr[sz-ln+i])
-            adat_.append(ada[sz-ln+i])
-    else:
-        file=open(ticker+ '.txt','r')
-        arrr=np.asarray(file.readlines(),float).copy()
-        if len(arrr)>aLengt:
-            arrr=arrr[len(arrr)-aLengt:]
-        file.close()
+    arrr=[]
+    excel_data_df = pd.read_excel('bok.xls', sheet_name='1')
+    
+    dat=np.asarray(excel_data_df, float)
+    f=interp.interp1d(dat[:,0], dat[:,1],'cubic')
+    xnew=np.asarray(range(75,915),float)[::5]
+    arrr.append(f(xnew))
+    
+    excel_data_df = pd.read_excel('bok.xls', sheet_name='2')
+    
+    dat=np.asarray(excel_data_df, float)
+    f=interp.interp1d(dat[:,0], dat[:,1],'cubic')
+
+    arrr.append(f(xnew))
         
     return arrr,adat_
 
-def decimat(adat_):
-    adatx=0
-    k=0
-    adat__=np.zeros(int(len(adat_)/aDecm),float)
-    for i in range(len(adat_)):
-        adatx=adatx+adat_[i]
-        if int(i/aDecm)*aDecm==i and i>0:
-            adat__[k]=adatx/aDecm
-            k=k+1
-            adatx=0
-    return adat__
-
 if __name__ == '__main__':   
     ImApp=[]
-    aname=ticker
-    try:
-        arrrxx,adat_=loaddata(Lengt,1)
-        arrrxx=np.asarray(arrrxx,float)
-        arrrxx_=[]
-        arrrxx_.append(arrrxx)
+    aname='PSS-Geo'
         
-        esz=len(arrrxx_)
-        arr_rezDzRez=[[] for j in range(esz)]
-        kkk=0
-        out=0
-    except:
-        try:
-            dill.load_session(wrkdir + aname+".ralf")
-        except:
-            aname=aname            
+    arrrxx,adat_=loaddata(Lengt,1)
+    arrrxx=np.asarray(arrrxx,float)
+    
+    esz=len(arrrxx)
+    arr_rezDzRez=[[] for j in range(esz)]
+    kkk=0
+    out=0       
             
-    while kkk <esz:        
-        arrr=arrrxx_[kkk].copy()  
-        if Lo:
-            arrr=np.exp(decimat(np.log(arrr)))
-            arrr=arrr[1:len(arrr)-1]
-        else:
-            arrr=decimat(arrr)
-            arrr=arrr[1:len(arrr)-1]
-        arrr=np.asarray(arrr,float)    
-        Lengt=arrr.size  
-        Nf=Lengt
-        
-        nn=int(Nf*DT)             
-        NNew=int(Nf/2)  
-        Nf=Nf+nn        
-        ar0=np.asarray(arrr[0:])           
-        
-        arr_z=np.zeros(Nf,float)
-        arr_z[0:Nf-NNew]=arrr[0:Nf-NNew].copy()
-        arr_z[Nf-NNew:]=arr_z[Nf-NNew-1]
-          
-        adat0=adat_[Nf-NNew]
-                               
-        Arr_AAA=np.zeros((Ngroup,int(Nproc*NIter/Ngroup),Nf),float) 
-        arr_rezBz=np.zeros(Nf,float)
-        mn=np.mean(arr_z[0:Nf-NNew])
-        
-        all_rezAz=np.zeros((NIter,Nf),float)
-        arr_z[Nf-NNew:]=arr_z[Nf-NNew-1]  
-        all_RezM=np.zeros((Ngroup,NIter,Nf),float)
-        argss=[[0] for j in range(Nproc)]    
-
-        hh0=0
-        hhh=0
-        hhh_=0
-                
-        Koef=-1
-        ZZ=0
-        key=0
-        TKoef=-100
-        
-        nnn=int(nn/2)
+    while kkk <esz:  
         try:
             dill.load_session(wrkdir + aname+".ralf")
         except:
+            aname=aname
+            arrr=np.asarray(arrrxx[kkk]).copy()  
+    
+            arrr=np.asarray(arrr,float)    
+            Lengt=len(arrr)
+            Nf=Lengt
+            
+            nn=int(Nf*DT)             
+            NNew=int(Nf/2)  
+            Nf=Nf+nn        
+            ar0=np.asarray(arrr[0:])           
+            
+            arr_z=np.zeros(Nf,float)
+            arr_z[0:Nf-NNew]=arrr[0:Nf-NNew].copy()
+            arr_z[Nf-NNew:]=arr_z[Nf-NNew-1]
+              
+            adat0=''
+                                   
+            Arr_AAA=np.zeros((Ngroup,int(Nproc*NIter/Ngroup),Nf),float) 
+            arr_rezBz=np.zeros(Nf,float)
+            mn=np.mean(arr_z[0:Nf-NNew])
+            
+            all_rezAz=np.zeros((NIter,Nf),float)
+            arr_z[Nf-NNew:]=arr_z[Nf-NNew-1]  
+            all_RezM=np.zeros((Ngroup,NIter,Nf),float)
+            argss=[[0] for j in range(Nproc)]    
+    
+            hh0=0
+            hhh=0
+            hhh_=0
+                    
+            Koef=-1
+            ZZ=0
+            key=0
+            TKoef=-100
+            
+            nnn=int(nn/2)
+    
             fig = plt.figure()
             axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])
             axes_ = fig.add_axes([0, 0, 0.3, 0.3])     
             axes.plot(ar0, 'r.')
             axes.plot(arr_z, 'go-')  #cut data used for model
-            axes.text(4, 4, 'Course = %s, start = %s, step = %s * %s'%(aname,adat0,interv,aDecm),
+            axes.text(4, 4, 'Course = %s, start = %s, step = %s'%(aname,adat0,''),
                     verticalalignment='bottom', horizontalalignment='right',
                     transform=axes_.transAxes,color='blue', fontsize=14)        
             fig.savefig(wrkdir +'dynamic.png',dpi=300,transparent=False,bbox_inches = 'tight')
@@ -186,7 +121,7 @@ if __name__ == '__main__':
             out.release()
             plt.show()
             del(out)
-
+    
         while hhh_<aTmStop and not key == 13: 
             Aprocess=[]
             if hhh==NIter:
@@ -213,7 +148,7 @@ if __name__ == '__main__':
                 else:
                     hhh_=hhh_+1
                     ZZ=1
-            if ZZ==0:                                                          
+            if ZZ==0:                
                 if Lo:
                     arr_A=np.log(arr_z)
                 else:
@@ -286,8 +221,8 @@ if __name__ == '__main__':
                         P[1]=np.mean(arr_RezM[iGr][Nf-NNew:ssss])                                            
                         P[0]=np.std(arr_RezM[iGr][Nf-NNew:ssss])/np.std((ar0[Nf-NNew:ssss]))
                   
-                    arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-P[1])/P[0] +P[2] 
-                
+                    arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-P[1])/P[0] +P[2]                
+
                 arr_rezBz=np.mean(arr_RezM, axis=0) 
                 if Lo:   
                     for iGr in range(Ngroup):    
@@ -300,7 +235,6 @@ if __name__ == '__main__':
                     Koef=100*scp.spearmanr(mm1,mm2)[0]
                 else:
                     Koef=-2  
-
                 if (Koef+100)>=0*(TKoef+100):  
                     TKoef=Koef                                  
                     fig = plt.figure()
@@ -311,7 +245,7 @@ if __name__ == '__main__':
                     for iGr in range(Ngroup):
                         axes.plot(arr_RezM[iGr],linewidth=3.,alpha=0.33)
                     axes.plot(arr_rezBz,'cx-', alpha=0.5)
-                    axes.text(4, 4, 'Course = %s, start = %s, step = %s * %s'%(aname,adat0,interv,aDecm),
+                    axes.text(4, 4, 'Course = %s, start = %s, step = %s'%(aname,adat0,''),
                             verticalalignment='bottom', horizontalalignment='right',
                             transform=axes_.transAxes,color='blue', fontsize=14)        
                     axes_.plot(mm1,mm2, 'ok', markersize=3, alpha=0.1)               
@@ -358,7 +292,7 @@ if __name__ == '__main__':
         axes_ = fig.add_axes([0, 0, 0.3, 0.3])
         axes.plot(arrr, 'ro-')
         axes.plot(arr_rezBz, 'cx-', alpha=0.5) #predicted data
-        axes.text(4, 4, 'Course = %s, start = %s, step = %s * %s'%(aname,adat0,interv,aDecm),
+        axes.text(4, 4, 'Course = %s, start = %s, step = %s'%(aname,adat0,''),
                 verticalalignment='bottom', horizontalalignment='right',
                 transform=axes_.transAxes,color='blue', fontsize=14)                
         axes_.plot(mm1,mm2, 'ok', markersize=3, alpha=0.1)    
