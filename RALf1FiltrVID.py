@@ -26,7 +26,7 @@ def RandomQ(Nfx):
     
     liiX=np.zeros(Nfx,float)
     pp=0
-    while pp<0.055:
+    while pp<0.55:
         for ii in range(3):
             if NQRandm>=NNQRandm:
                 w=1
@@ -50,7 +50,7 @@ def RandomQ(Nfx):
             atim0=tm.time()        
             tm.sleep(z) 
             atim=tm.time()     
-            dd=int((atim-atim0-z)*KK)
+            dd=int(((atim-atim0)/z-1)*KK/3000)
             
             zz=np.asarray(sample(list(range(Nfx)),Nfx),float)/KK
             lfib1340.LFib1340(dd).shuffle(zz) 
@@ -319,7 +319,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                 else:
                     AMX=np.maximum(AMX,aMx)
                     AMN=np.minimum(AMN,aMn)  
-                    arr_bbbxxx0=(AMX+AMN)/2#-arr_bbbxxx0                   
+                    arr_bbbxxx0=(AMX+AMN)/2-arr_bbbxxx0                   
                 
                 arr_bbbxxx=filterFourierQ(arr_bbbxxx0,arr_b,NNew,NChan)
                 
