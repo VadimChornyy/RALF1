@@ -27,7 +27,8 @@ def RandomQ(Nfx):
     liiX=np.zeros(Nfx,float)
     pp=0
     while pp<0.55:
-        for ii in range(3):
+        ii=0
+        while ii<3:
             if NQRandm>=NNQRandm:
                 w=1
                 while w>0 and w<21:
@@ -41,21 +42,24 @@ def RandomQ(Nfx):
                         print("Lost connection with Q")   
                    
                 NQRandm=0
-            
-            z=np.random.randint(NNQRandm)
-            QRandm=np.concatenate((QRandm_,QRandm_))
-            QRandm=QRandm[z:]
-            z=(QRandm[NQRandm]+1)/KK   
-            NQRandm=NQRandm+1
-            atim0=tm.time()        
-            tm.sleep(z) 
-            atim=tm.time()     
-            dd=int(((atim-atim0)/z-1)*KK/3000)
-            
-            zz=np.asarray(sample(list(range(Nfx)),Nfx),float)/KK
-            lfib1340.LFib1340(dd).shuffle(zz) 
-            lfib1340.LFib1340(int(2*dd/(1+np.sqrt(5)))).shuffle(QRandm_)             
-            liiX=liiX+zz
+            try:
+                z=np.random.randint(NNQRandm)
+                QRandm=np.concatenate((QRandm_,QRandm_))
+                QRandm=QRandm[z:]
+                z=(QRandm[NQRandm]+1)/KK   
+                NQRandm=NQRandm+1
+                atim0=tm.time()        
+                tm.sleep(z) 
+                atim=tm.time()     
+                dd=int(((atim-atim0)/z-1)*KK/3000)
+                
+                zz=np.asarray(sample(list(range(Nfx)),Nfx),float)/KK
+                lfib1340.LFib1340(dd).shuffle(zz) 
+                lfib1340.LFib1340(int(2*dd/(1+np.sqrt(5)))).shuffle(QRandm_)             
+                liiX=liiX+zz
+                ii=ii+1
+            except:
+                NQRandm=NNQRandm  
 
 # def RandomQ(Nfx):
 #     KK=3e6
@@ -321,7 +325,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                     AMN=np.minimum(AMN,aMn)  
                 
                 arr_bbbxxx1=(AMX+AMN)/2 
-                arr_bbbxxx=filterFourierQ(arr_bbbxxx1-arr_bbbxxx0,arr_b,NNew,NChan)
+                arr_bbbxxx=filterFourierQ(arr_bbbxxx1-0*arr_bbbxxx0,arr_b,NNew,NChan)
                 arr_bbbxxx0=arr_bbbxxx1.copy()
                 
                 for l in range(NChan):
