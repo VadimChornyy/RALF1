@@ -234,15 +234,15 @@ if __name__ == '__main__':
                 ssss=int(Nf-NNew+(len(ar0)-(Nf-NNew)))
                 
                 arezAMx=[]
-                for iProc in range(Nproc):
-                    arezAMx.append(RALf1FiltrQ(argss[iProc]))
+                # for iProc in range(Nproc):
+                #     arezAMx.append(RALf1FiltrQ(argss[iProc]))
 
-                # with concurrent.futures.ThreadPoolExecutor(max_workers=Nproc) as executor:
-                #     future_to = {executor.submit(RALf1FiltrQ, argss[iProc]) for iProc in range(Nproc)}
-                #     for future in concurrent.futures.as_completed(future_to):                
-                #         arezAMx.append(future.result())
-                # del(future)                        
-                # del(executor)
+                with concurrent.futures.ThreadPoolExecutor(max_workers=Nproc) as executor:
+                    future_to = {executor.submit(RALf1FiltrQ, argss[iProc]) for iProc in range(Nproc)}
+                    for future in concurrent.futures.as_completed(future_to):                
+                        arezAMx.append(future.result())
+                del(future)                        
+                del(executor)
                 
                 arezAMx= np.asarray(arezAMx,float)*Klg+Asr
                 arr_RezM=  np.zeros((Ngroup,Nf),float)
@@ -301,7 +301,7 @@ if __name__ == '__main__':
                 else:
                     Koef=-2  
 
-                if (Koef+100)>=0*(TKoef+100):  
+                if (Koef+100)>=(TKoef+100):  
                     TKoef=Koef                                  
                     fig = plt.figure()
                     axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])

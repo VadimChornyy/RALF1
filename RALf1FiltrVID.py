@@ -140,10 +140,15 @@ def RALF1FilterQ(dQ2):
 import warnings
 
 def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
+    global QRandm_
+    global NQRandm
     warnings.filterwarnings("ignore", category=RuntimeWarning) 
     Koe=1e-4 
     sz=Nf*NChan
-      
+    NNQRandm=512
+    NQRandm=NNQRandm
+    QRandm_=np.asarray(range(NNQRandm),float)
+  
     MM=2
     Nzz=8
     
@@ -217,7 +222,8 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
         r5=np.concatenate((r5, r5))
         aa=RandomQ(sz)
         ss4=np.concatenate((aa, aa, aa))                         
-        zz=0             
+        zz=0     
+                    
         while zz<Nzz: 
             xxx=0
             NumFri=NumFri0_[NumFri0[ss4[zz]]:NumFri0[ss4[zz]]+2*sz].copy()
@@ -238,7 +244,8 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                     nNxA=sum(sum(mDD4<D*Koe))
                     nNxA_=sum(sum(1-mDD4<D*Koe))                    
                     if abs(nNxA/(nNxA_-1))>(Nf-NNew)/NNew*(hh==0):                    
-                        mNxA=sum(sum(dQ4*(mDD4<D*Koe)))/nNxA
+                        mNxA=sum(sum(dQ4*(mDD4<D*Koe)))/nNxA                        
+                        amNxA=np.sqrt(sum(sum((dQ4-mNxA)*(dQ4-mNxA)*(mDD4<D*Koe))))/nNxA
                         dQ4_=mNxA
                         
                         dQ4=dQ4-dQ4_
@@ -248,11 +255,12 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                         dQ4_A=dQ4.copy()
                         dQ4_B=dQ4.copy()                                     
                         
-                        mNxB=sum(sum(dQ4*(mDD4<D*Koe)))/nNxA                   
+                        mNxB=sum(sum(dQ4*(mDD4<D*Koe)))/nNxA 
+                        amNxB=np.sqrt(sum(sum((dQ4-mNxB)*(dQ4-mNxB)*(mDD4<D*Koe))))/nNxA   
                         
                         P[2]=mNxA
                         P[1]=mNxB
-                        P[0]=1#amNxB/amNxA
+                        P[0]=amNxB/amNxA
                         
                         dQ4_A=(dQ4_A-P[1])/P[0] +P[2]
                         dQ4_B=(dQ4_B-P[1])/P[0] +P[2]  
@@ -316,7 +324,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                 arr_bbbxxx=filterFourierQ(arr_bbbxxx0,arr_b,NNew,NChan)
                 
                 for l in range(NChan):
-                    arr_bbbxxx[Nf-NNew+Nf*l:Nf+Nf*l]=arr_bbbxxx[Nf-NNew+Nf*l:Nf+Nf*l]-arr_bbbxxx[Nf-NNew+Nf*l]+r2[Nf-NNew+Nf*l-1] 
+                    arr_bbbxxx[Nf-NNew+Nf*l:Nf+Nf*l]=arr_bbbxxx[Nf-NNew+Nf*l:Nf+Nf*l]-arr_bbbxxx[Nf-NNew+Nf*l]+arr_b[Nf-NNew-1+Nf*l] 
                 
                 if hh==1:
                     arr_bbx=arr_bbbxxx.copy()            
@@ -324,7 +332,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                     arr_bbx=(arr_bbx*(hh-1)+arr_bbbxxx)/hh   
                 
                 for l in range(NChan):   
-                    r2[Nf-NNew+Nf*l:Nf+Nf*l]=arr_bbx[Nf-NNew+Nf*l:Nf+Nf*l]  
+                    r2[Nf-NNew+Nf*l:Nf+Nf*l]=arr_bbx[Nf-NNew+Nf*l:Nf+Nf*l]-arr_bbx[Nf-NNew+Nf*l]+r2[Nf-NNew-1+Nf*l]
                               
                 anamef="fralf.tmp"
                 fo = open(anamef, "w")
@@ -340,10 +348,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
             else:
                 return r2/0                    
 
-def RALf1FiltrQ(args):
-    global QRandm_
-    global NQRandm
-    
+def RALf1FiltrQ(args):    
     pid = win32api.GetCurrentProcessId()
     handle = win32api.OpenProcess(win32con.PROCESS_ALL_ACCESS, True, pid)
     win32process.SetPriorityClass(handle, priorityclasses[1])
@@ -374,9 +379,6 @@ def RALf1FiltrQ(args):
         Koef=np.zeros(Nhh,float)
         KoefA=np.zeros(Nhh,float)
         while hh<Nhh:
-            NNQRandm=512
-            NQRandm=NNQRandm
-            QRandm_=np.asarray(range(NNQRandm),float)
             if hh<Nhh:                
                 arr_bbbxxx=RALF1Calculation(arr_b,Nf,NNew,NChan,D,Nhh,args[0])
                 if (sum(np.abs(arr_bbbxxx)==np.Inf)==0 and sum(np.isnan(arr_bbbxxx))==0):                
