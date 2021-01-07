@@ -106,7 +106,7 @@ def filterFourierQ(arxx,arb,NNew,NChan):
         farxx=np.fft.fft(arxx[Nfl-Nnl+Nfl*l:Nfl+Nfl*l])    
         mfarxx=abs(farxx) 
         mfarxx[0]=1e-32
-        srmfarxx=.62*np.mean(mfarxx[1:])
+        srmfarxx=.062*np.mean(mfarxx[1:])
         farxxx=np.zeros(Nnl,complex)     
         for j in range(1,Nnl):
             if mfarxx[j]>srmfarxx:
@@ -230,51 +230,36 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                     dQ4=np.zeros((NCh,NCh0),float)
                     mDD4=np.zeros((NCh,NCh0),float)                                    
                     for ll in range(NCh0):
-                        dQ4[:][ll]=(dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]])*1.
-                        if hh==0:
-                            mDD4[:][ll]=(r5[rR[ss4[ll]+zz]:rR[ss4[ll]+zz]+NCh]*(1-(mDD[NumFri[ii:ii+NCh],NumFri_[i+ll]]<D*Koe)))*1.
+                        dQ4[:,ll]=(dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]])*1.
+                        mDD4[:,ll]=(r5[rR[ss4[ll]+zz]:rR[ss4[ll]+zz]+NCh]*(1-(mDD[NumFri[ii:ii+NCh],NumFri_[i+ll]]<D*Koe)))*1.
                                                        
                     P=np.zeros(3,float)
-                    # seq_=dQ4.reshape(NCh*NCh0)*(1/(mDD4.reshape(NCh*NCh0)<D*Koe)) 
-                    # seq_=np.asarray(list(filter(lambda x: abs(x)!= np.Inf, seq_)),float) 
-                    # seq_=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seq_)),float)
-                    # dQ4_=np.mean(seq_) 
-                    
+                                  
                     nNxA=sum(sum(mDD4<D*Koe))
                     nNxA_=sum(sum(1-mDD4<D*Koe))                    
-                    if nNxA/(nNxA_+1)>(Nf-NNew)/NNew*(hh==0):                    
+                    if abs(nNxA/(nNxA_-1))>(Nf-NNew)/NNew*(hh==0):                    
                         mNxA=sum(sum(dQ4*(mDD4<D*Koe)))/nNxA
-                        amNxA=np.sqrt(sum(sum((dQ4-mNxA)*(dQ4-mNxA)*(mDD4<D*Koe))))/nNxA
                         dQ4_=mNxA
                         
                         dQ4=dQ4-dQ4_
-                        dQ4_A= dQ4_+2*np.asarray(XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16)
-                        dQ4_B= dQ4_+2*(   -np.asarray(XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))+mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16))
+                        dQ4_A= dQ4_+2*np.asarray(XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+(hh==0)*mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16)
+                        dQ4_B= dQ4_+2*(   -np.asarray(XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))+(hh==0)*mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16))
                         dQ4=(dQ4_A+dQ4_B)/2
                         dQ4_A=dQ4.copy()
-                        dQ4_B=dQ4.copy()                   
+                        dQ4_B=dQ4.copy()                                     
                         
-                        # seq=(dQ4).reshape(NCh*NCh0)*(1/(mDD4.reshape(NCh*NCh0)<D*Koe)) 
-                        # seq=np.asarray(list(filter(lambda x: abs(x)!= np.Inf, seq)),float) 
-                        # seq=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seq)),float)
-                        
-                        # P[2]=np.mean(seq_)
-                        # P[1]=np.mean(seq)                                         
-                        # P[0]=np.std(seq)/np.std(seq_)                    
-                        
-                        mNxB=sum(sum(dQ4*(mDD4<D*Koe)))/nNxA
-                        amNxB=np.sqrt(sum(sum((dQ4-mNxB)*(dQ4-mNxB)*(mDD4<D*Koe))))/nNxA                    
+                        mNxB=sum(sum(dQ4*(mDD4<D*Koe)))/nNxA                   
                         
                         P[2]=mNxA
                         P[1]=mNxB
-                        P[0]=amNxB/amNxA
+                        P[0]=1#amNxB/amNxA
                         
                         dQ4_A=(dQ4_A-P[1])/P[0] +P[2]
                         dQ4_B=(dQ4_B-P[1])/P[0] +P[2]  
                                   
                         for ll in range(NCh0):
-                            dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]=np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_A[:][ll])
-                            dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]=np.minimum(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_B[:][ll])
+                            dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]=np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_A[:,ll])
+                            dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]=np.minimum(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_B[:,ll])
                     else:
                         kk=Ndel                        
                         k=Ndel0  
@@ -389,6 +374,7 @@ def RALf1FiltrQ(args):
         Koef=np.zeros(Nhh,float)
         KoefA=np.zeros(Nhh,float)
         while hh<Nhh:
+            NNQRandm=512
             NQRandm=NNQRandm
             QRandm_=np.asarray(range(NNQRandm),float)
             if hh<Nhh:                
