@@ -18,9 +18,6 @@ priorityclasses = [win32process.IDLE_PRIORITY_CLASS,
 
 import quantumrandom 
 NNQRandm=512
-QRandm_=np.asarray(range(NNQRandm),float)
-NQRandm=NNQRandm
-
 def RandomQ(Nfx):
     global NQRandm
     global QRandm_
@@ -212,20 +209,20 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
         aa=RandomQ(sz)
         NumFri0_=np.concatenate((aa, aa, aa)) 
         aa=RandomQ(sz)
-        rR0=np.concatenate((aa, aa, aa))  
-        aa=RandomQ(sz)
-        ss4=np.concatenate((aa, aa, aa))  
+        rR0=np.concatenate((aa, aa, aa))   
         aa=RandomQ(sz)
         liiC=np.concatenate((aa, aa, aa)) 
         r5=RandomQ(sz) 
         r5=D*((r5/np.std(r5))/2+Koe*2) 
         r5=np.concatenate((r5, r5))
-                    
-        zz=0                
-        while zz<Nzz:                                                        
+        aa=RandomQ(sz)
+        ss4=np.concatenate((aa, aa, aa))                         
+        zz=0             
+        while zz<Nzz: 
+            xxx=0
             NumFri=NumFri0_[NumFri0[ss4[zz]]:NumFri0[ss4[zz]]+2*sz].copy()
             NumFri_=NumFri0[NumFri0_[ss4[zz]]:NumFri0_[ss4[zz]]+2*sz].copy()
-            rR=rR0[liiC[ss4[zz]]:liiC[ss4[zz]]+2*sz].copy()                      
+            rR=rR0[liiC[ss4[zz]]:liiC[ss4[zz]]+2*sz].copy()  
             for kk in range(Ndel):                        
                 ii=int(kk*NCh)
                 for k in range(Ndel0):                            
@@ -244,47 +241,55 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                     # dQ4_=np.mean(seq_) 
                     
                     nNxA=sum(sum(mDD4<D*Koe))
-                    mNxA=sum(sum(dQ4*(mDD4<D*Koe)))/nNxA
-                    amNxA=np.sqrt(sum(sum((dQ4-mNxA)*(dQ4-mNxA)*(mDD4<D*Koe))))/nNxA
-                    dQ4_=mNxA
-                    
-                    dQ4=dQ4-dQ4_
-                    dQ4_A= dQ4_+2*np.asarray(XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16)
-                    dQ4_B= dQ4_+2*(   -np.asarray(XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))+mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16))
-                    dQ4=(dQ4_A+dQ4_B)/2
-                    dQ4_A=dQ4.copy()
-                    dQ4_B=dQ4.copy()                   
-                    
-                    # seq=(dQ4).reshape(NCh*NCh0)*(1/(mDD4.reshape(NCh*NCh0)<D*Koe)) 
-                    # seq=np.asarray(list(filter(lambda x: abs(x)!= np.Inf, seq)),float) 
-                    # seq=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seq)),float)
-                    
-                    # P[2]=np.mean(seq_)
-                    # P[1]=np.mean(seq)                                         
-                    # P[0]=np.std(seq)/np.std(seq_)                    
-                    
-                    mNxB=sum(sum(dQ4*(mDD4<D*Koe)))/nNxA
-                    amNxB=np.sqrt(sum(sum((dQ4-mNxB)*(dQ4-mNxB)*(mDD4<D*Koe))))/nNxA                    
-                    
-                    P[2]=mNxA
-                    P[1]=mNxB
-                    P[0]=amNxB/amNxA
-                    
-                    dQ4_A=(dQ4_A-P[1])/P[0] +P[2]
-                    dQ4_B=(dQ4_B-P[1])/P[0] +P[2]  
-                              
-                    for ll in range(NCh0):
-                        dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]=np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_A[:][ll])
-                        dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]=np.minimum(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_B[:][ll])
-
-            if zz==0:	
-                AsrXMx=dQ3mx.copy()	                 
-                AsrXMn=dQ3mn.copy()	               
-            else:	
-                AsrXMx=(AsrXMx*(zz)+(dQ3mx))/(zz+1)	
-                AsrXMn=(AsrXMn*(zz)+(dQ3mn))/(zz+1)                       
-                                
-            zz=zz+1
+                    nNxA_=sum(sum(1-mDD4<D*Koe))                    
+                    if nNxA/(nNxA_+1)>(Nf-NNew)/NNew*(hh==0):                    
+                        mNxA=sum(sum(dQ4*(mDD4<D*Koe)))/nNxA
+                        amNxA=np.sqrt(sum(sum((dQ4-mNxA)*(dQ4-mNxA)*(mDD4<D*Koe))))/nNxA
+                        dQ4_=mNxA
+                        
+                        dQ4=dQ4-dQ4_
+                        dQ4_A= dQ4_+2*np.asarray(XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16)
+                        dQ4_B= dQ4_+2*(   -np.asarray(XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))+mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16))
+                        dQ4=(dQ4_A+dQ4_B)/2
+                        dQ4_A=dQ4.copy()
+                        dQ4_B=dQ4.copy()                   
+                        
+                        # seq=(dQ4).reshape(NCh*NCh0)*(1/(mDD4.reshape(NCh*NCh0)<D*Koe)) 
+                        # seq=np.asarray(list(filter(lambda x: abs(x)!= np.Inf, seq)),float) 
+                        # seq=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seq)),float)
+                        
+                        # P[2]=np.mean(seq_)
+                        # P[1]=np.mean(seq)                                         
+                        # P[0]=np.std(seq)/np.std(seq_)                    
+                        
+                        mNxB=sum(sum(dQ4*(mDD4<D*Koe)))/nNxA
+                        amNxB=np.sqrt(sum(sum((dQ4-mNxB)*(dQ4-mNxB)*(mDD4<D*Koe))))/nNxA                    
+                        
+                        P[2]=mNxA
+                        P[1]=mNxB
+                        P[0]=amNxB/amNxA
+                        
+                        dQ4_A=(dQ4_A-P[1])/P[0] +P[2]
+                        dQ4_B=(dQ4_B-P[1])/P[0] +P[2]  
+                                  
+                        for ll in range(NCh0):
+                            dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]=np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_A[:][ll])
+                            dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]=np.minimum(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_B[:][ll])
+                    else:
+                        kk=Ndel                        
+                        k=Ndel0  
+                        aa=RandomQ(sz)
+                        ss4=np.concatenate((aa, aa, aa))     
+                        xxx=1
+            if xxx==0:       
+                if zz==0:	
+                    AsrXMx=dQ3mx.copy()	                 
+                    AsrXMn=dQ3mn.copy()	               
+                else:	
+                    AsrXMx=(AsrXMx*(zz)+(dQ3mx))/(zz+1)	
+                    AsrXMn=(AsrXMn*(zz)+(dQ3mn))/(zz+1)                       
+                                    
+                zz=zz+1
             
         dQ4=(AsrXMx+AsrXMn)/2
         seq=dQ4.reshape(sz*sz)*(1/(mDD.reshape(sz*sz)<D*Koe)) 
@@ -351,6 +356,10 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                 return r2/0                    
 
 def RALf1FiltrQ(args):
+    global QRandm_
+    global NQRandm
+    QRandm_=np.asarray(range(NNQRandm),float)
+    NQRandm=NNQRandm
     pid = win32api.GetCurrentProcessId()
     handle = win32api.OpenProcess(win32con.PROCESS_ALL_ACCESS, True, pid)
     win32process.SetPriorityClass(handle, priorityclasses[1])
