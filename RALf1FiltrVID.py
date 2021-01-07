@@ -358,8 +358,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
 def RALf1FiltrQ(args):
     global QRandm_
     global NQRandm
-    QRandm_=np.asarray(range(NNQRandm),float)
-    NQRandm=NNQRandm
+    
     pid = win32api.GetCurrentProcessId()
     handle = win32api.OpenProcess(win32con.PROCESS_ALL_ACCESS, True, pid)
     win32process.SetPriorityClass(handle, priorityclasses[1])
@@ -390,6 +389,8 @@ def RALf1FiltrQ(args):
         Koef=np.zeros(Nhh,float)
         KoefA=np.zeros(Nhh,float)
         while hh<Nhh:
+            NQRandm=NNQRandm
+            QRandm_=np.asarray(range(NNQRandm),float)
             if hh<Nhh:                
                 arr_bbbxxx=RALF1Calculation(arr_b,Nf,NNew,NChan,D,Nhh,args[0])
                 if (sum(np.abs(arr_bbbxxx)==np.Inf)==0 and sum(np.isnan(arr_bbbxxx))==0):                
