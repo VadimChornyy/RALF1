@@ -234,7 +234,7 @@ if __name__ == '__main__':
                     axes.plot(ar0, 'ro-', alpha=0.1)
                     axes.plot(arrr, 'rx-')
                     for iGr in range(Ngroup):
-                        axes.plot(arr_RezM[iGr],linewidth=3.,alpha=0.33)
+                        axes.plot(arr_RezM[iGr],linewidth=3.,alpha=0.2)
                     axes.plot(arr_rezBz,'cx-', alpha=0.5)
                     axes.text(4, 4, 'Course = %s, start = %s, step = %s'%(aname,adat0,''),
                             verticalalignment='bottom', horizontalalignment='right',

@@ -277,8 +277,8 @@ if __name__ == '__main__':
                     P[0]=np.std(arr_rezBz[Nf-NNew:ssss])/np.std((ar0[Nf-NNew:ssss]))
                     
                 arr_rezBz[Nf-NNew:]=(arr_rezBz[Nf-NNew:]-P[1])/P[0] +P[2]                     
-                for iGr in range(Ngroup):
-                    arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-P[1])/P[0] +P[2]
+                # for iGr in range(Ngroup):
+                #     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-P[1])/P[0] +P[2]
                     
                 if Lo:   
                     for iGr in range(Ngroup):    
@@ -300,7 +300,7 @@ if __name__ == '__main__':
                     axes.plot(ar0, 'ro-', alpha=0.1)
                     axes.plot(arrr, 'rx-')
                     for iGr in range(Ngroup):
-                        axes.plot(arr_RezM[iGr],linewidth=3.,alpha=0.33)
+                        axes.plot(arr_RezM[iGr],linewidth=3.,alpha=0.2)
                     axes.plot(arr_rezBz,'cx-', alpha=0.5)
                     axes.text(4, 4, 'Course = %s, start = %s, step = %s * %s'%(aname,adat0,interv,aDecm),
                             verticalalignment='bottom', horizontalalignment='right',
