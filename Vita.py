@@ -212,8 +212,8 @@ if __name__ == '__main__':
                     P[0]=np.std(arr_rezBz[Nf-NNew:ssss])/np.std((ar0[Nf-NNew:ssss]))
                     
                 arr_rezBz[Nf-NNew:]=(arr_rezBz[Nf-NNew:]-P[1])/P[0] +P[2]                     
-                for iGr in range(Ngroup):
-                    arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-P[1])/P[0] +P[2]
+                # for iGr in range(Ngroup):
+                #     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-P[1])/P[0] +P[2]
                     
                 if Lo:   
                     for iGr in range(Ngroup):    
