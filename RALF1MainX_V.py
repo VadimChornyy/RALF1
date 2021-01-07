@@ -250,23 +250,8 @@ if __name__ == '__main__':
                     Arr_AAA[iGr][hhh*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup)]=(
                         arezAMx[int(iGr*(Nproc/Ngroup)):int((iGr+1)*(Nproc/Ngroup))]).copy()
                         
-                    arr_RezM[iGr]=(
-                        np.mean(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0))
-
-                    P=np.zeros(3,float)                    
-                    if Lo:
-                        arr_RezM[iGr][0:Nf-NNew]=np.log(ar0[0:Nf-NNew])
-                        P[2]=np.mean(np.log(ar0[Nf-NNew:ssss]))
-                        P[1]=np.mean(arr_RezM[iGr][Nf-NNew:ssss])     
-                    else: 
-                        arr_RezM[iGr][0:Nf-NNew]=ar0[0:Nf-NNew]
-                        P[2]=np.mean(ar0[Nf-NNew:ssss])
-                        P[1]=np.mean(arr_RezM[iGr][Nf-NNew:ssss]) 
-                        
-                    arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-P[1])+P[2]                         
-                    all_RezM[iGr][hhh]=arr_RezM[iGr].copy()   
-
-                    arr_RezM[iGr]=np.mean(all_RezM[iGr][max(0,hhh-int(NIter/2)):hhh+1,:],axis = 0)                  
+                    arr_RezM[iGr]=(np.mean(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0)+
+                        np.mean(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0))/2
 
                     if Lo:
                         arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1)
@@ -274,21 +259,27 @@ if __name__ == '__main__':
                     else:
                         arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],arr_z,NNew,1)
                         arr_RezM[iGr][0:Nf-NNew]=ar0[0:Nf-NNew].copy()
-
-                    P=np.zeros(3,float)                    
-                    if Lo:
-                        P[2]=np.mean(np.log(ar0[Nf-NNew:ssss]))
-                        P[1]=np.mean(arr_RezM[iGr][Nf-NNew:ssss])                                         
-                        P[0]=np.std(arr_RezM[iGr][Nf-NNew:ssss])/np.std(np.log(ar0[Nf-NNew:ssss]))
-        
-                    else: 
-                        P[2]=np.mean(ar0[Nf-NNew:ssss])
-                        P[1]=np.mean(arr_RezM[iGr][Nf-NNew:ssss])                                            
-                        P[0]=np.std(arr_RezM[iGr][Nf-NNew:ssss])/np.std((ar0[Nf-NNew:ssss]))
-                  
-                    arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-P[1])/P[0] +P[2] 
+                        
+                    all_RezM[iGr][hhh]=arr_RezM[iGr].copy() 
+                    arr_RezM[iGr]=np.mean(all_RezM[iGr][max(0,hhh-int(NIter/2)):hhh+1,:],axis = 0)                  
+                    
+                arr_rezBz=(np.amax(arr_RezM, axis=0)+np.amin(arr_RezM, axis=0))/2
                 
-                arr_rezBz=np.mean(arr_RezM, axis=0) 
+                P=np.zeros(3,float)                    
+                if Lo:
+                    P[2]=np.mean(np.log(ar0[Nf-NNew:ssss]))
+                    P[1]=np.mean(arr_rezBz[Nf-NNew:ssss])                                         
+                    P[0]=np.std(arr_rezBz[Nf-NNew:ssss])/np.std(np.log(ar0[Nf-NNew:ssss]))
+    
+                else: 
+                    P[2]=np.mean(ar0[Nf-NNew:ssss])
+                    P[1]=np.mean(arr_rezBz[Nf-NNew:ssss])                                            
+                    P[0]=np.std(arr_rezBz[Nf-NNew:ssss])/np.std((ar0[Nf-NNew:ssss]))
+                    
+                arr_rezBz[Nf-NNew:]=(arr_rezBz[Nf-NNew:]-P[1])/P[0] +P[2]                     
+                for iGr in range(Ngroup):
+                    arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-P[1])/P[0] +P[2]
+                    
                 if Lo:   
                     for iGr in range(Ngroup):    
                         arr_RezM[iGr]=np.exp(arr_RezM[iGr]) 
