@@ -106,7 +106,7 @@ def filterFourierQ(arxx,arb,NNew,NChan):
         farxx=np.fft.fft(arxx[Nfl-Nnl+Nfl*l:Nfl+Nfl*l])    
         mfarxx=abs(farxx) 
         mfarxx[0]=1e-32
-        srmfarxx=.062*np.mean(mfarxx[1:])
+        srmfarxx=.62*np.mean(mfarxx[1:])
         farxxx=np.zeros(Nnl,complex)     
         for j in range(1,Nnl):
             if mfarxx[j]>srmfarxx:
@@ -315,13 +315,14 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                 if hh==1: 
                     AMX=aMx.copy()
                     AMN=aMn.copy()   
-                    arr_bbbxxx0=(AMX+AMN)/2
+                    arr_bbbxxx0=0
                 else:
                     AMX=np.maximum(AMX,aMx)
                     AMN=np.minimum(AMN,aMn)  
-                    arr_bbbxxx0=(AMX+AMN)/2-arr_bbbxxx0                   
                 
-                arr_bbbxxx=filterFourierQ(arr_bbbxxx0,arr_b,NNew,NChan)
+                arr_bbbxxx1=(AMX+AMN)/2 
+                arr_bbbxxx=filterFourierQ(arr_bbbxxx1-arr_bbbxxx0,arr_b,NNew,NChan)
+                arr_bbbxxx0=arr_bbbxxx1.copy()
                 
                 for l in range(NChan):
                     arr_bbbxxx[Nf-NNew+Nf*l:Nf+Nf*l]=arr_bbbxxx[Nf-NNew+Nf*l:Nf+Nf*l]-arr_bbbxxx[Nf-NNew+Nf*l]+arr_b[Nf-NNew-1+Nf*l] 
