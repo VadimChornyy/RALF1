@@ -16,65 +16,65 @@ priorityclasses = [win32process.IDLE_PRIORITY_CLASS,
                win32process.HIGH_PRIORITY_CLASS,
                win32process.REALTIME_PRIORITY_CLASS]  
 
-import quantumrandom 
-NNQRandm=512
-def RandomQ(Nfx):
-    global NQRandm
-    global QRandm_
-    global QRandm
-    KK=3e6
+# import quantumrandom 
+# NNQRandm=512
+# def RandomQ(Nfx):
+#     global NQRandm
+#     global QRandm_
+#     global QRandm
+#     KK=3e6
     
+#     liiX=np.zeros(Nfx,float)
+#     pp=0
+#     while pp<0.55:
+#         ii=0
+#         while ii<3:
+#             if NQRandm>=NNQRandm:
+#                 w=1
+#                 while w>0 and w<21:
+#                     try:
+#                         QRandm_=quantumrandom.get_data(data_type='uint16', array_length=NNQRandm)
+#                         QRandm_=np.asarray(QRandm_,float)                        
+#                         w=0
+#                     except:
+#                         w=w+1
+#                         tm.sleep(10)
+#                         print("Lost connection with Q")   
+                   
+#                 NQRandm=0
+#             try:
+#                 z=np.random.randint(NNQRandm)
+#                 QRandm=np.concatenate((QRandm_,QRandm_))
+#                 QRandm=QRandm[z:]
+#                 z=(QRandm[NQRandm]+1)/KK   
+#                 NQRandm=NQRandm+1
+#                 atim0=tm.time()        
+#                 tm.sleep(z) 
+#                 atim=tm.time()     
+#                 dd=int(((atim-atim0)/z-1)*KK/3000)
+                
+#                 zz=np.asarray(sample(list(range(Nfx)),Nfx),float)/KK
+#                 lfib1340.LFib1340(dd).shuffle(zz) 
+#                 lfib1340.LFib1340(int(2*dd/(1+np.sqrt(5)))).shuffle(QRandm_)             
+#                 liiX=liiX+zz
+#                 ii=ii+1
+#             except:
+#                 NQRandm=NNQRandm  
+                
+def RandomQ(Nfx):
+    KK=3e6
     liiX=np.zeros(Nfx,float)
     pp=0
     while pp<0.55:
-        ii=0
-        while ii<3:
-            if NQRandm>=NNQRandm:
-                w=1
-                while w>0 and w<21:
-                    try:
-                        QRandm_=quantumrandom.get_data(data_type='uint16', array_length=NNQRandm)
-                        QRandm_=np.asarray(QRandm_,float)                        
-                        w=0
-                    except:
-                        w=w+1
-                        tm.sleep(10)
-                        print("Lost connection with Q")   
-                   
-                NQRandm=0
-            try:
-                z=np.random.randint(NNQRandm)
-                QRandm=np.concatenate((QRandm_,QRandm_))
-                QRandm=QRandm[z:]
-                z=(QRandm[NQRandm]+1)/KK   
-                NQRandm=NQRandm+1
-                atim0=tm.time()        
-                tm.sleep(z) 
-                atim=tm.time()     
-                dd=int(((atim-atim0)/z-1)*KK/3000)
-                
-                zz=np.asarray(sample(list(range(Nfx)),Nfx),float)/KK
-                lfib1340.LFib1340(dd).shuffle(zz) 
-                lfib1340.LFib1340(int(2*dd/(1+np.sqrt(5)))).shuffle(QRandm_)             
-                liiX=liiX+zz
-                ii=ii+1
-            except:
-                NQRandm=NNQRandm  
-
-# def RandomQ(Nfx):
-#     KK=3e6
-#     liiX=np.zeros(Nfx,float)
-#     pp=0
-#     while pp<0.055:
-#         for ii in range(3):
-#             z=np.random.randint(Nfx)/KK           
-#             atim0=tm.time()        
-#             tm.sleep(z) 
-#             atim=tm.time()     
-#             dd=int((atim-atim0-z)*KK)
-#             zz=np.asarray(range(Nfx),float)/KK
-#             lfib1340.LFib1340(dd).shuffle(zz)   
-#             liiX=liiX+zz
+        for ii in range(3):
+            z=(np.random.randint(Nfx)+1)/KK           
+            atim0=tm.time()        
+            tm.sleep(z) 
+            atim=tm.time()     
+            dd=int(((atim-atim0)/z-1)*KK/3000)
+            zz=np.asarray(sample(list(range(Nfx)),Nfx),float)/KK
+            lfib1340.LFib1340(dd).shuffle(zz)   
+            liiX=liiX+zz
         
         k2, pp = scp.normaltest(liiX)
             
