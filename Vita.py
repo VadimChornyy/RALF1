@@ -17,7 +17,7 @@ import scipy.interpolate as interp
 wrkdir = r"c:\Work\\"
 Lengt=1000
 Ngroup=3
-Nproc=2*Ngroup#*(mp.cpu_count())
+Nproc=3*Ngroup#*(mp.cpu_count())
 Lo=0
 aTmStop=3
 NIt=3
@@ -185,8 +185,8 @@ if __name__ == '__main__':
                     Arr_AAA[iGr][hhh*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup)]=(
                         arezAMx[int(iGr*(Nproc/Ngroup)):int((iGr+1)*(Nproc/Ngroup))]).copy()
                         
-                    arr_RezM[iGr]=(np.mean(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0)+
-                        np.mean(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0))/2
+                    arr_RezM[iGr]=(np.amax(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0)+
+                                   np.amin(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0))/2
 
                     if Lo:
                         arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1)
