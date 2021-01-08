@@ -294,9 +294,9 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                     AMN=np.minimum(AMN,aMn)  
                 
                 arr_bbbxxx1=(AMX+AMN)/2 
-                arr_bbbxxx=filterFourierQ(arr_bbbxxx1-0*arr_bbbxxx0,arr_b,NNew,NChan)
-                arr_bbbxxx0=arr_bbbxxx1.copy()
-                
+                arr_bbbxxx0=(arr_bbbxxx0*(hh-1)+arr_bbbxxx1)/hh
+                arr_bbbxxx=filterFourierQ(arr_bbbxxx0,arr_b,NNew,NChan)
+                                
                 for l in range(NChan):
                     arr_bbbxxx[Nf-NNew+Nf*l:Nf+Nf*l]=arr_bbbxxx[Nf-NNew+Nf*l:Nf+Nf*l]-arr_bbbxxx[Nf-NNew+Nf*l]+arr_b[Nf-NNew-1+Nf*l] 
                 

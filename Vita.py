@@ -85,6 +85,7 @@ if __name__ == '__main__':
             all_rezAz=np.zeros((NIter,Nf),float)
             arr_z[Nf-NNew:]=arr_z[Nf-NNew-1]  
             all_RezM=np.zeros((Ngroup,NIter,Nf),float)
+            all_RezMM=np.zeros((Ngroup,NIter,Nf),float)
             argss=[[0] for j in range(Nproc)]    
     
             hh0=0
@@ -144,6 +145,7 @@ if __name__ == '__main__':
                     all_rezAz=np.zeros((NIter,Nf),float)
                     arr_z[Nf-NNew:]=arr_z[Nf-NNew-1]  
                     all_RezM=np.zeros((Ngroup,NIter,Nf),float)
+                    all_RezMM=np.zeros((Ngroup,NIter,Nf),float)
                     hhh_=hhh_+1
                 else:
                     hhh_=hhh_+1
@@ -188,6 +190,9 @@ if __name__ == '__main__':
                     arr_RezM[iGr]=(np.amax(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0)+
                                    np.amin(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0))/2
 
+                    all_RezM[iGr][hhh]=arr_RezM[iGr].copy() 
+                    arr_RezM[iGr]=np.mean(all_RezM[iGr][max(0,hhh-int(NIter/2)):hhh+1,:],axis = 0) 
+                    
                     if Lo:
                         arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1)
                         arr_RezM[iGr][0:Nf-NNew]=np.log(ar0[0:Nf-NNew])                         
@@ -195,8 +200,8 @@ if __name__ == '__main__':
                         arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],arr_z,NNew,1)
                         arr_RezM[iGr][0:Nf-NNew]=ar0[0:Nf-NNew].copy()
                         
-                    all_RezM[iGr][hhh]=arr_RezM[iGr].copy() 
-                    arr_RezM[iGr]=np.mean(all_RezM[iGr][max(0,hhh-int(NIter/2)):hhh+1,:],axis = 0)                  
+                    all_RezMM[iGr][hhh]=arr_RezM[iGr].copy() 
+                    arr_RezM[iGr]=np.mean(all_RezMM[iGr][max(0,hhh-int(NIter/2)):hhh+1,:],axis = 0) 
                     
                 arr_rezBz=(np.amax(arr_RezM, axis=0)+np.amin(arr_RezM, axis=0))/2
                 
