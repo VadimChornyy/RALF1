@@ -121,7 +121,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
     NQRandm=NNQRandm
     QRandm_=np.asarray(range(NNQRandm),float)
   
-    MM=1
+    MM=2
     Nzz=12
     
     Ndel=MM
@@ -218,7 +218,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                                   
                     nNxA=sum(sum(mDD4<D*Koe))
                     nNxA_=sum(sum(1-mDD4<D*Koe))                    
-                    if abs(nNxA/(nNxA_-1))>(Nf-NNew)/NNew*(hh==0):                    
+                    if nNxA>nNxA_ and nNxA_>0:                    
                         mNxA=sum(sum(dQ4*(mDD4<D*Koe)))/nNxA                        
                         amNxA=np.sqrt(sum(sum((dQ4-mNxA)*(dQ4-mNxA)*(mDD4<D*Koe))))/nNxA
                         dQ4_=mNxA
