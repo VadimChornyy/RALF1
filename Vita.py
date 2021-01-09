@@ -16,8 +16,8 @@ import scipy.interpolate as interp
 
 wrkdir = r"c:\Work\\"
 Lengt=1000
-Ngroup=3
-Nproc=3*Ngroup#*(mp.cpu_count())
+Ngroup=2
+Nproc=2*Ngroup#*(mp.cpu_count())
 Lo=0
 aTmStop=3
 NIt=3
@@ -32,7 +32,7 @@ def loaddata(aLengt,key):
     
     dat=np.asarray(excel_data_df, float)
     f=interp.interp1d(dat[:,0], dat[:,1],'cubic')
-    xnew=np.asarray(range(75,915),float)[::3]
+    xnew=np.asarray(range(75,915),float)[::5]
     arrr.append(f(xnew))
     
     excel_data_df = pd.read_excel('bok.xls', sheet_name='2')
@@ -171,15 +171,15 @@ if __name__ == '__main__':
                 ssss=int(Nf-NNew+(len(ar0)-(Nf-NNew)))
                 
                 arezAMx=[]
-                for iProc in range(Nproc):
-                    arezAMx.append(RALf1FiltrQ(argss[iProc]))
+                # for iProc in range(Nproc):
+                #     arezAMx.append(RALf1FiltrQ(argss[iProc]))
 
-                # with concurrent.futures.ThreadPoolExecutor(max_workers=Nproc) as executor:
-                #     future_to = {executor.submit(RALf1FiltrQ, argss[iProc]) for iProc in range(Nproc)}
-                #     for future in concurrent.futures.as_completed(future_to):                
-                #         arezAMx.append(future.result())
-                # del(future)                        
-                # del(executor)
+                with concurrent.futures.ThreadPoolExecutor(max_workers=Nproc) as executor:
+                    future_to = {executor.submit(RALf1FiltrQ, argss[iProc]) for iProc in range(Nproc)}
+                    for future in concurrent.futures.as_completed(future_to):                
+                        arezAMx.append(future.result())
+                del(future)                        
+                del(executor)
                 
                 arezAMx= np.asarray(arezAMx,float)*Klg+Asr
                 arr_RezM=  np.zeros((Ngroup,Nf),float)
@@ -187,8 +187,8 @@ if __name__ == '__main__':
                     Arr_AAA[iGr][hhh*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup)]=(
                         arezAMx[int(iGr*(Nproc/Ngroup)):int((iGr+1)*(Nproc/Ngroup))]).copy()
                         
-                    arr_RezM[iGr]=(np.amax(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0)+
-                                   np.amin(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0))/2
+                    arr_RezM[iGr]=(np.mean(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0)+
+                                   np.mean(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0))/2
 
                     all_RezM[iGr][hhh]=arr_RezM[iGr].copy() 
                     arr_RezM[iGr]=np.mean(all_RezM[iGr][max(0,hhh-int(NIter/2)):hhh+1,:],axis = 0) 

@@ -17,7 +17,6 @@ priorityclasses = [win32process.IDLE_PRIORITY_CLASS,
                win32process.REALTIME_PRIORITY_CLASS]  
 
 NNQRandm=512
-NQRandm=NNQRandm
 
 def RandomQ(Nfx):
     global NQRandm
@@ -79,7 +78,7 @@ def filterFourierQ(arxx,arb,NNew,NChan):
         farxx=np.fft.fft(arxx[Nfl-Nnl+Nfl*l:Nfl+Nfl*l])    
         mfarxx=abs(farxx) 
         mfarxx[0]=1e-32
-        srmfarxx=.62*np.mean(mfarxx[1:])
+        srmfarxx=.062*np.mean(mfarxx[1:])
         farxxx=np.zeros(Nnl,complex)     
         for j in range(1,Nnl):
             if mfarxx[j]>srmfarxx:
@@ -148,8 +147,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
     WW=0              
     while hh<Nhh:  
         if hh==0:
-            mn=np.mean(arr_bZ)     
-            arr_bbx=[]        
+            mn=np.mean(arr_bZ)         
             r2=np.asarray(arr_b,np.float16)
             for l in range(NChan):                
                 r2[Nf-NNew+Nf*l:Nf+Nf*l]=mn   
@@ -210,7 +208,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                     mDD4=np.zeros((NCh,NCh0),float)                                    
                     for ll in range(NCh0):
                         dQ4[:,ll]=(dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]])*1.
-                        mDD4[:,ll]=(hh==0)*(r5[rR[ss4[ll]+zz]:rR[ss4[ll]+zz]+NCh]*(1-(mDD[NumFri[ii:ii+NCh],NumFri_[i+ll]]<D*Koe)))*1.
+                        mDD4[:,ll]=(r5[rR[ss4[ll]+zz]:rR[ss4[ll]+zz]+NCh]*(1-(mDD[NumFri[ii:ii+NCh],NumFri_[i+ll]]<D*Koe)))*1.
                                                        
                     P=np.zeros(3,float)
                                   
@@ -222,8 +220,8 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                         dQ4_=mNxA
                         
                         dQ4=dQ4-dQ4_
-                        dQ4_A= dQ4_+2*np.asarray(XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16)
-                        dQ4_B= dQ4_+2*(   -np.asarray(XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))+mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16))
+                        dQ4_A= dQ4_+2*np.asarray(XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+(hh==0)*mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16)
+                        dQ4_B= dQ4_+2*(   -np.asarray(XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))+(hh==0)*mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16))
                         dQ4=(dQ4_A+dQ4_B)/2
                         dQ4_A=dQ4.copy()
                         dQ4_B=dQ4.copy()                                     
@@ -293,24 +291,11 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                     AMX=np.maximum(AMX,aMx)
                     AMN=np.minimum(AMN,aMn)  
                 
-                arr_bbbxxx1=(AMX+AMN)/2 
-                arr_bbbxxx0=(arr_bbbxxx0*(hh-1)+arr_bbbxxx1)/hh
-                arr_bbbxxx=filterFourierQ(arr_bbbxxx0,arr_b,NNew,NChan)
-                                
-                for l in range(NChan):
-                    arr_bbbxxx[Nf-NNew+Nf*l:Nf+Nf*l]=arr_bbbxxx[Nf-NNew+Nf*l:Nf+Nf*l]-arr_bbbxxx[Nf-NNew+Nf*l]+arr_b[Nf-NNew-1+Nf*l] 
-                
-                if hh==1:
-                    arr_bbx=arr_bbbxxx.copy()            
-                else:               
-                    arr_bbx=(arr_bbx*(hh-1)+arr_bbbxxx)/hh   
-                    
-                if hh==Nhh:
-                    arr_bbx=filterFourierQ(arr_bbx,arr_b,NNew,NChan)
-                
+                arr_bbbxxx0=(arr_bbbxxx0*(hh-1)+filterFourierQ((AMX+AMN)/2,arr_b,NNew,NChan))/hh                     
+                r2=filterFourierQ(arr_bbbxxx0,arr_b,NNew,NChan)                    
                 for l in range(NChan):   
-                    r2[Nf-NNew+Nf*l:Nf+Nf*l]=arr_bbx[Nf-NNew+Nf*l:Nf+Nf*l]-arr_bbx[Nf-NNew+Nf*l]+r2[Nf-NNew-1+Nf*l]
-                              
+                    r2[Nf-NNew+Nf*l:Nf+Nf*l]=r2[Nf-NNew+Nf*l:Nf+Nf*l]-r2[Nf-NNew+Nf*l]+r2[Nf-NNew-1+Nf*l]
+                                             
                 anamef="fralf.tmp"
                 fo = open(anamef, "w")
                 fo.write(str(iProc)+'\n')
