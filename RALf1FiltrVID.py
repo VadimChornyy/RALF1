@@ -78,7 +78,7 @@ def filterFourierQ(arxx,arb,NNew,NChan):
         farxx=np.fft.fft(arxx[Nfl-Nnl+Nfl*l:Nfl+Nfl*l])    
         mfarxx=abs(farxx) 
         mfarxx[0]=1e-32
-        srmfarxx=.062*np.mean(mfarxx[1:])
+        srmfarxx=.62*np.mean(mfarxx[1:])
         farxxx=np.zeros(Nnl,complex)     
         for j in range(1,Nnl):
             if mfarxx[j]>srmfarxx:
@@ -121,8 +121,8 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
     NQRandm=NNQRandm
     QRandm_=np.asarray(range(NNQRandm),float)
   
-    MM=2
-    Nzz=8
+    MM=1
+    Nzz=12
     
     Ndel=MM
     NCh=int(np.ceil(sz/Ndel)) 
@@ -205,10 +205,14 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                 for k in range(Ndel0):                            
                     i=int(k*NCh0) 
                     dQ4=np.zeros((NCh,NCh0),float)
-                    mDD4=np.zeros((NCh,NCh0),float)                                    
+                    mDD4=np.zeros((NCh,NCh0),float)
+                    mDD4_A=np.zeros((NCh,NCh0),float) 
+                    mDD4_B=np.zeros((NCh,NCh0),float)                                    
                     for ll in range(NCh0):
                         dQ4[:,ll]=(dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]])*1.
-                        mDD4[:,ll]=(r5[rR[ss4[ll]+zz]:rR[ss4[ll]+zz]+NCh]*(1-(mDD[NumFri[ii:ii+NCh],NumFri_[i+ll]]<D*Koe)))*1.
+                        mDD4[:,ll]=(1-(mDD[NumFri[ii:ii+NCh],NumFri_[i+ll]]<D*Koe))*1.
+                        mDD4_A[:,ll]=(r5[rR[ss4[ll]+zz]:rR[ss4[ll]+zz]+NCh]*(dQ4[:,ll]< D*Koe))*1.
+                        mDD4_B[:,ll]=(r5[rR[ss4[ll]+zz]:rR[ss4[ll]+zz]+NCh]*(dQ4[:,ll]>-D*Koe))*1.
                                                        
                     P=np.zeros(3,float)
                                   
@@ -220,8 +224,8 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                         dQ4_=mNxA
                         
                         dQ4=dQ4-dQ4_
-                        dQ4_A= dQ4_+2*np.asarray(XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+(hh==0)*mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16)
-                        dQ4_B= dQ4_+2*(   -np.asarray(XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))+(hh==0)*mDD4,len(dQ4),len(dQ4[0]),1,0),np.float16))
+                        dQ4_A= dQ4_+2*np.asarray(XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+mDD4_A,len(dQ4),len(dQ4[0]),1,0),np.float16)
+                        dQ4_B= dQ4_+2*(   -np.asarray(XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))+mDD4_B,len(dQ4),len(dQ4[0]),1,0),np.float16))
                         dQ4=(dQ4_A+dQ4_B)/2
                         dQ4_A=dQ4.copy()
                         dQ4_B=dQ4.copy()                                     
@@ -259,21 +263,23 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
         seq=dQ4.reshape(sz*sz)*(1/(mDD.reshape(sz*sz)<D*Koe)) 
         seq=np.asarray(list(filter(lambda x: abs(x)!= np.Inf, seq)),float) 
         seq=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seq)),float)
-                        
-        if scp.spearmanr(sseq_,seq)[0]>0.6:                    
-            dQ3=dQ3_0*(mDD<D*Koe)+(dQ4)*(np.asarray(1,np.float16)-(mDD<D*Koe))
-            WW=0
-        else: 
-            WW=WW-1                     
+         
+        WW=WW-1               
+        try:
+            if scp.spearmanr(sseq_,seq)[0]>0.24:                    
+                dQ3=dQ3_0*(mDD<D*Koe)+(dQ4)*(np.asarray(1,np.float16)-(mDD<D*Koe))
+                WW=0
+        except:
+            WW=WW
             
         ##########################################
         if not WW<0:
             #dQ3_0[:][liix]=dQ3
             for i in  range(sz):
-                dQ3_0[i][liix[i]]=dQ3[i].copy()
+                dQ3_0[i][liix[i]]=dQ3[i].copy()+mn
                        
             aMx=np.max(dQ3_0,0)
-            aMn=np.min(dQ3_0,0)          
+            aMn=np.min(dQ3_0,0)        
                     
             # Nfl=int(len(arr_bx)/NChan)
             # for l in range(NChan):      
@@ -294,8 +300,10 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                 arr_bbbxxx0=(arr_bbbxxx0*(hh-1)+filterFourierQ((AMX+AMN)/2,arr_b,NNew,NChan))/hh                     
                 r2=filterFourierQ(arr_bbbxxx0,arr_b,NNew,NChan)                    
                 for l in range(NChan):   
-                    r2[Nf-NNew+Nf*l:Nf+Nf*l]=r2[Nf-NNew+Nf*l:Nf+Nf*l]-r2[Nf-NNew+Nf*l]+r2[Nf-NNew-1+Nf*l]
-                                             
+                    r2[Nf-NNew+Nf*l:Nf+Nf*l]=r2[Nf-NNew+Nf*l:Nf+Nf*l]-r2[Nf-NNew+Nf*l]+r2[Nf-NNew-1+Nf*l]                            
+                
+                mn=np.mean(r2)
+                r2=r2-mn
                 anamef="fralf.tmp"
                 fo = open(anamef, "w")
                 fo.write(str(iProc)+'\n')
