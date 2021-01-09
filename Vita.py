@@ -171,15 +171,15 @@ if __name__ == '__main__':
                 ssss=int(Nf-NNew+(len(ar0)-(Nf-NNew)))
                 
                 arezAMx=[]
-                # for iProc in range(Nproc):
-                #     arezAMx.append(RALf1FiltrQ(argss[iProc]))
+                for iProc in range(Nproc):
+                    arezAMx.append(RALf1FiltrQ(argss[iProc]))
 
-                with concurrent.futures.ThreadPoolExecutor(max_workers=Nproc) as executor:
-                    future_to = {executor.submit(RALf1FiltrQ, argss[iProc]) for iProc in range(Nproc)}
-                    for future in concurrent.futures.as_completed(future_to):                
-                        arezAMx.append(future.result())
-                del(future)                        
-                del(executor)
+                # with concurrent.futures.ThreadPoolExecutor(max_workers=Nproc) as executor:
+                #     future_to = {executor.submit(RALf1FiltrQ, argss[iProc]) for iProc in range(Nproc)}
+                #     for future in concurrent.futures.as_completed(future_to):                
+                #         arezAMx.append(future.result())
+                # del(future)                        
+                # del(executor)
                 
                 arezAMx= np.asarray(arezAMx,float)*Klg+Asr
                 arr_RezM=  np.zeros((Ngroup,Nf),float)
@@ -190,8 +190,8 @@ if __name__ == '__main__':
                     arr_RezM[iGr]=(np.mean(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0)+
                                    np.mean(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0))/2
 
-                    all_RezM[iGr][hhh]=arr_RezM[iGr].copy() 
-                    arr_RezM[iGr]=np.mean(all_RezM[iGr][max(0,hhh-int(NIter/2)):hhh+1,:],axis = 0) 
+                    # all_RezM[iGr][hhh]=arr_RezM[iGr].copy() 
+                    # arr_RezM[iGr]=np.mean(all_RezM[iGr][max(0,hhh-int(NIter/2)):hhh+1,:],axis = 0) 
                     
                     if Lo:
                         arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1)
