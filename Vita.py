@@ -16,7 +16,7 @@ import scipy.interpolate as interp
 
 wrkdir = r"c:\Work\\"
 Lengt=1000
-Ngroup=2
+Ngroup=3
 Nproc=2*Ngroup#*(mp.cpu_count())
 Lo=0
 aTmStop=3
