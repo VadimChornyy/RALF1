@@ -30,7 +30,7 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symb
 
 Lengt=1000
 Ngroup=3
-Nproc=3*Ngroup#*(mp.cpu_count())
+Nproc=2*Ngroup#*(mp.cpu_count())
 Lo=1
 aTmStop=3
 NIt=3
@@ -268,9 +268,8 @@ if __name__ == '__main__':
                         
                     all_RezMM[iGr][hhh]=arr_RezM[iGr].copy() 
                     arr_RezM[iGr]=np.mean(all_RezMM[iGr][max(0,hhh-int(NIter/2)):hhh+1,:],axis = 0) 
-                 
                     
-                arr_rezBz=(np.amax(arr_RezM, axis=0)+np.amin(arr_RezM, axis=0))/2
+                arr_rezBz=(np.mean(arr_RezM, axis=0)+np.mean(arr_RezM, axis=0))/2
                 
                 P=np.zeros(3,float)                    
                 if Lo:

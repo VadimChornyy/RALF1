@@ -203,7 +203,7 @@ if __name__ == '__main__':
                     all_RezMM[iGr][hhh]=arr_RezM[iGr].copy() 
                     arr_RezM[iGr]=np.mean(all_RezMM[iGr][max(0,hhh-int(NIter/2)):hhh+1,:],axis = 0) 
                     
-                arr_rezBz=(np.amax(arr_RezM, axis=0)+np.amin(arr_RezM, axis=0))/2
+                arr_rezBz=(np.mean(arr_RezM, axis=0)+np.mean(arr_RezM, axis=0))/2
                 
                 P=np.zeros(3,float)                    
                 if Lo:
