@@ -304,6 +304,9 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                     arr_bbx=arr_bbbxxx.copy()            
                 else:               
                     arr_bbx=(arr_bbx*(hh-1)+arr_bbbxxx)/hh   
+                    
+                if hh==Nhh:
+                    arr_bbx=filterFourierQ(arr_bbx,arr_b,NNew,NChan)
                 
                 for l in range(NChan):   
                     r2[Nf-NNew+Nf*l:Nf+Nf*l]=arr_bbx[Nf-NNew+Nf*l:Nf+Nf*l]-arr_bbx[Nf-NNew+Nf*l]+r2[Nf-NNew-1+Nf*l]
@@ -411,7 +414,7 @@ def RALf1FiltrQ(args):
                 if KoefA[Nch]>20:
                     for l in range(NChan):
                         arr_b[Nf-NNew+Nf*l:Nf+Nf*l]=arr_bbx[Nch][Nf-NNew+Nf*l:Nf+Nf*l].copy()    
-                    arr_b=filterFourierQ(arr_b,arr_b,NNew,NChan)
+                    #arr_b=filterFourierQ(arr_b,arr_b,NNew,NChan)
                     return arr_b
 
 if __name__ == '__main__':
