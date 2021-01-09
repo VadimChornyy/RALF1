@@ -121,7 +121,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
     NQRandm=NNQRandm
     QRandm_=np.asarray(range(NNQRandm),float)
   
-    MM=2
+    MM=1
     Nzz=12
     
     Ndel=MM
