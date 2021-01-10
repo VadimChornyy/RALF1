@@ -30,19 +30,21 @@ def RandomQ(Nfx):
             if NQRandm>=NNQRandm:
                 QRandm_=np.asarray(range(NNQRandm),float)
                 NQRandm=0
+            try:                
+                z=(QRandm_[NQRandm]+1)/KK           
+                atim0=tm.time()        
+                tm.sleep(z) 
+                atim=tm.time()     
+                dd=int(((atim-atim0)/z-1)/1000)
+                zz=np.asarray(sample(list(range(Nfx)),Nfx),float)/KK
+                lfib1340.LFib1340(dd).shuffle(zz)  
+                lfib1340.LFib1340(int(2*dd/(1+np.sqrt(5)))).shuffle(QRandm_)
                 
-            z=(QRandm_[NQRandm]+1)/KK           
-            atim0=tm.time()        
-            tm.sleep(z) 
-            atim=tm.time()     
-            dd=int(((atim-atim0)/z-1)/1000)
-            zz=np.asarray(sample(list(range(Nfx)),Nfx),float)/KK
-            lfib1340.LFib1340(dd).shuffle(zz)  
-            lfib1340.LFib1340(int(2*dd/(1+np.sqrt(5)))).shuffle(QRandm_)
-            
-            if NQRandm>0:
-                liiX=liiX+zz
-            NQRandm=NQRandm+1
+                if NQRandm>0:
+                    liiX=liiX+zz
+                NQRandm=NQRandm+1
+            except:
+                NQRandm=NNQRandm                
 
         k2, pp = scp.normaltest(liiX)
             
