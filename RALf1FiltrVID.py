@@ -121,8 +121,8 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
     NQRandm=NNQRandm
     QRandm_=np.asarray(range(NNQRandm),float)
   
-    MM=1
-    Nzz=12
+    MM=2
+    Nzz=8
     
     Ndel=MM
     NCh=int(np.ceil(sz/Ndel)) 
@@ -340,7 +340,7 @@ def RALf1FiltrQ(args):
     arr_bZ=np.asarray(arr_bZ,float)
     D=np.std(arr_bZ)
     arr_b=np.asarray(arr_bb,np.float16)    
-    NNew=int(NNew*1.1)   
+    #NNew=int(NNew*1.1)   
     while 1==1: 
         hh=0
         ann=0
