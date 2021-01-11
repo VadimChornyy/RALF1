@@ -66,35 +66,43 @@ def filterFourierQ(arxx,arb,NNew,NChan):
     
     az=int(np.floor(Nfl/Nnl))-1
     
+    gg0=0    
     for l in range(NChan):        
         for i in range(az):
             for j in range(Nnl):
                 ar_[j]=arb[Nfl-(az-i+1)*Nnl+j+Nfl*l]
+                gg0=gg0+ar_[j]*ar_[j]
             ar_=abs(np.fft.fft(ar_))
             for j in range(Nnl):
                 farx[j]=max(farx[j],ar_[j])
+    gg0=np.sqrt(gg0)/(NChan*az*Nnl)
     
     farx[0]=1e-32
+    gg=0
     arxr=arb.copy()
     for l in range(NChan):       
         farxx=np.fft.fft(arxx[Nfl-Nnl+Nfl*l:Nfl+Nfl*l])    
         mfarxx=abs(farxx) 
-        mfarxx[0]=1e-32
-        srmfarxx=.4*np.mean(mfarxx[1:])
-        farxxx=np.zeros(Nnl,complex)     
+        mfarxx[0]=1e-32    
+        srmfarxx=np.std(mfarxx[1:len(mfarxx)-1])        
+        farxxx=np.zeros(Nnl,complex)  
         for j in range(1,Nnl):
             if mfarxx[j]>srmfarxx:
-                farxxx[j]=farxx[j]/mfarxx[j]*farx[j]            
+                farxxx[j]=farxx[j]/mfarxx[j]*farx[j]                   
             else:
-                farxxx[j]=0   
+                farxxx[j]=0        
         farxxx[0]=farxx[0]
         farxxx2=np.zeros(2*Nnl,complex)
         farxxx2=farxxx.copy()
         arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l]=np.fft.ifft(farxxx2).real[0:Nnl] 
         arxr[Nfl-Nnl+Nfl*l]=arxr[Nfl-Nnl+Nfl*l+1]
         arxr[Nfl+Nfl*l-1]=arxr[Nfl+Nfl*l-2]
+        gg=gg+np.std(arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l])
         
-    return arxr
+    if gg/NChan>0.1*gg0:        
+        return arxr
+    else:
+        return arxr/0
 
 def RALF1FilterQ(dQ2):    
     Np=len(dQ2)
@@ -290,30 +298,35 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
             
             ann=sum(np.isnan(aMx + aMn))
             if ann==0: 
-                hh=hh+1
-                if hh==1: 
+                if hh==0: 
                     AMX=aMx.copy()
                     AMN=aMn.copy()   
                     arr_bbbxxx0=0
                 else:
                     AMX=np.maximum(AMX,aMx)
                     AMN=np.minimum(AMN,aMn)  
-                
-                arr_bbbxxx0=(arr_bbbxxx0*(hh-1)+filterFourierQ((AMX+AMN)/2,arr_b,NNew,NChan))/hh                     
-                r2=filterFourierQ(arr_bbbxxx0,arr_b,NNew,NChan)                    
-                for l in range(NChan):   
-                    r2[Nf-NNew+Nf*l:Nf+Nf*l]=r2[Nf-NNew+Nf*l:Nf+Nf*l]-r2[Nf-NNew+Nf*l]+r2[Nf-NNew-1+Nf*l]                            
-                
-                mn=np.mean(r2)
-                r2=r2-mn
-                anamef="fralf.tmp"
-                fo = open(anamef, "w")
-                fo.write(str(iProc)+'\n')
-                fo.close()
-                
-                if hh==Nhh:
-                    return r2+mn
-
+                ann=1
+                dd=filterFourierQ((AMX+AMN)/2,arr_b,NNew,NChan)
+                if sum(np.abs(dd)==np.Inf)==0:
+                    arr_bbbxxx0=(arr_bbbxxx0*(hh)+dd)/(hh+1)  
+                    dd=filterFourierQ(arr_bbbxxx0,arr_b,NNew,NChan)                    
+                    if sum(abs(dd)==np.Inf)==0:
+                        ann=0
+                        hh=hh+1
+                        r2=dd.copy()                
+                        for l in range(NChan):   
+                            r2[Nf-NNew+Nf*l:Nf+Nf*l]=r2[Nf-NNew+Nf*l:Nf+Nf*l]-r2[Nf-NNew+Nf*l]+r2[Nf-NNew-1+Nf*l]                            
+                        
+                        mn=np.mean(r2)
+                        r2=r2-mn
+                        anamef="fralf.tmp"
+                        fo = open(anamef, "w")
+                        fo.write(str(iProc)+'\n')
+                        fo.close()
+                        
+                        if hh==Nhh:
+                            return r2+mn
+                        
         else:
             if WW>-Nhh:
                 hh=0
