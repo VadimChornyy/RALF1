@@ -268,7 +268,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
          
         WW=WW-1               
         try:
-            if scp.spearmanr(sseq_,seq)[0]>0.24:                    
+            if scp.spearmanr(sseq_,seq)[0]>0.3:                    
                 dQ3=dQ3_0*(mDD<D*Koe)+(dQ4)*(np.asarray(1,np.float16)-(mDD<D*Koe))
                 WW=0
         except:
