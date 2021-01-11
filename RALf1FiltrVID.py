@@ -222,7 +222,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                     nNxA_=sum(sum(1-mDD4<D*Koe))                    
                     if nNxA>nNxA_ and nNxA_>0:                    
                         mNxA=sum(sum(dQ4*(mDD4<D*Koe)))/nNxA                        
-                        #amNxA=np.sqrt(sum(sum((dQ4-mNxA)*(dQ4-mNxA)*(mDD4<D*Koe))))/nNxA
+                        amNxA=np.sqrt(sum(sum((dQ4-mNxA)*(dQ4-mNxA)*(mDD4<D*Koe))))/nNxA
                         dQ4_=mNxA
                         
                         dQ4=dQ4-dQ4_
@@ -233,11 +233,11 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                         dQ4_B=dQ4.copy()                                     
                         
                         mNxB=sum(sum(dQ4*(mDD4<D*Koe)))/nNxA 
-                        #amNxB=np.sqrt(sum(sum((dQ4-mNxB)*(dQ4-mNxB)*(mDD4<D*Koe))))/nNxA   
+                        amNxB=np.sqrt(sum(sum((dQ4-mNxB)*(dQ4-mNxB)*(mDD4<D*Koe))))/nNxA   
                         
                         P[2]=mNxA
                         P[1]=mNxB
-                        P[0]=1#amNxB/amNxA
+                        P[0]=amNxB/amNxA
                         
                         dQ4_A=(dQ4_A-P[1])/P[0] +P[2]
                         dQ4_B=(dQ4_B-P[1])/P[0] +P[2]  
@@ -268,7 +268,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
          
         WW=WW-1               
         try:
-            if scp.spearmanr(sseq_,seq)[0]>0.3:                    
+            if scp.spearmanr(sseq_,seq)[0]>0.24:                    
                 dQ3=dQ3_0*(mDD<D*Koe)+(dQ4)*(np.asarray(1,np.float16)-(mDD<D*Koe))
                 WW=0
         except:
