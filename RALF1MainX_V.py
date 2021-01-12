@@ -259,10 +259,10 @@ if __name__ == '__main__':
                     # arr_RezM[iGr]=np.mean(all_RezM[iGr][max(0,hhh-int(NIter/2)):hhh+1,:],axis = 0) 
                     
                     if Lo:
-                        arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1)
+                        arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1,1)
                         arr_RezM[iGr][0:Nf-NNew]=np.log(ar0[0:Nf-NNew])                         
                     else:
-                        arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],arr_z,NNew,1)
+                        arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],arr_z,NNew,1,1)
                         arr_RezM[iGr][0:Nf-NNew]=ar0[0:Nf-NNew].copy()
                         
                     all_RezMM[iGr][hhh]=arr_RezM[iGr].copy() 
