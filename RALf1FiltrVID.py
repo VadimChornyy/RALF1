@@ -72,7 +72,7 @@ def filterFourierQ(arxx,arb,NNew,NChan):
             for j in range(Nnl):
                 ar_[j]=arb[Nfl-(az-i+1)*Nnl+j+Nfl*l]
                 gg0=gg0+ar_[j]*ar_[j]
-            ar_=abs(np.fft.fft(ar_))
+            ar_=np.abs(np.fft.fft(ar_))
             for j in range(Nnl):
                 farx[j]=max(farx[j],ar_[j])
     gg0=np.sqrt(gg0)/(NChan*az*Nnl)
@@ -82,24 +82,20 @@ def filterFourierQ(arxx,arb,NNew,NChan):
     arxr=arb.copy()
     for l in range(NChan):       
         farxx=np.fft.fft(arxx[Nfl-Nnl+Nfl*l:Nfl+Nfl*l])    
-        mfarxx=abs(farxx) 
-        mfarxx[0]=1e-32    
-        srmfarxx=np.std(mfarxx[1:len(mfarxx)-1])        
+        mfarxx=np.abs(farxx)  
+        srmfarxx=np.std(mfarxx[1:len(mfarxx)])*0.5
         farxxx=np.zeros(Nnl,complex)  
         for j in range(1,Nnl):
             if mfarxx[j]>srmfarxx:
-                farxxx[j]=farxx[j]/mfarxx[j]*farx[j]                   
-            else:
-                farxxx[j]=0        
-        farxxx[0]=farxx[0]
-        farxxx2=np.zeros(2*Nnl,complex)
-        farxxx2=farxxx.copy()
-        arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l]=np.fft.ifft(farxxx2).real[0:Nnl] 
-        arxr[Nfl-Nnl+Nfl*l]=arxr[Nfl-Nnl+Nfl*l+1]
-        arxr[Nfl+Nfl*l-1]=arxr[Nfl+Nfl*l-2]
+                farxxx[j]=farxx[j]/mfarxx[j]*farx[j]
+            
+        farxxx[len(farxxx)-1]=0
+                          
+        arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l]=np.fft.ifft(farxxx).real[0:Nnl] 
+        arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l]=arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l]-arxr[Nfl-Nnl+Nfl*l]+arxr[Nfl-Nnl+Nfl*l-1]
         gg=gg+np.std(arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l])
         
-    if gg/NChan>0.1*gg0:        
+    if gg/NChan>0.05*gg0:        
         return arxr
     else:
         return arxr/0
@@ -182,8 +178,8 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                
         ##########################################       
         sseq_=dQ3_0.reshape(sz*sz)*(1/(mDD.reshape(sz*sz)<D*Koe))  
-        sseq_=np.asarray(list(filter(lambda x: abs(x)!= np.Inf, sseq_)),float) 
-        sseq_=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, sseq_)),float)  
+        sseq_=np.asarray(list(filter(lambda x: np.abs(x)!= np.Inf, sseq_)),float) 
+        sseq_=np.asarray(list(filter(lambda x: np.abs(np.isnan(x))!= 1, sseq_)),float)  
         
         dQ3mx=np.zeros((sz,sz),np.float16)-np.Inf
         dQ3mn=np.zeros((sz,sz),np.float16)+np.Inf                 
@@ -271,8 +267,8 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
             
         dQ4=(AsrXMx+AsrXMn)/2
         seq=dQ4.reshape(sz*sz)*(1/(mDD.reshape(sz*sz)<D*Koe)) 
-        seq=np.asarray(list(filter(lambda x: abs(x)!= np.Inf, seq)),float) 
-        seq=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seq)),float)
+        seq=np.asarray(list(filter(lambda x: np.abs(x)!= np.Inf, seq)),float) 
+        seq=np.asarray(list(filter(lambda x: np.abs(np.isnan(x))!= 1, seq)),float)
          
         WW=WW-1               
         try:
@@ -310,7 +306,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                 if sum(np.abs(dd)==np.Inf)==0:
                     arr_bbbxxx0=(arr_bbbxxx0*(hh)+dd)/(hh+1)  
                     dd=filterFourierQ(arr_bbbxxx0,arr_b,NNew,NChan)                    
-                    if sum(abs(dd)==np.Inf)==0:
+                    if sum(np.abs(dd)==np.Inf)==0:
                         ann=0
                         hh=hh+1
                         r2=dd.copy()                
