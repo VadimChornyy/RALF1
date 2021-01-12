@@ -225,7 +225,7 @@ if __name__ == '__main__':
                     
                 Asr=np.mean(arr_A[0:Nf-NNew])
                 arr_A=arr_A-Asr
-                Klg=np.power(10,np.floor(np.log10(np.max(abs(arr_A)))))
+                Klg=np.power(10,np.floor(np.log10(np.max(np.abs(arr_A)))))
                 arr_A=arr_A/Klg
        
                 program =wrkdir + "RALF1FiltrX_lg.py"
@@ -269,7 +269,7 @@ if __name__ == '__main__':
                     arr_RezM[iGr]=np.mean(all_RezMM[iGr][0:hhh+1],axis = 0)
                     #np.mean(all_RezMM[iGr][max(0,hhh-int(NIter/2)):hhh+1,:],axis = 0) 
                 
-                arr_rezBz=(np.mean(arr_RezM, axis=0)+np.mean(arr_RezM, axis=0))/2
+                arr_rezBz=(np.amax(arr_RezM, axis=0)+np.amin(arr_RezM, axis=0))/2
                     
                 if Lo:
                     arr_rezBz[Nf-NNew:]=(arr_rezBz[Nf-NNew:]-arr_rezBz[Nf-NNew]) +np.log(ar0[Nf-NNew-1])                     

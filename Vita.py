@@ -198,11 +198,10 @@ if __name__ == '__main__':
                         arr_RezM[iGr][0:Nf-NNew]=ar0[0:Nf-NNew].copy()
                         
                     all_RezMM[iGr][hhh]=arr_RezM[iGr].copy() 
-                    arr_RezM[iGr]=(np.amax(all_RezMM[iGr][0:hhh+1],axis = 0)+np.amin(all_RezMM[iGr][0:hhh+1],axis = 0)
-                                   )/2
+                    arr_RezM[iGr]=np.mean(all_RezMM[iGr][0:hhh+1],axis = 0)
                     #np.mean(all_RezMM[iGr][max(0,hhh-int(NIter/2)):hhh+1,:],axis = 0) 
                 
-                arr_rezBz=(np.mean(arr_RezM, axis=0)+np.mean(arr_RezM, axis=0))/2
+                arr_rezBz=(np.amax(arr_RezM, axis=0)+np.amin(arr_RezM, axis=0))/2
                     
                 if Lo:
                     arr_rezBz[Nf-NNew:]=(arr_rezBz[Nf-NNew:]-arr_rezBz[Nf-NNew]) +np.log(ar0[Nf-NNew-1])                     
