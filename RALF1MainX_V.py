@@ -255,8 +255,8 @@ if __name__ == '__main__':
                     arr_RezM[iGr]=(np.mean(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0)+
                                    np.mean(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0))/2
 
-                    # all_RezM[iGr][hhh]=arr_RezM[iGr].copy() 
-                    # arr_RezM[iGr]=np.mean(all_RezM[iGr][max(0,hhh-int(NIter/2)):hhh+1,:],axis = 0) 
+                    all_RezM[iGr][hhh]=arr_RezM[iGr].copy() 
+                    arr_RezM[iGr]=np.mean(all_RezM[iGr][max(0,hhh-int(NIter/2)):hhh+1,:],axis = 0) 
                     
                     if Lo:
                         arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1,1)

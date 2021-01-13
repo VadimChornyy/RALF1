@@ -32,7 +32,7 @@ def loaddata(aLengt,key):
     
     dat=np.asarray(excel_data_df, float)
     f=interp.interp1d(dat[:,0], dat[:,1],'cubic')
-    xnew=np.asarray(range(75,915),float)[::3]
+    xnew=np.asarray(range(75,915),float)[::5]
     arrr.append(f(xnew))
     
     excel_data_df = pd.read_excel('bok.xls', sheet_name='2')
@@ -187,8 +187,8 @@ if __name__ == '__main__':
                         
                     arr_RezM[iGr]=(np.mean(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0))
 
-                    # all_RezM[iGr][hhh]=arr_RezM[iGr].copy() 
-                    # arr_RezM[iGr]=np.mean(all_RezM[iGr][max(0,hhh-int(NIter/2)):hhh+1,:],axis = 0) 
+                    all_RezM[iGr][hhh]=arr_RezM[iGr].copy() 
+                    arr_RezM[iGr]=np.mean(all_RezM[iGr][max(0,hhh-int(NIter/2)):hhh+1,:],axis = 0) 
                     
                     if Lo:
                         arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1,1)
