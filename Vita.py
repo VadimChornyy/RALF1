@@ -32,7 +32,7 @@ def loaddata(aLengt,key):
     
     dat=np.asarray(excel_data_df, float)
     f=interp.interp1d(dat[:,0], dat[:,1],'cubic')
-    xnew=np.asarray(range(75,915),float)[::5]
+    xnew=np.asarray(range(75,915),float)[::3]
     arrr.append(f(xnew))
     
     excel_data_df = pd.read_excel('bok.xls', sheet_name='2')

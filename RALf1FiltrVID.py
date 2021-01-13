@@ -82,7 +82,7 @@ def filterFourierQ(arxx,arb,NNew,NChan,key=0):
     for l in range(NChan):       
         farxx=np.fft.fft(arxx[Nfl-Nnl+Nfl*l:Nfl+Nfl*l])    
         mfarxx=np.abs(farxx)  
-        srmfarxx=np.std(mfarxx[1:len(mfarxx)])*0.33
+        srmfarxx=np.std(mfarxx[1:len(mfarxx)])*0.4
         farxxx=np.zeros(Nnl,complex)  
         for j in range(1,Nnl):
             if mfarxx[j]>srmfarxx:
