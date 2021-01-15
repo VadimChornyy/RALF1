@@ -57,7 +57,7 @@ def RandomQ(Nfx):
     liiXX=np.asarray(r2[1],int)
     return liiXX
 
-def filterFourierQ(arxx,arb,NNew,NChan,key=0):  
+def filterFourierQ(arxx,arb,NNew,NChan,key=1):  
     Nfl=int(len(arb)/NChan)
     Nnl=NNew
     
@@ -81,24 +81,18 @@ def filterFourierQ(arxx,arb,NNew,NChan,key=0):
     arxr=arb.copy()
     for l in range(NChan):       
         farxx=np.fft.fft(arxx[Nfl-Nnl+Nfl*l:Nfl+Nfl*l])    
-        mfarxx=np.abs(farxx)  
-        srmfarxx=np.std(mfarxx[1:len(mfarxx)])*0.5
-        farxxx=np.zeros(Nnl,complex)  
+        mfarxx=np.abs(farxx)   
+        srmfarxx=0.05*np.std(mfarxx[1:])
+        farxxx=np.zeros(Nnl,complex)     
         for j in range(1,Nnl):
             if mfarxx[j]>srmfarxx:
-                farxxx[j]=farxx[j]/mfarxx[j]*farx[j]
-                
-        if not key==0:
-            farxxx[len(farxxx)-1]=0*farxxx[len(farxxx)-1]
-        
+                farxxx[j]=farxx[j]/mfarxx[j]*farx[j] 
+                   
         arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l]=np.fft.ifft(farxxx).real[0:Nnl] 
         arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l]=arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l]-arxr[Nfl-Nnl+Nfl*l]+arxr[Nfl-Nnl+Nfl*l-1]
         gg=gg+np.std(arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l])
         
-    if gg/NChan>0.05*gg0:        
-        return arxr
-    else:
-        return arxr/0
+    return arxr
 
 def RALF1FilterQ(dQ2):    
     Np=len(dQ2)
@@ -297,15 +291,20 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                 if hh==0: 
                     AMX=aMx.copy()
                     AMN=aMn.copy()   
-                    arr_bbbxxx0=0
+                    arr_bbbxxx0=[]
+                    arr_bbbxxx1=0
                 else:
                     AMX=np.maximum(AMX,aMx)
                     AMN=np.minimum(AMN,aMn)  
-                ann=1
-                dd=filterFourierQ((AMX+AMN)/2,arr_b,NNew,NChan)
+                
+                ann=1                
+                dd=filterFourierQ((AMX+AMN)/2,arr_b,NNew,NChan,0)
                 if sum(np.abs(dd)==np.Inf)==0:
-                    arr_bbbxxx0=(arr_bbbxxx0*(hh)+dd)/(hh+1)  
-                    dd=filterFourierQ(arr_bbbxxx0,arr_b,NNew,NChan)                    
+                    arr_bbbxxx0.append(dd)
+                    dd=np.asarray(arr_bbbxxx0,float)[0:hh+1,:]                    
+                    dd=(np.amax(dd,axis=0)+np.amin(dd,axis=0))/2                
+                    arr_bbbxxx1=(arr_bbbxxx1*(hh)+dd)/(hh+1)
+                    dd=filterFourierQ(arr_bbbxxx1,arr_b,NNew,NChan,0)                    
                     if sum(abs(dd)==np.Inf)==0:
                         ann=0
                         hh=hh+1
@@ -361,7 +360,7 @@ def RALf1FiltrQ(args):
         KoefA=np.zeros(Nhh,float)
         while hh<Nhh:
             if hh<Nhh:                
-                arr_bbbxxx=RALF1Calculation(arr_b,Nf,NNew,NChan,D,Nhh,args[0])
+                arr_bbbxxx=RALF1Calculation(arr_b,Nf,NNew,NChan,D,2*Nhh,args[0])
                 if (sum(np.abs(arr_bbbxxx)==np.Inf)==0 and sum(np.isnan(arr_bbbxxx))==0):                
                     Nf_=int(NNew*1.8)
                     NNew_=Nf_-NNew
@@ -370,7 +369,7 @@ def RALf1FiltrQ(args):
                         dd_=arr_bbbxxx[Nf-1+Nf*l:Nf-NNew+Nf*l:-1].copy()
                         arr_bbbxxx_[0+Nf_*l:Nf_+Nf_*l]=(np.concatenate((dd_,np.ones(Nf_-len(dd_),float)*dd_[len(dd_)-1])))  
                     
-                    arr_bbbxxx_y=RALF1Calculation(arr_bbbxxx_,Nf_,NNew_,NChan,D,Nhh,args[0])
+                    arr_bbbxxx_y=RALF1Calculation(arr_bbbxxx_,Nf_,NNew_,NChan,D,2*Nhh,args[0])
                     if (sum(np.abs(arr_bbbxxx_y)==np.Inf)==0 and sum(np.isnan(arr_bbbxxx_y))==0): 
                         arr_bbbxxx_yy=[]
                         
@@ -396,7 +395,7 @@ def RALf1FiltrQ(args):
                                 fo = open(anamef, "w")
                                 fo.write(str(args[0])+'\n')
                                 fo.close() 
-                                KoefA[hh]=100*scp.spearmanr(mm1,mm2)[0]
+                                KoefA[hh]=100*abs(scp.spearmanr(mm1,mm2)[0])
                                 #mm1=mm1*np.std(mm2)/np.std(mm1)                       
                                 Koef[hh]=-np.std(mm1-mm2)
                                 arr_bbx.append(arr_bbbxxx) 
@@ -404,7 +403,6 @@ def RALf1FiltrQ(args):
                 
             if hh==Nhh:            
                 arr_bbx=np.asarray(arr_bbx,np.float16)
-                Koef=Koef/np.mean(abs(Koef))-(100-KoefA)/np.mean(abs(100-KoefA))
                 r2=np.zeros((2,Nhh),float)
                 r2[0]= np.asarray(Koef,float)
                 r2[1]= np.asarray(range(Nhh),float)
@@ -415,10 +413,10 @@ def RALf1FiltrQ(args):
                 print(KoefA)
                 if np.isnan(KoefA[Nch]):
                     KoefA[Nch]=0            
-                if KoefA[Nch]>20:
+                if KoefA[Nch]>30:
                     for l in range(NChan):
                         arr_b[Nf-NNew+Nf*l:Nf+Nf*l]=arr_bbx[Nch][Nf-NNew+Nf*l:Nf+Nf*l].copy()    
-                    #arr_b=filterFourierQ(arr_b,arr_b,NNew,NChan)
+                    #arr_b=filterFourierQ(arr_b,arr_b,NNew,NChan,0)
                     return arr_b
 
 if __name__ == '__main__':

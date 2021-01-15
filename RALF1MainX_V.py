@@ -34,7 +34,7 @@ Nproc=2*Ngroup#*(mp.cpu_count())
 Lo=1
 aTmStop=3
 NIt=3
-NIter=20
+NIter=60
 DT=0.25
 Nf_K=3
 aDecm=3
@@ -153,25 +153,24 @@ if __name__ == '__main__':
 
         hh0=0
         hhh=0
-        hhh_=0
-                
-        Koef=-1
+        hhh_=0   
+        
+        Koef_=[] 
         ZZ=0
         key=0
-        TKoef=-100
-        
         nnn=int(nn/2)
         try:
             dill.load_session(wrkdir + aname+".ralf")
         except:
             fig = plt.figure()
             axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])
-            axes_ = fig.add_axes([0, 0, 0.3, 0.3])     
+            axes_ = fig.add_axes([0, 0, 0.3, 0.3])    
+            axes__ = fig.add_axes([0.4, 0, 0.3, 0.3])
             axes.plot(ar0, 'r.')
             axes.plot(arr_z, 'go-')  #cut data used for model
-            axes.text(4, 4, 'Course = %s, start = %s, step = %s * %s'%(aname,adat0,interv,aDecm),
+            axes.text(4, 4, 'Reflection on Action of Lorentz Forces-1, #2011612714  \n\n Course = %s, start = %s, step = %s * %s'%(aname,adat0,interv,aDecm),
                     verticalalignment='bottom', horizontalalignment='right',
-                    transform=axes_.transAxes,color='blue', fontsize=14)        
+                    transform=axes_.transAxes,color='blue', fontsize=14)      
             fig.savefig(wrkdir +'dynamic.png',dpi=300,transparent=False,bbox_inches = 'tight')
             frame=Image.open(wrkdir +'dynamic.png')
             ImApp.append(frame)
@@ -190,9 +189,8 @@ if __name__ == '__main__':
 
         while hhh_<aTmStop and not key == 13: 
             Aprocess=[]
-            if hhh==NIter:
+            if hhh==int(NIter/2):
                 if hhh_<aTmStop-1:
-                    TKoef=-100
                     nnn=int(nn*0.5)
                     aTmStop=6
                     hh0=0
@@ -217,7 +215,7 @@ if __name__ == '__main__':
                 else:
                     hhh_=hhh_+1
                     ZZ=1
-            if ZZ==0:                                                          
+            if ZZ==0:                
                 if Lo:
                     arr_A=np.log(arr_z)
                 else:
@@ -225,7 +223,7 @@ if __name__ == '__main__':
                     
                 Asr=np.mean(arr_A[0:Nf-NNew])
                 arr_A=arr_A-Asr
-                Klg=np.power(10,np.floor(np.log10(np.max(np.abs(arr_A)))))
+                Klg=np.power(10,np.floor(np.log10(np.max(abs(arr_A)))))
                 arr_A=arr_A/Klg
        
                 program =wrkdir + "RALF1FiltrX_lg.py"
@@ -252,17 +250,16 @@ if __name__ == '__main__':
                     Arr_AAA[iGr][hhh*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup)]=(
                         arezAMx[int(iGr*(Nproc/Ngroup)):int((iGr+1)*(Nproc/Ngroup))]).copy()
                         
-                    arr_RezM[iGr]=(np.mean(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0)+
-                                   np.mean(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0))/2
+                    arr_RezM[iGr]=(np.mean(Arr_AAA[iGr][max(0,hhh-int(NIter/10))*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup),:],axis = 0))
 
-                    all_RezM[iGr][hhh]=arr_RezM[iGr].copy() 
-                    arr_RezM[iGr]=np.mean(all_RezM[iGr][max(0,hhh-int(NIter/2)):hhh+1,:],axis = 0) 
+                    # all_RezM[iGr][hhh]=arr_RezM[iGr].copy() 
+                    # arr_RezM[iGr]=np.mean(all_RezM[iGr][max(0,hhh-int(NIter/10)):hhh+1,:],axis = 0) 
                     
                     if Lo:
-                        arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1,1)
+                        arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1)
                         arr_RezM[iGr][0:Nf-NNew]=np.log(ar0[0:Nf-NNew])                         
                     else:
-                        arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],arr_z,NNew,1,1)
+                        arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],arr_z,NNew,1)
                         arr_RezM[iGr][0:Nf-NNew]=ar0[0:Nf-NNew].copy()
                         
                     all_RezMM[iGr][hhh]=arr_RezM[iGr].copy() 
@@ -288,27 +285,32 @@ if __name__ == '__main__':
                 mm1=ar0[Nf-NNew:].copy()                            
                 mm2=arr_rezBz[Nf-NNew:len(ar0)].copy()   
                 if np.std(mm1)>0 and np.std(mm2)>0:
-                    Koef=100*scp.spearmanr(mm1,mm2)[0]
-                else:
-                    Koef=-2  
-
-                if (Koef+100)>=(TKoef+100):  
-                    TKoef=Koef                                  
+                    Koef_.append(100*scp.spearmanr(mm1,mm2)[0])    
                     fig = plt.figure()
                     axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])
                     axes_ = fig.add_axes([0, 0, 0.3, 0.3])   
+                    axes__ = fig.add_axes([0.4, 0, 0.3, 0.3])   
                     axes.plot(ar0, 'ro-', alpha=0.1)
                     axes.plot(arrr, 'rx-')
                     for iGr in range(Ngroup):
                         axes.plot(arr_RezM[iGr],linewidth=3.,alpha=0.2)
                     axes.plot(arr_rezBz,'cx-', alpha=0.5)
-                    axes.text(4, 4, 'Course = %s, start = %s, step = %s * %s'%(aname,adat0,interv,aDecm),
+                    axes.text(-0.1, 4, '%s  '%(hhh+1),
+                            verticalalignment='bottom', horizontalalignment='left',
+                            transform=axes_.transAxes,color='black', fontsize=24) 
+                    axes.text(4, 4, 'Reflection on Action of Lorentz Forces-1, #2011612714  \n\n Course = %s, start = %s, step = %s * %s'%(aname,adat0,interv,aDecm),
                             verticalalignment='bottom', horizontalalignment='right',
-                            transform=axes_.transAxes,color='blue', fontsize=14)        
+                            transform=axes_.transAxes,color='blue', fontsize=14)     
                     axes_.plot(mm1,mm2, 'ok', markersize=3, alpha=0.1)               
-                    axes_.text(0.2, 0.6, '%d'%int(np.floor(Koef)),
+                    axes_.text(0.2, 0.6, '%d'%int(np.floor(np.asarray(Koef_,float)[::-1][0])),
                         verticalalignment='bottom', horizontalalignment='right',
                         transform=axes_.transAxes,color='green', fontsize=30)
+                    
+                    axes__.text(1.8, 0.6, 'Dunning –Kruger\n effect',
+                        verticalalignment='bottom', horizontalalignment='center',
+                                transform=axes_.transAxes,color='green', fontsize=14)  
+                    axes__.plot(Koef_,'y',linewidth=2.)                                       
+
                     fig.savefig(wrkdir +'dynamic.png',dpi=300,transparent=False,bbox_inches = 'tight')
                     frame=Image.open(wrkdir +'dynamic.png')
                     cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)        
@@ -347,15 +349,22 @@ if __name__ == '__main__':
         fig = plt.figure()
         axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])
         axes_ = fig.add_axes([0, 0, 0.3, 0.3])
+        axes__ = fig.add_axes([0.4, 0, 0.3, 0.3]) 
         axes.plot(arrr, 'ro-')
-        axes.plot(arr_rezBz, 'cx-', alpha=0.5) #predicted data
-        axes.text(4, 4, 'Course = %s, start = %s, step = %s * %s'%(aname,adat0,interv,aDecm),
+        axes.plot(arr_rezBz, 'cx-', alpha=0.5) #predicted data            
+        axes.text(4, 4, 'Reflection on Action of Lorentz Forces-1, #2011612714  \n\n Course = %s, start = %s, step = %s * %s'%(aname,adat0,interv,aDecm),
                 verticalalignment='bottom', horizontalalignment='right',
                 transform=axes_.transAxes,color='blue', fontsize=14)                
         axes_.plot(mm1,mm2, 'ok', markersize=3, alpha=0.1)    
-        axes_.text(0.2, 0.6, '%d'%int(np.floor(Koef)),
+        axes_.text(0.2, 0.6, '%d'%int(np.floor(np.asarray(Koef_,float)[::-1][0])),
             verticalalignment='bottom', horizontalalignment='right',
-            transform=axes_.transAxes,color='green', fontsize=30)           
+            transform=axes_.transAxes,color='green', fontsize=30)          
+        
+        axes__.text(1.8, 0.6, 'Dunning –Kruger\n effect',
+            verticalalignment='bottom', horizontalalignment='center',
+                    transform=axes_.transAxes,color='green', fontsize=14)  
+        axes__.plot(Koef_,'y',linewidth=2.)
+        
         fig.savefig(wrkdir +'dynamic.png',dpi=300,transparent=False,bbox_inches = 'tight')
         frame=Image.open(wrkdir +'dynamic.png')
         cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)        
