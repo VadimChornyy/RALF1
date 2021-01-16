@@ -274,11 +274,15 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
             
             if xxx==0:     
                 if zz==0:	
+                    aXMx=dQ3mx.copy()
+                    aXMn=dQ3mn.copy()                  
                     AsrXMx=dQ3mx.copy()	                 
                     AsrXMn=dQ3mn.copy()	               
                 else:	
-                    AsrXMx=(AsrXMx*(zz)+(dQ3mx))/(zz+1)	
-                    AsrXMn=(AsrXMn*(zz)+(dQ3mn))/(zz+1) 
+                    aXMx=np.maximum(aXMx,dQ3mx)
+                    aXMn=np.minimum(aXMn,dQ3mn)
+                    AsrXMx=(AsrXMx*(zz)+(aXMx))/(zz+1)	
+                    AsrXMn=(AsrXMn*(zz)+(aXMn))/(zz+1) 
                     
                 WW=0                                    
                 zz=zz+1
@@ -306,10 +310,19 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
             ##########################################
             #dQ3_0[:][liix]=dQ3
             for i in  range(sz):
-                dQ3_0[i][liix[i]]=dQ3[i].copy()+mn
-                       
-            aMx=np.max(dQ3_0,0)
-            aMn=np.min(dQ3_0,0)        
+                if i==0:
+                    aMx_=dQ3[i].copy()
+                    aMn_=dQ3[i].copy()
+                    aMx=dQ3[i].copy()
+                    aMn=dQ3[i].copy()
+                else:
+                    aMx_=np.maximum(aMx_,dQ3[i])
+                    aMn_=np.minimum(aMn_,dQ3[i])
+                    aMx=(aMx*i+aMx_)/(i+1)
+                    aMn=(aMn*i+aMn_)/(i+1)
+            
+            aMx=aMx+mn
+            aMn=aMn+mn                       
                     
             # Nfl=int(len(arr_bx)/NChan)
             # for l in range(NChan):      
