@@ -57,7 +57,7 @@ def RandomQ(Nfx):
     liiXX=np.asarray(r2[1],int)
     return liiXX
 
-def filterFourierQ(arxx,arb,NNew,NChan,key=1):  
+def filterFourierQ(arxx,arb,NNew,NChan,key=0):  
     Nfl=int(len(arb)/NChan)
     Nnl=NNew
     
@@ -87,6 +87,11 @@ def filterFourierQ(arxx,arb,NNew,NChan,key=1):
         for j in range(1,Nnl):
             if mfarxx[j]>srmfarxx:
                 farxxx[j]=farxx[j]/mfarxx[j]*farx[j] 
+            
+        if not key==0:
+            farxxx[1]=0*farxxx[1]
+            farxxx[len(farxxx)-1]=0*farxxx[len(farxxx)-1]
+            
                    
         arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l]=np.fft.ifft(farxxx).real[0:Nnl] 
         arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l]=arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l]-arxr[Nfl-Nnl+Nfl*l]+arxr[Nfl-Nnl+Nfl*l-1]
@@ -122,7 +127,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
     QRandm_=np.asarray(range(NNQRandm),float)
   
     MM=2
-    Nzz=20
+    Nzz=10
     
     Ndel=MM
     NCh=int(np.ceil(sz/Ndel)) 
@@ -171,9 +176,9 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
         dQ3=dQ3_0.copy() 
                
         ##########################################       
-        sseq_=dQ3_0.reshape(sz*sz)*(1/(mDD.reshape(sz*sz)<D*Koe))  
-        sseq_=np.asarray(list(filter(lambda x: abs(x)!= np.Inf, sseq_)),float) 
-        sseq_=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, sseq_)),float)  
+        # sseq_=dQ3_0.reshape(sz*sz)*(1/(mDD.reshape(sz*sz)<D*Koe))  
+        # sseq_=np.asarray(list(filter(lambda x: abs(x)!= np.Inf, sseq_)),float) 
+        # sseq_=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, sseq_)),float)  
         
         dQ3mx=np.zeros((sz,sz),np.float16)-np.Inf
         dQ3mn=np.zeros((sz,sz),np.float16)+np.Inf                 
@@ -193,16 +198,21 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
         r5=np.concatenate((r5, r5))
         aa=RandomQ(sz)
         ss4=np.concatenate((aa, aa, aa))                         
-        zz=0     
+        zz=0  
+        xxx=0
                     
-        while zz<Nzz: 
+        while zz<Nzz and xxx<Ndel*Ndel0: 
             xxx=0
             NumFri=NumFri0_[NumFri0[ss4[zz]]:NumFri0[ss4[zz]]+2*sz].copy()
             NumFri_=NumFri0[NumFri0_[ss4[zz]]:NumFri0_[ss4[zz]]+2*sz].copy()
-            rR=rR0[liiC[ss4[zz]]:liiC[ss4[zz]]+2*sz].copy()  
-            for kk in range(Ndel):                        
+            rR=rR0[liiC[ss4[zz]]:liiC[ss4[zz]]+2*sz].copy()
+            kk=-1
+            while kk <Ndel-1 and xxx==0:  
+                kk=kk+1                      
                 ii=int(kk*NCh)
-                for k in range(Ndel0):                            
+                k=-1
+                while k<Ndel0-1 and xxx==0:     
+                    k=k+1                       
                     i=int(k*NCh0) 
                     dQ4=np.zeros((NCh,NCh0),float)
                     mDD4=np.zeros((NCh,NCh0),float)
@@ -218,7 +228,11 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                                   
                     nNxA=sum(sum(mDD4<D*Koe))
                     nNxA_=sum(sum(1-mDD4<D*Koe))                    
-                    if nNxA>nNxA_ and nNxA_>0:                    
+                    if nNxA>nNxA_ and nNxA_>0:  
+                        seqA=dQ4.reshape(NCh*NCh0)*(1/(mDD4.reshape(NCh*NCh0)<D*Koe)) 
+                        seqA=np.asarray(list(filter(lambda x: abs(x)!= np.Inf, seqA)),float) 
+                        seqA=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seqA)),float)
+
                         mNxA=sum(sum(dQ4*(mDD4<D*Koe)))/nNxA                        
                         amNxA=np.sqrt(sum(sum((dQ4-mNxA)*(dQ4-mNxA)*(mDD4<D*Koe))))/nNxA
                         dQ4_=mNxA
@@ -236,50 +250,79 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                         P[2]=mNxA
                         P[1]=mNxB
                         P[0]=amNxB/amNxA
+                    
+                        seqB=dQ4.reshape(NCh*NCh0)*(1/(mDD4.reshape(NCh*NCh0)<D*Koe)) 
+                        seqB=np.asarray(list(filter(lambda x: abs(x)!= np.Inf, seqB)),float) 
+                        seqB=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seqB)),float)
                         
-                        dQ4_A=(dQ4_A-P[1])/P[0] +P[2]
-                        dQ4_B=(dQ4_B-P[1])/P[0] +P[2]  
-                                  
-                        for ll in range(NCh0):
-                            dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]=np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_A[:,ll])
-                            dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]=np.minimum(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_B[:,ll])
-                    else:
-                        kk=Ndel                        
-                        k=Ndel0  
+                        if scp.spearmanr(seqA,seqB)[0]>-10.:
+                            dQ4_A=(dQ4_A-P[1])/P[0] +P[2]
+                            dQ4_B=(dQ4_B-P[1])/P[0] +P[2]  
+                                      
+                            for ll in range(NCh0):
+                                dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]=np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_A[:,ll])
+                                dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]=np.minimum(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_B[:,ll])
+                        else:
+                            xxx=xxx+1
+                            
+                    else:     
+                        xxx=xxx+1
+                        
+                    if xxx>0:
                         aa=RandomQ(sz)
-                        ss4=np.concatenate((aa, aa, aa))     
-                        xxx=1
-            if xxx==0:       
+                        ss4=np.concatenate((aa, aa, aa))
+            
+            if xxx==0:     
                 if zz==0:	
+                    aXMx=dQ3mx.copy()
+                    aXMn=dQ3mn.copy()                  
                     AsrXMx=dQ3mx.copy()	                 
                     AsrXMn=dQ3mn.copy()	               
                 else:	
-                    AsrXMx=(AsrXMx*(zz)+(dQ3mx))/(zz+1)	
-                    AsrXMn=(AsrXMn*(zz)+(dQ3mn))/(zz+1)                       
-                                    
+                    aXMx=np.maximum(aXMx,dQ3mx)
+                    aXMn=np.minimum(aXMn,dQ3mn)
+                    AsrXMx=(AsrXMx*(zz)+(aXMx))/(zz+1)	
+                    AsrXMn=(AsrXMn*(zz)+(aXMn))/(zz+1) 
+                    
+                WW=0                                    
                 zz=zz+1
-            
+            else:
+                WW=WW-1
+        
         dQ4=(AsrXMx+AsrXMn)/2
-        seq=dQ4.reshape(sz*sz)*(1/(mDD.reshape(sz*sz)<D*Koe)) 
-        seq=np.asarray(list(filter(lambda x: abs(x)!= np.Inf, seq)),float) 
-        seq=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seq)),float)
-         
-        WW=WW-1               
-        try:
-            if scp.spearmanr(sseq_,seq)[0]>0.3:                    
-                dQ3=dQ3_0*(mDD<D*Koe)+(dQ4)*(np.asarray(1,np.float16)-(mDD<D*Koe))
-                WW=0
-        except:
-            WW=WW
-            
-        ##########################################
+        dQ3=dQ3_0*(mDD<D*Koe)+(dQ4)*(np.asarray(1,np.float16)-(mDD<D*Koe))
+        if sum(sum(np.isnan(dQ3)))>0:
+            WW=WW-1
         if not WW<0:
+            # seq=dQ4.reshape(sz*sz)*(1/(mDD.reshape(sz*sz)<D*Koe)) 
+            # seq=np.asarray(list(filter(lambda x: abs(x)!= np.Inf, seq)),float) 
+            # seq=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seq)),float)
+             
+            # WW=WW-1               
+            # try:
+            #     if scp.spearmanr(sseq_,seq)[0]>0.3:                    
+            #        dQ3=dQ3_0*(mDD<D*Koe)+(dQ4)*(np.asarray(1,np.float16)-(mDD<D*Koe))
+            #         WW=0
+            # except:
+            #     WW=WW
+            
+            
+            ##########################################
             #dQ3_0[:][liix]=dQ3
             for i in  range(sz):
-                dQ3_0[i][liix[i]]=dQ3[i].copy()+mn
-                       
-            aMx=np.max(dQ3_0,0)
-            aMn=np.min(dQ3_0,0)        
+                if i==0:
+                    aMx_=dQ3[i].copy()
+                    aMn_=dQ3[i].copy()
+                    aMx=dQ3[i].copy()
+                    aMn=dQ3[i].copy()
+                else:
+                    aMx_=np.maximum(aMx_,dQ3[i])
+                    aMn_=np.minimum(aMn_,dQ3[i])
+                    aMx=(aMx*i+aMx_)/(i+1)
+                    aMn=(aMn*i+aMn_)/(i+1)
+            
+            aMx=aMx+mn
+            aMn=aMn+mn                       
                     
             # Nfl=int(len(arr_bx)/NChan)
             # for l in range(NChan):      
@@ -298,13 +341,13 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                     AMN=np.minimum(AMN,aMn)  
                 
                 ann=1                
-                dd=filterFourierQ((AMX+AMN)/2,arr_b,NNew,NChan,0)
+                dd=filterFourierQ((AMX+AMN)/2,arr_b,NNew,NChan)
                 if sum(np.abs(dd)==np.Inf)==0:
                     arr_bbbxxx0.append(dd)
                     dd=np.asarray(arr_bbbxxx0,float)[0:hh+1,:]                    
                     dd=(np.amax(dd,axis=0)+np.amin(dd,axis=0))/2                
                     arr_bbbxxx1=(arr_bbbxxx1*(hh)+dd)/(hh+1)
-                    dd=filterFourierQ(arr_bbbxxx1,arr_b,NNew,NChan,0)                    
+                    dd=filterFourierQ(arr_bbbxxx1,arr_b,NNew,NChan)                    
                     if sum(abs(dd)==np.Inf)==0:
                         ann=0
                         hh=hh+1
@@ -324,7 +367,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                         
         else:
             if WW>-Nhh:
-                hh=0
+                WW=0
             else:
                 return r2/0                    
 
@@ -387,8 +430,8 @@ def RALf1FiltrQ(args):
                              sum(np.abs(mm2)==np.Inf)>0 + sum(np.isnan(mm2))>0)
                         
                         if ann==0 and len(mm1)>1 and len(mm1)==len(mm2): 
-                            mm1=mm1-sum(mm1)/len(mm1)
-                            mm2=mm2-sum(mm2)/len(mm1)
+                            # mm1=mm1-sum(mm1)/len(mm1)
+                            # mm2=mm2-sum(mm2)/len(mm1)
                        
                             if np.std(mm1)>0 and np.std(mm2)>0:
                                 anamef="fralf_.tmp"
