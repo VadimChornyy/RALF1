@@ -430,8 +430,8 @@ def RALf1FiltrQ(args):
                              sum(np.abs(mm2)==np.Inf)>0 + sum(np.isnan(mm2))>0)
                         
                         if ann==0 and len(mm1)>1 and len(mm1)==len(mm2): 
-                            # mm1=mm1-sum(mm1)/len(mm1)
-                            # mm2=mm2-sum(mm2)/len(mm1)
+                            mm1=mm1-sum(mm1)/len(mm1)
+                            mm2=mm2-sum(mm2)/len(mm1)
                        
                             if np.std(mm1)>0 and np.std(mm2)>0:
                                 anamef="fralf_.tmp"
