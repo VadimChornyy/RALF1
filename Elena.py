@@ -168,7 +168,7 @@ if __name__ == '__main__':
                     [hhha,Arr_AAA]=(hkl.load(wrkdir + aname+".rlf1"))
           
                 except:            
-                    hhha=hhh
+                    hhha=hhh-1
                 
                 if hhh>=hhha:                    
                     arezAMx=[]
