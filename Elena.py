@@ -170,7 +170,7 @@ if __name__ == '__main__':
                 except:            
                     hhha=hhh-1
                 
-                if hhh>=hhha:                    
+                if hhh>hhha:                    
                     arezAMx=[]
                     # for iProc in range(Nproc):
                     #     arezAMx.append(RALf1FiltrQ(argss[iProc]))
@@ -229,7 +229,7 @@ if __name__ == '__main__':
                 mm1=ar0[Nf-NNew:].copy()                            
                 mm2=arr_rezBz[Nf-NNew:len(ar0)].copy()   
                 if np.std(mm1)>0 and np.std(mm2)>0:     
-                    if hhh>=hhha:                               
+                    if hhh>hhha:                               
                         hkl.dump([hhh+1,Arr_AAA], wrkdir + aname+".rlf1")
                     Koef_.append(100*scp.spearmanr(mm1,mm2)[0])                               
                     fig = plt.figure()
