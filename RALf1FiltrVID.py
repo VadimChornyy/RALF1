@@ -255,7 +255,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                         seqB=np.asarray(list(filter(lambda x: abs(x)!= np.Inf, seqB)),float) 
                         seqB=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seqB)),float)
                         
-                        if scp.spearmanr(seqA,seqB)[0]>-10.:
+                        if scp.pearsonr(seqA,seqB)[0]>-10.:
                             dQ4_A=(dQ4_A-P[1])/P[0] +P[2]
                             dQ4_B=(dQ4_B-P[1])/P[0] +P[2]  
                                       
@@ -300,7 +300,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
              
             # WW=WW-1               
             # try:
-            #     if scp.spearmanr(sseq_,seq)[0]>0.3:                    
+            #     if scp.pearsonr(sseq_,seq)[0]>0.3:                    
             #        dQ3=dQ3_0*(mDD<D*Koe)+(dQ4)*(np.asarray(1,np.float16)-(mDD<D*Koe))
             #         WW=0
             # except:
@@ -438,7 +438,7 @@ def RALf1FiltrQ(args):
                                 fo = open(anamef, "w")
                                 fo.write(str(args[0])+'\n')
                                 fo.close() 
-                                KoefA[hh]=100*abs(scp.spearmanr(mm1,mm2)[0])
+                                KoefA[hh]=100*abs(scp.pearsonr(mm1,mm2)[0])
                                 #mm1=mm1*np.std(mm2)/np.std(mm1)                       
                                 Koef[hh]=-np.std(mm1-mm2)
                                 arr_bbx.append(arr_bbbxxx) 

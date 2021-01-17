@@ -78,6 +78,7 @@ if __name__ == '__main__':
             
             all_rezAz=np.zeros((NIter,Nf),float)
             arr_z[Nf-NNew:]=arr_z[Nf-NNew-1]  
+            all_RezN=np.zeros((Ngroup,NIter,Nf),float)
             all_RezM=np.zeros((Ngroup,NIter,Nf),float)
             all_RezMM=np.zeros((Ngroup,NIter,Nf),float)
             argss=[[0] for j in range(Nproc)]    
@@ -140,6 +141,7 @@ if __name__ == '__main__':
                     Arr_AAA=np.zeros((Ngroup,int(Nproc*NIter/Ngroup),Nf),float) 
                     all_rezAz=np.zeros((NIter,Nf),float)
                     arr_z[Nf-NNew:]=arr_z[Nf-NNew-1]  
+                    all_RezN=np.zeros((Ngroup,NIter,Nf),float)
                     all_RezM=np.zeros((Ngroup,NIter,Nf),float)
                     all_RezMM=np.zeros((Ngroup,NIter,Nf),float)
                     hhh_=hhh_+1
@@ -196,12 +198,11 @@ if __name__ == '__main__':
                 arr_RezM=  np.zeros((Ngroup,Nf),float)                
                 for hhhb in range(hhh+1):
                     for iGr in range(Ngroup):            
-                        arr_RezM[iGr]=np.median(Arr_AAA[iGr][0:(hhhb+1)*int(Nproc/Ngroup),:],axis = 0)
+                        arr_RezM[iGr]=(np.amax(Arr_AAA[iGr][0:(hhhb+1)*int(Nproc/Ngroup),:],axis = 0)+
+                                           np.amin(Arr_AAA[iGr][0:(hhhb+1)*int(Nproc/Ngroup),:],axis = 0))/2
     
-                            #max(0,hhhb-int(NIter/10))*int(Nproc/Ngroup):(hhhb+1)*int(Nproc/Ngroup),:],axis = 0)
-    
-                        # all_RezM[iGr][hhhb]b=arr_RezM[iGr].copy() 
-                        # arr_RezM[iGr]=np.mean(all_RezM[iGr][max(0,hhhb-int(NIter/10)):hhhb+1,:],axis = 0) 
+                        # all_RezN[iGr][hhhb]=arr_RezM[iGr].copy() 
+                        # arr_RezM[iGr]=np.mean(all_RezN[iGr][0:hhhb+1,:],axis = 0) 
                         
                         if Lo:
                             arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1)
@@ -218,7 +219,8 @@ if __name__ == '__main__':
                         arr_RezM[iGr]=np.mean(all_RezMM[iGr][0:hhhb+1],axis = 0)
                         #np.mean(all_RezMM[iGr][max(0,hhhb-int(NIter/2)):hhhb+1,:],axis = 0) 
                 
-                arr_rezBz=(np.amax(arr_RezM, axis=0)+np.amin(arr_RezM, axis=0))/2            
+                arr_rezBz=(np.amax(arr_RezM, axis=0)+np.amin(arr_RezM, axis=0))/2 
+                #(np.amax(arr_RezM, axis=0)+np.amin(arr_RezM, axis=0))/2            
                     
                 if Lo:
                     arr_rezBz[Nf-NNew:]=(arr_rezBz[Nf-NNew:]-arr_rezBz[Nf-NNew]) +np.log(ar0[Nf-NNew-1])                     
@@ -239,7 +241,7 @@ if __name__ == '__main__':
                 if np.std(mm1)>0 and np.std(mm2)>0:
                     if hhh>=hhha:                               
                         hkl.dump([hhh+1,Arr_AAA], wrkdir + aname+".rlf1")                        
-                    Koef_.append(100*scp.spearmanr(mm1,mm2)[0])                               
+                    Koef_.append(100*scp.pearsonr(mm1,mm2)[0])                               
                     fig = plt.figure()
                     axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])
                     axes_ = fig.add_axes([0, 0, 0.3, 0.3]) 
@@ -248,7 +250,7 @@ if __name__ == '__main__':
                     axes.plot(arrr, 'rx-')
                     for iGr in range(Ngroup):
                         axes.plot(arr_RezM[iGr],linewidth=3.,alpha=0.2)
-                    axes.plot(arr_rezBz,'cx-', alpha=0.5)
+                    axes.plot(arr_rezBz,'yx-',linewidth=4.,alpha=0.5)
                     axes.text(-0.1, 4, '%s  '%(hhh+1),
                             verticalalignment='bottom', horizontalalignment='left',
                             transform=axes_.transAxes,color='black', fontsize=24) 
@@ -302,7 +304,7 @@ if __name__ == '__main__':
         mm1=arrr[len(arrr)-int(len(arrr)/2):].copy()                            
         mm2=arr_rezBz[len(arrr)-int(len(arrr)/2):len(arrr)].copy()  
         if np.std(mm1)>0 and np.std(mm2)>0:
-            Koef=100*scp.spearmanr(mm1,mm2)[0] 
+            Koef=100*scp.pearsonr(mm1,mm2)[0] 
             
         fig = plt.figure()
         axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])
