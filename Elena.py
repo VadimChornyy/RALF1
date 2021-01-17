@@ -12,8 +12,8 @@ import dill
 #from scipy.signal import savgol_filter
 import scipy.interpolate as interp
 
-from RALf1FiltrVIDX import filterFourierQ
-from RALf1FiltrVIDX import RALf1FiltrQ
+from RALf1FiltrVID import filterFourierQ
+from RALf1FiltrVID import RALf1FiltrQ
 
 wrkdir = r"c:\Work\\"
 aname='lena-Geo'
@@ -146,7 +146,8 @@ if __name__ == '__main__':
                 else:
                     hhh_=hhh_+1
                     ZZ=1
-            if ZZ==0:  
+            
+            if ZZ==0:                  
                 try:
                     [hhha,Arr_AAA]=(hkl.load(wrkdir + aname+".rlf1"))          
                 except:            
@@ -183,14 +184,21 @@ if __name__ == '__main__':
                     
                     arezAMx= np.asarray(arezAMx,float)*Klg+Asr
                     
-                    arr_RezM=  np.zeros((Ngroup,Nf),float)
                     for iGr in range(Ngroup):
                         Arr_AAA[iGr][hhh*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup)]=(
                             arezAMx[int(iGr*(Nproc/Ngroup)):int((iGr+1)*(Nproc/Ngroup))]).copy()
-                
+                    
+                WrtTodr=0
+                if hhh>=hhha-1:    
+                    WrtTodr=1
+                    aDur=4
+                    
+                arr_RezM=  np.zeros((Ngroup,Nf),float)                
                 for hhhb in range(hhh+1):
                     for iGr in range(Ngroup):            
-                        arr_RezM[iGr]=np.mean(Arr_AAA[iGr][max(0,hhhb-int(NIter/10))*int(Nproc/Ngroup):(hhhb+1)*int(Nproc/Ngroup),:],axis = 0)
+                        arr_RezM[iGr]=np.median(Arr_AAA[iGr][0:(hhhb+1)*int(Nproc/Ngroup),:],axis = 0)
+    
+                            #max(0,hhhb-int(NIter/10))*int(Nproc/Ngroup):(hhhb+1)*int(Nproc/Ngroup),:],axis = 0)
     
                         # all_RezM[iGr][hhhb]b=arr_RezM[iGr].copy() 
                         # arr_RezM[iGr]=np.mean(all_RezM[iGr][max(0,hhhb-int(NIter/10)):hhhb+1,:],axis = 0) 
@@ -210,7 +218,7 @@ if __name__ == '__main__':
                         arr_RezM[iGr]=np.mean(all_RezMM[iGr][0:hhhb+1],axis = 0)
                         #np.mean(all_RezMM[iGr][max(0,hhhb-int(NIter/2)):hhhb+1,:],axis = 0) 
                 
-                arr_rezBz=(np.mean(arr_RezM, axis=0)+np.mean(arr_RezM, axis=0))/2
+                arr_rezBz=(np.mean(arr_RezM, axis=0))                
                     
                 if Lo:
                     arr_rezBz[Nf-NNew:]=(arr_rezBz[Nf-NNew:]-arr_rezBz[Nf-NNew]) +np.log(ar0[Nf-NNew-1])                     
@@ -265,13 +273,14 @@ if __name__ == '__main__':
                     gray_sz1=min(gray_sz1,len(cimg[0]))
                     gray_sz2=min(gray_sz2,len(cimg))
                     ImApp.append(frame)
-                    out = cv.VideoWriter(wrkdir + aname+'.mp4',fourcc, aDur, (gray_sz1,gray_sz2))                   
-                    for icl in range(len(ImApp)):
-                        cimgx=(cv.cvtColor(np.array(ImApp[icl]), cv.COLOR_RGB2BGR)) 
-                        out.write(cimgx[0:gray_sz2,0:gray_sz1,:]) 
-                    out.release()
+                    if WrtTodr>0:
+                        out = cv.VideoWriter(wrkdir + aname+'.mp4',fourcc, aDur, (gray_sz1,gray_sz2))                   
+                        for icl in range(len(ImApp)):
+                            cimgx=(cv.cvtColor(np.array(ImApp[icl]), cv.COLOR_RGB2BGR)) 
+                            out.write(cimgx[0:gray_sz2,0:gray_sz1,:]) 
+                        out.release()
+                        del(out)
                     plt.show()
-                    del(out)
                     hhh=hhh+1
                     #arr_z=arr_rezBz.copy()
                 else:
@@ -280,7 +289,8 @@ if __name__ == '__main__':
                     except:
                         hh0=hh0                  
                 hh0=hh0+1
-                dill.dump_session(wrkdir + aname+".ralf")   
+                if WrtTodr>0:
+                    dill.dump_session(wrkdir + aname+".ralf")   
                 if hh0==2*NIter:
                     hhh=NIter 
                 print (hhh+10000*hh0)
