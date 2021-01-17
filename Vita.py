@@ -5,6 +5,7 @@ import pandas as pd
 from PIL import Image 
 import cv2 as cv
 #import time as tm
+import hickle as hkl
 
 from scipy import stats as scp
 import dill 
@@ -15,6 +16,7 @@ from RALf1FiltrVID import filterFourierQ
 from RALf1FiltrVID import RALf1FiltrQ
 
 wrkdir = r"c:\Work\\"
+aname='PSS-Geo'
 Lengt=1000
 Ngroup=3
 Nproc=2*Ngroup#*(mp.cpu_count())
@@ -46,7 +48,6 @@ def loaddata(aLengt,key):
 
 if __name__ == '__main__':   
     ImApp=[]
-    aname='PSS-Geo'
         
     arrrxx,adat_=loaddata(Lengt,1)
     arrrxx=np.asarray(arrrxx,float)
@@ -68,7 +69,7 @@ if __name__ == '__main__':
             Nf=Lengt
             
             nn=int(Nf*DT)             
-            NNew=int(Nf/2)  
+            NNew=int(Nf*0.6)  
             Nf=Nf+nn        
             ar0=np.asarray(arrr[0:])           
             
@@ -84,6 +85,7 @@ if __name__ == '__main__':
             
             all_rezAz=np.zeros((NIter,Nf),float)
             arr_z[Nf-NNew:]=arr_z[Nf-NNew-1]  
+            all_RezN=np.zeros((Ngroup,NIter,Nf),float)
             all_RezM=np.zeros((Ngroup,NIter,Nf),float)
             all_RezMM=np.zeros((Ngroup,NIter,Nf),float)
             argss=[[0] for j in range(Nproc)]    
@@ -146,68 +148,86 @@ if __name__ == '__main__':
                     Arr_AAA=np.zeros((Ngroup,int(Nproc*NIter/Ngroup),Nf),float) 
                     all_rezAz=np.zeros((NIter,Nf),float)
                     arr_z[Nf-NNew:]=arr_z[Nf-NNew-1]  
+                    all_RezN=np.zeros((Ngroup,NIter,Nf),float)
                     all_RezM=np.zeros((Ngroup,NIter,Nf),float)
                     all_RezMM=np.zeros((Ngroup,NIter,Nf),float)
                     hhh_=hhh_+1
                 else:
                     hhh_=hhh_+1
                     ZZ=1
-            if ZZ==0:                
-                if Lo:
-                    arr_A=np.log(arr_z)
-                else:
-                    arr_A=arr_z.copy()
-                    
-                Asr=np.mean(arr_A[0:Nf-NNew])
-                arr_A=arr_A-Asr
-                Klg=np.power(10,np.floor(np.log10(np.max(abs(arr_A)))))
-                arr_A=arr_A/Klg
-       
-                program =wrkdir + "RALF1FiltrX_lg.py"
-                NChan=1
-                for iProc in range(Nproc):
-                    argss[iProc]=["%s"%iProc, "%s"%NChan, "%s"%NNew, "%s"%NIt]#"%s"%(iProc+1)]
-                    for i in range(Nf):
-                        argss[iProc].append(str("%1.6f"%(arr_A[i])))
+            
+            if ZZ==0:                  
+                try:
+                    [hhha,Arr_AAA]=(hkl.load(wrkdir + aname+".rlf1"))          
+                except:            
+                    hhha=hhh-1
                 
-                arezAMx=[]
-                # for iProc in range(Nproc):
-                #     arezAMx.append(RALf1FiltrQ(argss[iProc]))
-
-                with concurrent.futures.ThreadPoolExecutor(max_workers=Nproc) as executor:
-                    future_to = {executor.submit(RALf1FiltrQ, argss[iProc]) for iProc in range(Nproc)}
-                    for future in concurrent.futures.as_completed(future_to):                
-                        arezAMx.append(future.result())
-                del(future)                        
-                del(executor)
-                
-                arezAMx= np.asarray(arezAMx,float)*Klg+Asr
-                arr_RezM=  np.zeros((Ngroup,Nf),float)
-                for iGr in range(Ngroup):
-                    Arr_AAA[iGr][hhh*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup)]=(
-                        arezAMx[int(iGr*(Nproc/Ngroup)):int((iGr+1)*(Nproc/Ngroup))]).copy()
-                        
-                    arr_RezM[iGr]=np.mean(Arr_AAA[iGr][max(0,hhh-int(NIter/10))*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup),:],axis = 0)
-
-                    # all_RezM[iGr][hhh]=arr_RezM[iGr].copy() 
-                    # arr_RezM[iGr]=np.mean(all_RezM[iGr][max(0,hhh-int(NIter/10)):hhh+1,:],axis = 0) 
-                    
+                if hhh>=hhha: 
                     if Lo:
-                        arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1,0)
-                        arr_RezM[iGr][0:Nf-NNew]=np.log(ar0[0:Nf-NNew])                         
+                        arr_A=np.log(arr_z)
                     else:
-                        arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],arr_z,NNew,1,0)
-                        arr_RezM[iGr][0:Nf-NNew]=ar0[0:Nf-NNew].copy()
+                        arr_A=arr_z.copy()
+                        
+                    Asr=np.mean(arr_A[0:Nf-NNew])
+                    arr_A=arr_A-Asr
+                    Klg=np.power(10,np.floor(np.log10(np.max(abs(arr_A)))))
+                    arr_A=arr_A/Klg
+           
+                    program =wrkdir + "RALF1FiltrX_lg.py"
+                    NChan=1
+                    for iProc in range(Nproc):
+                        argss[iProc]=["%s"%iProc, "%s"%NChan, "%s"%NNew, "%s"%NIt]#"%s"%(iProc+1)]
+                        for i in range(Nf):
+                            argss[iProc].append(str("%1.6f"%(arr_A[i])))
                     
-                    all_RezM[iGr][hhh]=arr_RezM[iGr].copy() 
-                    arr_RezM[iGr]=(np.amax(all_RezM[iGr][max(0,hhh-int(NIter/10)):hhh+1,:],axis = 0)+
-                        np.amin(all_RezM[iGr][max(0,hhh-int(NIter/10)):hhh+1,:],axis = 0))/2 
-
-                    all_RezMM[iGr][hhh]=arr_RezM[iGr].copy() 
-                    arr_RezM[iGr]=np.mean(all_RezMM[iGr][0:hhh+1],axis = 0)
-                    #np.mean(all_RezMM[iGr][max(0,hhh-int(NIter/2)):hhh+1,:],axis = 0) 
+                    arezAMx=[]
+                    # for iProc in range(Nproc):
+                    #     arezAMx.append(RALf1FiltrQ(argss[iProc]))
+    
+                    with concurrent.futures.ThreadPoolExecutor(max_workers=Nproc) as executor:
+                        future_to = {executor.submit(RALf1FiltrQ, argss[iProc]) for iProc in range(Nproc)}
+                        for future in concurrent.futures.as_completed(future_to):                
+                            arezAMx.append(future.result())
+                    del(future)                        
+                    del(executor)
+                    
+                    arezAMx= np.asarray(arezAMx,float)*Klg+Asr
+                    
+                    for iGr in range(Ngroup):
+                        Arr_AAA[iGr][hhh*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup)]=(
+                            arezAMx[int(iGr*(Nproc/Ngroup)):int((iGr+1)*(Nproc/Ngroup))]).copy()
+                    
+                WrtTodr=0
+                if hhh>=hhha-1:    
+                    WrtTodr=1
+                    aDur=4
+                    
+                arr_RezM=  np.zeros((Ngroup,Nf),float)                
+                for hhhb in range(hhh+1):
+                    for iGr in range(Ngroup):            
+                        arr_RezM[iGr]=(np.amax(Arr_AAA[iGr][0:(hhhb+1)*int(Nproc/Ngroup),:],axis = 0)+
+                                           np.amin(Arr_AAA[iGr][0:(hhhb+1)*int(Nproc/Ngroup),:],axis = 0))/2
+    
+                        # all_RezN[iGr][hhhb]=arr_RezM[iGr].copy() 
+                        # arr_RezM[iGr]=np.mean(all_RezN[iGr][0:hhhb+1,:],axis = 0) 
+                        
+                        if Lo:
+                            arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1)
+                            arr_RezM[iGr][0:Nf-NNew]=np.log(ar0[0:Nf-NNew])                         
+                        else:
+                            arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],arr_z,NNew,1)
+                            arr_RezM[iGr][0:Nf-NNew]=ar0[0:Nf-NNew].copy()
+                        
+                        all_RezM[iGr][hhhb]=arr_RezM[iGr].copy() 
+                        arr_RezM[iGr]=(np.amax(all_RezM[iGr][max(0,hhhb-int(NIter/10)):hhhb+1,:],axis = 0)+
+                            np.amin(all_RezM[iGr][max(0,hhhb-int(NIter/10)):hhhb+1,:],axis = 0))/2 
+    
+                        all_RezMM[iGr][hhhb]=arr_RezM[iGr].copy() 
+                        arr_RezM[iGr]=np.mean(all_RezMM[iGr][0:hhhb+1],axis = 0)
+                        #np.mean(all_RezMM[iGr][max(0,hhhb-int(NIter/2)):hhhb+1,:],axis = 0) 
                 
-                arr_rezBz=(np.mean(arr_RezM, axis=0)+np.mean(arr_RezM, axis=0))/2
+                arr_rezBz=(np.amax(arr_RezM, axis=0)+np.amin(arr_RezM, axis=0))/2 
+                #(np.amax(arr_RezM, axis=0)+np.amin(arr_RezM, axis=0))/2            
                     
                 if Lo:
                     arr_rezBz[Nf-NNew:]=(arr_rezBz[Nf-NNew:]-arr_rezBz[Nf-NNew]) +np.log(ar0[Nf-NNew-1])                     
@@ -226,7 +246,9 @@ if __name__ == '__main__':
                 mm1=ar0[Nf-NNew:].copy()                            
                 mm2=arr_rezBz[Nf-NNew:len(ar0)].copy()   
                 if np.std(mm1)>0 and np.std(mm2)>0:
-                    Koef_.append(100*scp.spearmanr(mm1,mm2)[0])                               
+                    if hhh>=hhha:                               
+                        hkl.dump([hhh+1,Arr_AAA], wrkdir + aname+".rlf1")                        
+                    Koef_.append(100*scp.pearsonr(mm1,mm2)[0])                               
                     fig = plt.figure()
                     axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])
                     axes_ = fig.add_axes([0, 0, 0.3, 0.3]) 
@@ -235,7 +257,7 @@ if __name__ == '__main__':
                     axes.plot(arrr, 'rx-')
                     for iGr in range(Ngroup):
                         axes.plot(arr_RezM[iGr],linewidth=3.,alpha=0.2)
-                    axes.plot(arr_rezBz,'cx-', alpha=0.5)
+                    axes.plot(arr_rezBz,'yx-',linewidth=4.,alpha=0.5)
                     axes.text(-0.1, 4, '%s  '%(hhh+1),
                             verticalalignment='bottom', horizontalalignment='left',
                             transform=axes_.transAxes,color='black', fontsize=24) 
@@ -260,13 +282,14 @@ if __name__ == '__main__':
                     gray_sz1=min(gray_sz1,len(cimg[0]))
                     gray_sz2=min(gray_sz2,len(cimg))
                     ImApp.append(frame)
-                    out = cv.VideoWriter(wrkdir + aname+'.mp4',fourcc, aDur, (gray_sz1,gray_sz2))                   
-                    for icl in range(len(ImApp)):
-                        cimgx=(cv.cvtColor(np.array(ImApp[icl]), cv.COLOR_RGB2BGR)) 
-                        out.write(cimgx[0:gray_sz2,0:gray_sz1,:]) 
-                    out.release()
+                    if WrtTodr>0:
+                        out = cv.VideoWriter(wrkdir + aname+'.mp4',fourcc, aDur, (gray_sz1,gray_sz2))                   
+                        for icl in range(len(ImApp)):
+                            cimgx=(cv.cvtColor(np.array(ImApp[icl]), cv.COLOR_RGB2BGR)) 
+                            out.write(cimgx[0:gray_sz2,0:gray_sz1,:]) 
+                        out.release()
+                        del(out)
                     plt.show()
-                    del(out)
                     hhh=hhh+1
                     #arr_z=arr_rezBz.copy()
                 else:
@@ -275,7 +298,8 @@ if __name__ == '__main__':
                     except:
                         hh0=hh0                  
                 hh0=hh0+1
-                dill.dump_session(wrkdir + aname+".ralf")   
+                if WrtTodr>0:
+                    dill.dump_session(wrkdir + aname+".ralf")   
                 if hh0==2*NIter:
                     hhh=NIter 
                 print (hhh+10000*hh0)
@@ -287,7 +311,7 @@ if __name__ == '__main__':
         mm1=arrr[len(arrr)-int(len(arrr)/2):].copy()                            
         mm2=arr_rezBz[len(arrr)-int(len(arrr)/2):len(arrr)].copy()  
         if np.std(mm1)>0 and np.std(mm2)>0:
-            Koef=100*scp.spearmanr(mm1,mm2)[0] 
+            Koef=100*scp.pearsonr(mm1,mm2)[0] 
             
         fig = plt.figure()
         axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])
