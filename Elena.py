@@ -103,7 +103,7 @@ if __name__ == '__main__':
                         verticalalignment='bottom', horizontalalignment='right',
                         transform=axes_.transAxes,color='blue', fontsize=14)        
 
-                fig.savefig(wrkdir +'dynamic.png',dpi=300,transparent=False,bbox_inches = 'tight')
+                fig.savefig(wrkdir +'dynamic.png',dpi=200,transparent=False,bbox_inches = 'tight')
                 frame=Image.open(wrkdir +'dynamic.png')
                 ImApp.append(frame)
                 cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)        
@@ -270,7 +270,7 @@ if __name__ == '__main__':
                         transform=axes_.transAxes,color='green', fontsize=14)  
                     axes__.plot(Koef_,'y',linewidth=2.)
                     
-                    fig.savefig(wrkdir +'dynamic.png',dpi=300,transparent=False,bbox_inches = 'tight')
+                    fig.savefig(wrkdir +'dynamic.png',dpi=200,transparent=False,bbox_inches = 'tight')
                     frame=Image.open(wrkdir +'dynamic.png')
                     cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)        
                     gray_sz1=min(gray_sz1,len(cimg[0]))
@@ -328,7 +328,7 @@ if __name__ == '__main__':
                     transform=axes_.transAxes,color='green', fontsize=14)  
         axes__.plot(Koef_,'y',linewidth=2.)
         
-        fig.savefig(wrkdir +'dynamic.png',dpi=300,transparent=False,bbox_inches = 'tight')
+        fig.savefig(wrkdir +'dynamic.png',dpi=200,transparent=False,bbox_inches = 'tight')
         frame=Image.open(wrkdir +'dynamic.png')
         cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)        
         gray_sz1=min(gray_sz1,len(cimg[0]))

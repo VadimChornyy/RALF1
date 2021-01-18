@@ -164,7 +164,7 @@ if __name__ == '__main__':
                         verticalalignment='bottom', horizontalalignment='right',
                         transform=axes_.transAxes,color='blue', fontsize=14)        
 
-                fig.savefig(wrkdir +'dynamic.png',dpi=300,transparent=False,bbox_inches = 'tight')
+                fig.savefig(wrkdir +'dynamic.png',dpi=200,transparent=False,bbox_inches = 'tight')
                 frame=Image.open(wrkdir +'dynamic.png')
                 ImApp.append(frame)
                 cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)        
@@ -260,8 +260,8 @@ if __name__ == '__main__':
                 arr_RezM=  np.zeros((Ngroup,Nf),float)                
                 for hhhb in range(hhh+1):
                     for iGr in range(Ngroup):            
-                        arr_RezM[iGr]=(np.amax(Arr_AAA[iGr][max(0,hhhb-int(NIter/20)):(hhhb+1)*int(Nproc/Ngroup),:],axis = 0)+
-                                           np.amin(Arr_AAA[iGr][max(0,hhhb-int(NIter/20)):(hhhb+1)*int(Nproc/Ngroup),:],axis = 0))/2
+                        arr_RezM[iGr]=(np.amax(Arr_AAA[iGr][max(0,hhhb-int(NIter/NIter)):(hhhb+1)*int(Nproc/Ngroup),:],axis = 0)+
+                                           np.amin(Arr_AAA[iGr][max(0,hhhb-int(NIter/NIter)):(hhhb+1)*int(Nproc/Ngroup),:],axis = 0))/2
     
                         # all_RezN[iGr][hhhb]=arr_RezM[iGr].copy() 
                         # arr_RezM[iGr]=np.mean(all_RezN[iGr][max(0,hhhb-int(NIter/6)):hhhb+1,:],axis = 0) 
@@ -331,7 +331,7 @@ if __name__ == '__main__':
                         transform=axes_.transAxes,color='green', fontsize=14)  
                     axes__.plot(Koef_,'y',linewidth=2.)
                     
-                    fig.savefig(wrkdir +'dynamic.png',dpi=300,transparent=False,bbox_inches = 'tight')
+                    fig.savefig(wrkdir +'dynamic.png',dpi=200,transparent=False,bbox_inches = 'tight')
                     frame=Image.open(wrkdir +'dynamic.png')
                     cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)        
                     gray_sz1=min(gray_sz1,len(cimg[0]))
@@ -389,7 +389,7 @@ if __name__ == '__main__':
                     transform=axes_.transAxes,color='green', fontsize=14)  
         axes__.plot(Koef_,'y',linewidth=2.)
         
-        fig.savefig(wrkdir +'dynamic.png',dpi=300,transparent=False,bbox_inches = 'tight')
+        fig.savefig(wrkdir +'dynamic.png',dpi=200,transparent=False,bbox_inches = 'tight')
         frame=Image.open(wrkdir +'dynamic.png')
         cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)        
         gray_sz1=min(gray_sz1,len(cimg[0]))
