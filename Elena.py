@@ -23,7 +23,7 @@ Nproc=2*Ngroup#*(mp.cpu_count())
 Lo=1
 aTmStop=3
 NIt=3
-NIter=60
+NIter=100
 DT=0.45
 Nf_K=3
     
@@ -151,7 +151,8 @@ if __name__ == '__main__':
             
             if ZZ==0:                  
                 try:
-                    [hhha,Arr_AAA]=(hkl.load(wrkdir + aname+".rlf1"))          
+                    [hhha,Arr_BBB]=(hkl.load(wrkdir + aname+".rlf1"))       
+                    Arr_AAA[:,0:int(Nproc*hhha/Ngroup),:]=Arr_BBB[:,0:int(Nproc*hhha/Ngroup),:].copy()
                 except:            
                     hhha=hhh-1
                 
@@ -198,22 +199,22 @@ if __name__ == '__main__':
                 arr_RezM=  np.zeros((Ngroup,Nf),float)                
                 for hhhb in range(hhh+1):
                     for iGr in range(Ngroup):            
-                        arr_RezM[iGr]=(np.amax(Arr_AAA[iGr][0:(hhhb+1)*int(Nproc/Ngroup),:],axis = 0)+
-                                           np.amin(Arr_AAA[iGr][0:(hhhb+1)*int(Nproc/Ngroup),:],axis = 0))/2
+                        arr_RezM[iGr]=(np.amax(Arr_AAA[iGr][max(0,hhhb-int(NIter/20)):(hhhb+1)*int(Nproc/Ngroup),:],axis = 0)+
+                                           np.amin(Arr_AAA[iGr][max(0,hhhb-int(NIter/20)):(hhhb+1)*int(Nproc/Ngroup),:],axis = 0))/2
     
-                        all_RezN[iGr][hhhb]=arr_RezM[iGr].copy() 
-                        arr_RezM[iGr]=np.mean(all_RezN[iGr][max(0,hhhb-int(NIter/6)):hhhb+1,:],axis = 0) 
+                        # all_RezN[iGr][hhhb]=arr_RezM[iGr].copy() 
+                        # arr_RezM[iGr]=np.mean(all_RezN[iGr][max(0,hhhb-int(NIter/6)):hhhb+1,:],axis = 0) 
                         
                         if Lo:
-                            arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1,1)
+                            arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1)
                             arr_RezM[iGr][0:Nf-NNew]=np.log(ar0[0:Nf-NNew])                         
                         else:
-                            arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],arr_z,NNew,1,1)
+                            arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],arr_z,NNew,1)
                             arr_RezM[iGr][0:Nf-NNew]=ar0[0:Nf-NNew].copy()
                         
                         all_RezM[iGr][hhhb]=arr_RezM[iGr].copy() 
-                        arr_RezM[iGr]=(np.amax(all_RezM[iGr][max(0,hhhb-int(NIter/6)):hhhb+1,:],axis = 0)+
-                            np.amin(all_RezM[iGr][max(0,hhhb-int(NIter/6)):hhhb+1,:],axis = 0))/2 
+                        arr_RezM[iGr]=(np.amax(all_RezM[iGr][max(0,hhhb-int(NIter/20)):hhhb+1,:],axis = 0)+
+                            np.amin(all_RezM[iGr][max(0,hhhb-int(NIter/20)):hhhb+1,:],axis = 0))/2 
     
                         all_RezMM[iGr][hhhb]=arr_RezM[iGr].copy() 
                         arr_RezM[iGr]=np.mean(all_RezMM[iGr][0:hhhb+1],axis = 0)
