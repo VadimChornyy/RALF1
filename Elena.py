@@ -28,6 +28,14 @@ NIt=3
 NIter=100
 DT=0.45
 Nf_K=3
+
+def fig2img ( fig ):
+    fig.savefig(wrkdir +'dynamic.png',dpi=150,transparent=False,bbox_inches = 'tight')
+    frame=Image.open(wrkdir +'dynamic.png')
+    # fig.canvas.draw()
+    # frame=Image.frombytes('RGB', fig.canvas.get_width_height(),
+    #                        fig.canvas.tostring_rgb())
+    return frame
     
 def loaddata(aLengt,key):
     adat_=[]
@@ -54,6 +62,7 @@ if __name__ == '__main__':
     kkk=0
     out=0       
             
+    w=0
     while kkk <esz:  
         try:
             dill.load_session(wrkdir + aname+".ralf")
@@ -108,8 +117,7 @@ if __name__ == '__main__':
                         verticalalignment='bottom', horizontalalignment='right',
                         transform=axes_.transAxes,color='blue', fontsize=14)        
 
-                fig.savefig(wrkdir +'dynamic.png',dpi=200,transparent=False,bbox_inches = 'tight')
-                frame=Image.open(wrkdir +'dynamic.png')
+                frame=fig2img(fig)  
                 ImApp.append(frame)
                 cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)        
                 gray_sz1=len(cimg[0])
@@ -201,18 +209,16 @@ if __name__ == '__main__':
                 if hhh>=hhha-1:    
                     WrtTodr=1
                     aDur=4
-                    
-                arr_RezM=  np.zeros((Ngroup,Nf),float)  
-                
-                for hhhb in range(max(0,hhh-int(NIter/20)),hhh+1):
+                        
+                dNIt=10
+                arr_RezM=  np.zeros((Ngroup,Nf),float)                  
+                for hhhb in range(max(0,hhh-int(NIter/dNIt)),hhh+1):
                     for iGr in range(Ngroup):            
-                        arr_RezM[iGr]=(np.amax(Arr_AAA[iGr][max(0,hhhb-int(NIter/20)):(hhhb+1)*int(Nproc/Ngroup),:],axis = 0)+
-                                           np.amin(Arr_AAA[iGr][max(0,hhhb-int(NIter/20)):(hhhb+1)*int(Nproc/Ngroup),:],axis = 0))/2
+                        arr_RezM[iGr]=(np.amax(Arr_AAA[iGr][max(0,hhhb-int(NIter/dNIt)):(hhhb+1)*int(Nproc/Ngroup),:],axis = 0)+
+                                           np.amin(Arr_AAA[iGr][max(0,hhhb-int(NIter/dNIt)):(hhhb+1)*int(Nproc/Ngroup),:],axis = 0))/2
                         
-                        all_RezN[iGr][hhhb]=arr_RezM[iGr].copy()                         
-                        
-                        nI=(hhhb+1)-max(0,hhhb-int(NIter/20))
-                        
+                        all_RezN[iGr][hhhb]=arr_RezM[iGr].copy()
+                        nI=(hhhb+1)-max(0,hhhb-int(NIter/dNIt))                        
                         if nI>1:
                             NQRandm=512
                             D=np.std(arr_RezM[iGr])                     
@@ -224,8 +230,8 @@ if __name__ == '__main__':
                             DD=np.asarray(DD,float)                              
                             DD=(DD/np.std(DD)+1e-6)*D/2   
                             
-                            mn=np.mean(all_RezN[iGr][max(0,hhhb-int(NIter/20)):hhhb+1])
-                            dd=(all_RezN[iGr][max(0,hhhb-int(NIter/20)):hhhb+1]-mn)
+                            mn=np.mean(all_RezN[iGr][max(0,hhhb-int(NIter/dNIt)):hhhb+1])
+                            dd=(all_RezN[iGr][max(0,hhhb-int(NIter/dNIt)):hhhb+1]-mn)
                             
                             aa=RandomQ(Nf,512)                        
                             ss4=np.concatenate((aa, aa, aa))
@@ -249,19 +255,21 @@ if __name__ == '__main__':
                             
                         #np.mean(all_RezN[iGr][max(0,hhhb-int(NIter/6)):hhhb+1,:],axis = 0) 
                         all_RezM[iGr][hhhb]=arr_RezM[iGr].copy() 
-                        arr_RezM[iGr]=(np.amax(all_RezM[iGr][max(0,hhhb-int(NIter/20)):hhhb+1,:],axis = 0)+
-                            np.amin(all_RezM[iGr][max(0,hhhb-int(NIter/20)):hhhb+1,:],axis = 0))/2 
+                        arr_RezM[iGr]=(np.amax(all_RezM[iGr][max(0,hhhb-int(NIter/dNIt)):hhhb+1,:],axis = 0)+
+                            np.amin(all_RezM[iGr][max(0,hhhb-int(NIter/dNIt)):hhhb+1,:],axis = 0))/2 
                         
                         if Lo:
                             arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1,1)
-                            arr_RezM[iGr][0:Nf-NNew]=np.log(ar0[0:Nf-NNew])                         
+                            arr_RezM[iGr][0:Nf-NNew]=np.log(ar0[0:Nf-NNew])  
+                            arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-arr_RezM[iGr][Nf-NNew]) +np.log(ar0[Nf-NNew-1])
                         else:
                             arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],arr_z,NNew,1,1)
                             arr_RezM[iGr][0:Nf-NNew]=ar0[0:Nf-NNew].copy()
+                            arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-arr_RezM[iGr][Nf-NNew]) +(ar0[Nf-NNew-1])
 
                         all_RezNM[iGr][hhhb]=arr_RezM[iGr].copy() 
-                        arr_RezM[iGr]=(np.amax(all_RezNM[iGr][max(0,hhhb-int(NIter/20)):hhhb+1,:],axis = 0)+
-                            np.amin(all_RezNM[iGr][max(0,hhhb-int(NIter/20)):hhhb+1,:],axis = 0))/2                         
+                        arr_RezM[iGr]=(np.amax(all_RezNM[iGr][max(0,hhhb-int(NIter/dNIt)):hhhb+1,:],axis = 0)+
+                            np.amin(all_RezNM[iGr][max(0,hhhb-int(NIter/dNIt)):hhhb+1,:],axis = 0))/2                         
     
                         all_RezMM[iGr][hhhb]=arr_RezM[iGr].copy() 
                         arr_RezM[iGr]=np.mean(all_RezMM[iGr][0:hhhb+1],axis = 0)
@@ -316,8 +324,7 @@ if __name__ == '__main__':
                         transform=axes_.transAxes,color='green', fontsize=14)  
                     axes__.plot(Koef_,'y',linewidth=2.)
                     
-                    fig.savefig(wrkdir +'dynamic.png',dpi=200,transparent=False,bbox_inches = 'tight')
-                    frame=Image.open(wrkdir +'dynamic.png')
+                    frame=fig2img(fig)  
                     cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)        
                     gray_sz1=min(gray_sz1,len(cimg[0]))
                     gray_sz2=min(gray_sz2,len(cimg))
@@ -374,8 +381,7 @@ if __name__ == '__main__':
                     transform=axes_.transAxes,color='green', fontsize=14)  
         axes__.plot(Koef_,'y',linewidth=2.)
         
-        fig.savefig(wrkdir +'dynamic.png',dpi=200,transparent=False,bbox_inches = 'tight')
-        frame=Image.open(wrkdir +'dynamic.png')
+        frame=fig2img(fig) 
         cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)        
         gray_sz1=min(gray_sz1,len(cimg[0]))
         gray_sz2=min(gray_sz2,len(cimg))
