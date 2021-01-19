@@ -18,9 +18,12 @@ priorityclasses = [win32process.IDLE_PRIORITY_CLASS,
 
 NNQRandm=512
 
-def RandomQ(Nfx):
+def RandomQ(Nfx,NQRandm_=0):
     global NQRandm
     global QRandm_
+    
+    if not NQRandm_==0:
+        NQRandm=NQRandm_
     
     KK=3e6
     liiX=np.zeros(Nfx,float)
@@ -169,7 +172,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
         aa=RandomQ(sz) 
         liiD=np.concatenate((aa,aa,aa))           
         for i in range(sz):    
-            liix[i]=liiB[liiD[i+liiC[hh]]:sz+liiD[i+liiC[hh]]]
+            liix[i]=liiB[liiD[i+liiC[hh]]:sz+liiD[i+liiC[hh]]].copy()
             dQ3_0[i]=r2[liix[i]].copy()
             mDD[i]=R4[liix[i]].copy()     
          
