@@ -85,7 +85,7 @@ def filterFourierQ(arxx,arb,NNew,NChan,key=0):
     for l in range(NChan):       
         farxx=np.fft.fft(arxx[Nfl-Nnl+Nfl*l:Nfl+Nfl*l])    
         mfarxx=np.abs(farxx)   
-        srmfarxx=0.05*np.std(mfarxx[1:])
+        srmfarxx=0.005*np.std(mfarxx[1:])
         farxxx=np.zeros(Nnl,complex)     
         for j in range(1,Nnl):
             if mfarxx[j]>srmfarxx:
@@ -297,21 +297,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
         if sum(sum(np.isnan(dQ3)))>0:
             WW=WW-1
         if not WW<0:
-            # seq=dQ4.reshape(sz*sz)*(1/(mDD.reshape(sz*sz)<D*Koe)) 
-            # seq=np.asarray(list(filter(lambda x: abs(x)!= np.Inf, seq)),float) 
-            # seq=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seq)),float)
-             
-            # WW=WW-1               
-            # try:
-            #     if scp.pearsonr(sseq_,seq)[0]>0.3:                    
-            #        dQ3=dQ3_0*(mDD<D*Koe)+(dQ4)*(np.asarray(1,np.float16)-(mDD<D*Koe))
-            #         WW=0
-            # except:
-            #     WW=WW
-            
-            
-            ##########################################
-            #dQ3_0[:][liix]=dQ3
+
             for i in  range(sz):
                 if i==0:
                     aMx_=dQ3[i].copy()
@@ -326,12 +312,6 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
             
             aMx=aMx+mn
             aMn=aMn+mn                       
-                    
-            # Nfl=int(len(arr_bx)/NChan)
-            # for l in range(NChan):      
-            #     aMx[0+Nfl*l:Nfl+Nfl*l]= savgol_filter(aMx[0+Nfl*l:Nfl+Nfl*l], 11, 5)
-            #     aMn[0+Nfl*l:Nfl+Nfl*l]= savgol_filter(aMn[0+Nfl*l:Nfl+Nfl*l], 11, 5)  
-            
             ann=sum(np.isnan(aMx + aMn))
             if ann==0: 
                 if hh==0: 
@@ -339,12 +319,14 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                     AMN=aMn.copy()   
                     arr_bbbxxx0=[]
                     arr_bbbxxx1=0
+                    arr_bbbxxxY=(AMX+AMN)/2
                 else:
                     AMX=np.maximum(AMX,aMx)
-                    AMN=np.minimum(AMN,aMn)  
+                    AMN=np.minimum(AMN,aMn) 
+                    arr_bbbxxxY=(AMX+AMN)/2-arr_bbbxxxY
                 
                 ann=1                
-                dd=filterFourierQ((AMX+AMN)/2,arr_b,NNew,NChan)
+                dd=filterFourierQ(arr_bbbxxxY,arr_b,NNew,NChan)
                 if sum(np.abs(dd)==np.Inf)==0:
                     arr_bbbxxx0.append(dd)
                     dd=np.asarray(arr_bbbxxx0,float)[0:hh+1,:]                    
