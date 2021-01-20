@@ -238,14 +238,16 @@ if __name__ == '__main__':
                             liix=np.zeros((nI,Nf),int)
                             for i in range(nI):  
                                 liix[i]=ss4[i:i+Nf].copy()
-                                dd[i]=dd[i][liix[i]].copy()
-
-                            ddA=dd*(1-(dd<0))
-                            ddA=ddA+DD*(ddA==0)
-                            ddB=-dd*(1-(dd>0))
-                            ddB=ddB+DD*(ddB==0)
-                            dd=mn+(XFilter.RALF1FilterX(  ddA,len(DD),len(DD[0]),1,0)-
-                                         XFilter.RALF1FilterX(  ddB,len(DD),len(DD[0]),1,0))/2   
+                                dd[i]=dd[i][liix[i]].copy()                                
+                                
+                            for ii in range(2):
+                                dd1=dd[:,int(ii*Nf/2):int((ii+1)*Nf/2)].copy()
+                                ddA=dd1*(1-(dd1<0))
+                                ddA=ddA+DD[:,int(ii*Nf/2):int((ii+1)*Nf/2)]*(ddA==0)
+                                ddB=-dd1*(1-(dd1>0))
+                                ddB=ddB+DD[:,int(ii*Nf/2):int((ii+1)*Nf/2)]*(ddB==0)
+                                dd[:,int(ii*Nf/2):int((ii+1)*Nf/2)]=mn+(XFilter.RALF1FilterX(  ddA,len(ddA),len(ddA[0]),1,0)-
+                                         XFilter.RALF1FilterX(  ddB,len(ddB),len(ddB[0]),1,0))/2 
                         
                             for i in range(nI):
                                 dd[i][liix[i]]=dd[i].copy()
@@ -259,11 +261,11 @@ if __name__ == '__main__':
                             np.amin(all_RezM[iGr][max(0,hhhb-int(NIter/dNIt)):hhhb+1,:],axis = 0))/2 
                         
                         if Lo:
-                            arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1,1)
+                            arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1)
                             arr_RezM[iGr][0:Nf-NNew]=np.log(ar0[0:Nf-NNew])  
                             arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-arr_RezM[iGr][Nf-NNew]) +np.log(ar0[Nf-NNew-1])
                         else:
-                            arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],arr_z,NNew,1,1)
+                            arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],arr_z,NNew,1)
                             arr_RezM[iGr][0:Nf-NNew]=ar0[0:Nf-NNew].copy()
                             arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-arr_RezM[iGr][Nf-NNew]) +(ar0[Nf-NNew-1])
 
