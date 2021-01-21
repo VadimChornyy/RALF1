@@ -319,14 +319,12 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                     AMN=aMn.copy()   
                     arr_bbbxxx0=[]
                     arr_bbbxxx1=0
-                    arr_bbbxxxY=(AMX+AMN)/2
                 else:
                     AMX=np.maximum(AMX,aMx)
-                    AMN=np.minimum(AMN,aMn) 
-                    arr_bbbxxxY=(AMX+AMN)/2-arr_bbbxxxY
+                    AMN=np.minimum(AMN,aMn)  
                 
                 ann=1                
-                dd=filterFourierQ(arr_bbbxxxY,arr_b,NNew,NChan)
+                dd=filterFourierQ((AMX+AMN)/2,arr_b,NNew,NChan)
                 if sum(np.abs(dd)==np.Inf)==0:
                     arr_bbbxxx0.append(dd)
                     dd=np.asarray(arr_bbbxxx0,float)[0:hh+1,:]                    
