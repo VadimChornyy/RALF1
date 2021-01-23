@@ -130,7 +130,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
     QRandm_=np.asarray(range(NNQRandm),float)
   
     MM=2
-    Nzz=10
+    Nzz=2
     
     Ndel=MM
     NCh=int(np.ceil(sz/Ndel)) 

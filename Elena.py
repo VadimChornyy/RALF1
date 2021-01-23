@@ -24,10 +24,10 @@ Lengt=1000
 Ngroup=3
 Nproc=2*Ngroup#*(mp.cpu_count())
 Lo=1
-aTmStop=3
+aTmStop=6
 NIt=3
-NIter=200
-DT=0.45
+NIter=10
+DT=0.35
 Nf_K=3
 
 def fig2img ( fig ):
