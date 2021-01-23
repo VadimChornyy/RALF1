@@ -18,7 +18,7 @@ from RALf1FiltrVID import RandomQ
 import RALF1FilterX as XFilter 
 
 wrkdir = r"c:\Work\\"
-aname='lena-Geo'
+aname='lena2-Geo'
 Lengt=1000
 Ngroup=3
 Nproc=2*Ngroup#*(mp.cpu_count())
@@ -40,11 +40,11 @@ def fig2img ( fig ):
 def loaddata(aLengt,key):
     adat_=[]
     arrr=[]
-    excel_data_df = pd.read_excel('lena.xls', sheet_name='1')
+    excel_data_df = pd.read_excel('lena2.xls', sheet_name='1')
     
     dat=np.asarray(excel_data_df, float)
     f=interp.interp1d(dat[:,0], dat[:,1],'cubic')
-    xnew=np.asarray(range(3,463),float)[::4]
+    xnew=np.asarray(range(1,761),float)[::5]
     arrr.append(f(xnew))
             
     return arrr,adat_

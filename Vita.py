@@ -14,6 +14,8 @@ import scipy.interpolate as interp
 
 from RALf1FiltrVID import filterFourierQ
 from RALf1FiltrVID import RALf1FiltrQ
+from RALf1FiltrVID import RandomQ
+import RALF1FilterX as XFilter 
 
 wrkdir = r"c:\Work\\"
 aname='PSS-Geo'
@@ -23,9 +25,18 @@ Nproc=2*Ngroup#*(mp.cpu_count())
 Lo=0
 aTmStop=3
 NIt=3
-NIter=60
+NIter=100
 DT=0.25
 Nf_K=3
+
+
+def fig2img ( fig ):
+    fig.savefig(wrkdir +'dynamic.png',dpi=150,transparent=False,bbox_inches = 'tight')
+    frame=Image.open(wrkdir +'dynamic.png')
+    # fig.canvas.draw()
+    # frame=Image.frombytes('RGB', fig.canvas.get_width_height(),
+    #                        fig.canvas.tostring_rgb())
+    return frame
     
 def loaddata(aLengt,key):
     adat_=[]
@@ -87,6 +98,7 @@ if __name__ == '__main__':
             arr_z[Nf-NNew:]=arr_z[Nf-NNew-1]  
             all_RezN=np.zeros((Ngroup,NIter,Nf),float)
             all_RezM=np.zeros((Ngroup,NIter,Nf),float)
+            all_RezNM=np.zeros((Ngroup,NIter,Nf),float)
             all_RezMM=np.zeros((Ngroup,NIter,Nf),float)
             argss=[[0] for j in range(Nproc)]    
     
@@ -110,8 +122,7 @@ if __name__ == '__main__':
                         verticalalignment='bottom', horizontalalignment='right',
                         transform=axes_.transAxes,color='blue', fontsize=14)        
 
-                fig.savefig(wrkdir +'dynamic.png',dpi=200,transparent=False,bbox_inches = 'tight')
-                frame=Image.open(wrkdir +'dynamic.png')
+                frame=fig2img(fig)  
                 ImApp.append(frame)
                 cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)        
                 gray_sz1=len(cimg[0])
@@ -150,6 +161,7 @@ if __name__ == '__main__':
                     arr_z[Nf-NNew:]=arr_z[Nf-NNew-1]  
                     all_RezN=np.zeros((Ngroup,NIter,Nf),float)
                     all_RezM=np.zeros((Ngroup,NIter,Nf),float)
+                    all_RezNM=np.zeros((Ngroup,NIter,Nf),float)
                     all_RezMM=np.zeros((Ngroup,NIter,Nf),float)
                     hhh_=hhh_+1
                 else:
@@ -203,32 +215,73 @@ if __name__ == '__main__':
                     WrtTodr=1
                     aDur=4
                     
-                arr_RezM=  np.zeros((Ngroup,Nf),float)                
-                for hhhb in range(hhh+1):
-                    for iGr in range(Ngroup):            
-                        arr_RezM[iGr]=(np.amax(Arr_AAA[iGr][max(0,hhhb-int(NIter/20)):(hhhb+1)*int(Nproc/Ngroup),:],axis = 0)+
-                                           np.amin(Arr_AAA[iGr][max(0,hhhb-int(NIter/20)):(hhhb+1)*int(Nproc/Ngroup),:],axis = 0))/2
-    
-                        # all_RezN[iGr][hhhb]=arr_RezM[iGr].copy() 
-                        # arr_RezM[iGr]=np.mean(all_RezN[iGr][max(0,hhhb-int(NIter/6)):hhhb+1,:],axis = 0) 
+                dNIt=10
+                arr_RezM=  np.zeros((Ngroup,Nf),float)  
+
+                for iGr in range(Ngroup):
+                    arr_RezM[iGr]=(np.amax(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0)+
+                                   np.amin(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0))/2                
+
+                    all_RezN[iGr][hhh]=arr_RezM[iGr].copy()
+                    nI=(hhh+1)-max(0,hhh-int(NIter/dNIt))                        
+                    if nI>1:
+                        NQRandm=512
+                        D=np.std(arr_RezM[iGr])                     
+                        aa=RandomQ(Nf,512)                        
+                        ss4=np.concatenate((aa, aa, aa))
+                        DD=[]
+                        for hhhc in range(nI):
+                            DD.append(ss4[hhhc:hhhc+Nf])
+                        DD=np.asarray(DD,float)                              
+                        DD=(DD/np.std(DD)+1e-6)*D/2   
                         
-                        if Lo:
-                            arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1)
-                            arr_RezM[iGr][0:Nf-NNew]=np.log(ar0[0:Nf-NNew])                         
-                        else:
-                            arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],arr_z,NNew,1)
-                            arr_RezM[iGr][0:Nf-NNew]=ar0[0:Nf-NNew].copy()
+                        mn=np.mean(all_RezN[iGr][max(0,hhh-int(NIter/dNIt)):hhh+1])
+                        dd=(all_RezN[iGr][max(0,hhh-int(NIter/dNIt)):hhh+1]-mn)
                         
-                        all_RezM[iGr][hhhb]=arr_RezM[iGr].copy() 
-                        arr_RezM[iGr]=(np.amax(all_RezM[iGr][max(0,hhhb-int(NIter/20)):hhhb+1,:],axis = 0)+
-                            np.amin(all_RezM[iGr][max(0,hhhb-int(NIter/20)):hhhb+1,:],axis = 0))/2 
-    
-                        all_RezMM[iGr][hhhb]=arr_RezM[iGr].copy() 
-                        arr_RezM[iGr]=np.mean(all_RezMM[iGr][0:hhhb+1],axis = 0)
-                        #np.mean(all_RezMM[iGr][max(0,hhhb-int(NIter/2)):hhhb+1,:],axis = 0) 
+                        aa=RandomQ(Nf,512)                        
+                        ss4=np.concatenate((aa, aa, aa))
+                        liix=np.zeros((nI,Nf),int)
+                        for i in range(nI):  
+                            liix[i]=ss4[i:i+Nf].copy()
+                            dd[i]=dd[i][liix[i]].copy()                                
+                            
+                        for ii in range(2):
+                            dd1=dd[:,int(ii*Nf/2):int((ii+1)*Nf/2)].copy()
+                            ddA=dd1*(1-(dd1<0))
+                            ddA=ddA+DD[:,int(ii*Nf/2):int((ii+1)*Nf/2)]*(ddA==0)
+                            ddB=-dd1*(1-(dd1>0))
+                            ddB=ddB+DD[:,int(ii*Nf/2):int((ii+1)*Nf/2)]*(ddB==0)
+                            dd[:,int(ii*Nf/2):int((ii+1)*Nf/2)]=mn+(XFilter.RALF1FilterX(  ddA,len(ddA),len(ddA[0]),1,0)-
+                                     XFilter.RALF1FilterX(  ddB,len(ddB),len(ddB[0]),1,0))/2 
+                    
+                        for i in range(nI):
+                            dd[i][liix[i]]=dd[i].copy()
+                            
+                        dd=(np.amax(dd,axis=0)+np.amin(dd,axis=0))/2
+                        arr_RezM[iGr]=(np.maximum(arr_RezM[iGr],dd)+np.minimum(arr_RezM[iGr],dd))/2
+                        
+                    all_RezM[iGr][hhh]=arr_RezM[iGr].copy() 
+                    arr_RezM[iGr]=(np.amax(all_RezM[iGr][max(0,hhh-int(NIter/dNIt)):hhh+1,:],axis = 0)+
+                        np.amin(all_RezM[iGr][max(0,hhh-int(NIter/dNIt)):hhh+1,:],axis = 0))/2 
+                    
+                    if Lo:
+                        arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1)
+                        arr_RezM[iGr][0:Nf-NNew]=np.log(ar0[0:Nf-NNew])  
+                        arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-arr_RezM[iGr][Nf-NNew]) +np.log(ar0[Nf-NNew-1])
+                    else:
+                        arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],arr_z,NNew,1)
+                        arr_RezM[iGr][0:Nf-NNew]=ar0[0:Nf-NNew].copy()
+                        arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-arr_RezM[iGr][Nf-NNew]) +(ar0[Nf-NNew-1])
+
+                    all_RezNM[iGr][hhh]=arr_RezM[iGr].copy() 
+                    arr_RezM[iGr]=(np.amax(all_RezNM[iGr][max(0,hhh-int(NIter/dNIt)):hhh+1,:],axis = 0)+
+                        np.amin(all_RezNM[iGr][max(0,hhh-int(NIter/dNIt)):hhh+1,:],axis = 0))/2                         
+
+                    all_RezMM[iGr][hhh]=arr_RezM[iGr].copy() 
+                    arr_RezM[iGr]=np.mean(all_RezMM[iGr][0:hhh+1],axis = 0)
+                    #np.mean(all_RezMM[iGr][max(0,hhhb-int(NIter/2)):hhhb+1,:],axis = 0) 
                 
-                arr_rezBz=(np.mean(arr_RezM, axis=0)+np.mean(arr_RezM, axis=0))/2 
-                #(np.amax(arr_RezM, axis=0)+np.amin(arr_RezM, axis=0))/2            
+                arr_rezBz=(np.mean(arr_RezM, axis=0)+np.mean(arr_RezM, axis=0))/2          
                     
                 if Lo:
                     arr_rezBz[Nf-NNew:]=(arr_rezBz[Nf-NNew:]-arr_rezBz[Nf-NNew]) +np.log(ar0[Nf-NNew-1])                     
@@ -277,8 +330,7 @@ if __name__ == '__main__':
                         transform=axes_.transAxes,color='green', fontsize=14)  
                     axes__.plot(Koef_,'y',linewidth=2.)
                     
-                    fig.savefig(wrkdir +'dynamic.png',dpi=200,transparent=False,bbox_inches = 'tight')
-                    frame=Image.open(wrkdir +'dynamic.png')
+                    frame=fig2img(fig)  
                     cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)        
                     gray_sz1=min(gray_sz1,len(cimg[0]))
                     gray_sz2=min(gray_sz2,len(cimg))
@@ -335,8 +387,7 @@ if __name__ == '__main__':
                     transform=axes_.transAxes,color='green', fontsize=14)  
         axes__.plot(Koef_,'y',linewidth=2.)
         
-        fig.savefig(wrkdir +'dynamic.png',dpi=200,transparent=False,bbox_inches = 'tight')
-        frame=Image.open(wrkdir +'dynamic.png')
+        frame=fig2img(fig) 
         cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)        
         gray_sz1=min(gray_sz1,len(cimg[0]))
         gray_sz2=min(gray_sz2,len(cimg))
