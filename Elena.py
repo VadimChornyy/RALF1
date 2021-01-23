@@ -6,6 +6,7 @@ from PIL import Image
 import cv2 as cv
 #import time as tm
 import hickle as hkl
+import os
 
 from scipy import stats as scp
 import dill 
@@ -136,6 +137,7 @@ if __name__ == '__main__':
             Aprocess=[]
             if hhh==int(NIter/1):
                 if hhh_<aTmStop-1:
+                    os.remove(wrkdir + aname+".rlf1")
                     nnn=int(nn*0.5)
                     aTmStop=6
                     hh0=0
