@@ -25,7 +25,7 @@ Nproc=2*Ngroup#*(mp.cpu_count())
 Lo=1
 aTmStop=3
 NIt=3
-NIter=100
+NIter=200
 DT=0.45
 Nf_K=3
 
@@ -218,7 +218,7 @@ if __name__ == '__main__':
                                    np.amin(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0))/2                
 
                     all_RezN[iGr][hhh]=arr_RezM[iGr].copy()
-                    nI=(hhh+1)-max(0,hhh-int(NIter/dNIt))                        
+                    nI=(hhh+1)#-max(0,hhh-int(NIter/dNIt))                        
                     if nI>1:
                         NQRandm=512
                         D=np.std(arr_RezM[iGr])                     
@@ -230,8 +230,8 @@ if __name__ == '__main__':
                         DD=np.asarray(DD,float)                              
                         DD=(DD/np.std(DD)+1e-6)*D/2   
                         
-                        mn=np.mean(all_RezN[iGr][max(0,hhh-int(NIter/dNIt)):hhh+1])
-                        dd=(all_RezN[iGr][max(0,hhh-int(NIter/dNIt)):hhh+1]-mn)
+                        mn=np.mean(all_RezN[iGr][(hhh+1)-nI:hhh+1])
+                        dd=(all_RezN[iGr][(hhh+1)-nI:hhh+1]-mn)
                         
                         aa=RandomQ(Nf,512)                        
                         ss4=np.concatenate((aa, aa, aa))
@@ -260,11 +260,11 @@ if __name__ == '__main__':
                         np.amin(all_RezM[iGr][max(0,hhh-int(NIter/dNIt)):hhh+1,:],axis = 0))/2 
                     
                     if Lo:
-                        arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1)
+                        arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1,1)
                         arr_RezM[iGr][0:Nf-NNew]=np.log(ar0[0:Nf-NNew])  
                         arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-arr_RezM[iGr][Nf-NNew]) +np.log(ar0[Nf-NNew-1])
                     else:
-                        arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],arr_z,NNew,1)
+                        arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],arr_z,NNew,1,1)
                         arr_RezM[iGr][0:Nf-NNew]=ar0[0:Nf-NNew].copy()
                         arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-arr_RezM[iGr][Nf-NNew]) +(ar0[Nf-NNew-1])
 
