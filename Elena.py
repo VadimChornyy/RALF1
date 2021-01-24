@@ -18,15 +18,15 @@ from RALf1FiltrVID import RALf1FiltrQ
 from RALf1FiltrVID import RandomQ
 import RALF1FilterX as XFilter 
 
-wrkdir = r"c:\Work\\W1\\"
+wrkdir = r"c:\Work\\W5\\"
 aname='lena-Geo'
 Lengt=1000
 Ngroup=3
-Nproc=2*Ngroup#*(mp.cpu_count())
-Lo=1
+Nproc=3*Ngroup#*(mp.cpu_count())
+Lo=0
 aTmStop=6
-NIt=3
-NIter=6
+NIt=2
+NIter=60
 DT=0.35
 Nf_K=3
 
@@ -154,7 +154,10 @@ if __name__ == '__main__':
         Aprocess=[]
         if hhh==int(NIter/1):
             if hhh_<aTmStop-1:
-                os.remove(wrkdir + aname+".rlf1")
+                try:
+                    os.remove(wrkdir + aname+".rlf1")
+                except:
+                    hhh_=hhh_
                 nnn=int(nn*0.5)
                 aTmStop=6
                 hh0=0
@@ -185,7 +188,7 @@ if __name__ == '__main__':
         if ZZ==0:                  
             try:
                 [hhha,Arr_BBB]=(hkl.load(wrkdir + aname+".rlf1"))       
-                Arr_AAA[:,0:int(Nproc*hhha/Ngroup),:]=Arr_BBB[:,0:int(Nproc*hhha/Ngroup),:].copy()
+                Arr_AAA[:,0:int(Nproc*hhha/Ngroup),:Nf]=Arr_BBB[:,0:int(Nproc*hhha/Ngroup),:Nf].copy()
             except:            
                 hhha=hhh-1
             
@@ -233,11 +236,12 @@ if __name__ == '__main__':
             arr_RezM=  np.zeros((Ngroup,Nf),float)  
 
             for iGr in range(Ngroup):
-                arr_RezM[iGr]=(np.amax(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0)+
-                               np.amin(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0))/2                
+                nI=(hhh+1)#-max(0,hhh-int(NIter/dNIt))
+                arr_RezM[iGr]=(np.amax(Arr_AAA[iGr][(hhh+1)-nI:(hhh+1)*int(Nproc/Ngroup),:],axis = 0)+
+                               np.amin(Arr_AAA[iGr][(hhh+1)-nI:(hhh+1)*int(Nproc/Ngroup),:],axis = 0))/2                
 
                 all_RezN[iGr][hhh]=arr_RezM[iGr].copy()
-                nI=(hhh+1)#-max(0,hhh-int(NIter/dNIt))                        
+                        
                 if nI>1:
                     NQRandm=512
                     D=np.std(arr_RezM[iGr])                     
@@ -279,11 +283,11 @@ if __name__ == '__main__':
                     np.amin(all_RezM[iGr][max(0,hhh-int(NIter/dNIt)):hhh+1,:],axis = 0))/2 
                 
                 if Lo:
-                    arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1,1)
+                    arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1)
                     arr_RezM[iGr][0:Nf-NNew]=np.log(ar0[0:Nf-NNew])  
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-arr_RezM[iGr][Nf-NNew]) +np.log(ar0[Nf-NNew-1])
                 else:
-                    arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],arr_z,NNew,1,1)
+                    arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],arr_z,NNew,1)
                     arr_RezM[iGr][0:Nf-NNew]=ar0[0:Nf-NNew].copy()
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-arr_RezM[iGr][Nf-NNew]) +(ar0[Nf-NNew-1])
 
