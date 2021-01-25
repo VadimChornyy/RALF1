@@ -130,7 +130,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
     QRandm_=np.asarray(range(NNQRandm),float)
   
     MM=2
-    Nzz=6
+    Nzz=Nhh
     
     Ndel=MM
     NCh=int(np.ceil(sz/Ndel)) 
@@ -296,17 +296,21 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
         dQ3=dQ3_0*(mDD<D*Koe)+(dQ4)*(np.asarray(1,np.float16)-(mDD<D*Koe))
         if sum(sum(np.isnan(dQ3)))>0:
             WW=WW-1
+        
         if not WW<0:
-
+            aMx_=np.zeros(sz,float)
+            aMn_=np.zeros(sz,float)
+            aMx=np.zeros(sz,float)
+            aMn=np.zeros(sz,float)
             for i in  range(sz):
                 if i==0:
-                    aMx_=dQ3[i].copy()
-                    aMn_=dQ3[i].copy()
-                    aMx=dQ3[i].copy()
-                    aMn=dQ3[i].copy()
+                    aMx_[liix[i]]=dQ3[i].copy()
+                    aMn_[liix[i]]=dQ3[i].copy()
+                    aMx[liix[i]]=dQ3[i].copy()
+                    aMn[liix[i]]=dQ3[i].copy()
                 else:
-                    aMx_=np.maximum(aMx_,dQ3[i])
-                    aMn_=np.minimum(aMn_,dQ3[i])
+                    aMx_[liix[i]]=np.maximum(aMx_[liix[i]],dQ3[i])
+                    aMn_[liix[i]]=np.minimum(aMn_[liix[i]],dQ3[i])
                     aMx=(aMx*i+aMx_)/(i+1)
                     aMn=(aMn*i+aMn_)/(i+1)
             
