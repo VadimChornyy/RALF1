@@ -18,7 +18,7 @@ from RALf1FiltrVID import RALf1FiltrQ
 from RALf1FiltrVID import RandomQ
 import RALF1FilterX as XFilter 
 
-wrkdir = r"c:\Work\\W5\\"
+wrkdir = r"c:\Work\\W9\\"
 aname='lena-Geo'
 Lengt=1000
 Ngroup=3
@@ -26,7 +26,7 @@ Nproc=3*Ngroup#*(mp.cpu_count())
 Lo=0
 aTmStop=6
 NIt=2
-NIter=60
+NIter=100
 DT=0.35
 Nf_K=3
 
@@ -236,9 +236,9 @@ if __name__ == '__main__':
             arr_RezM=  np.zeros((Ngroup,Nf),float)  
 
             for iGr in range(Ngroup):
-                nI=(hhh+1)#-max(0,hhh-int(NIter/dNIt))
-                arr_RezM[iGr]=(np.amax(Arr_AAA[iGr][(hhh+1)-nI:(hhh+1)*int(Nproc/Ngroup),:],axis = 0)+
-                               np.amin(Arr_AAA[iGr][(hhh+1)-nI:(hhh+1)*int(Nproc/Ngroup),:],axis = 0))/2                
+                nI=(hhh+1)-max(0,hhh-int(NIter/dNIt))
+                arr_RezM[iGr]=(np.amax(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0)+
+                               np.amin(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0))/2                
 
                 all_RezN[iGr][hhh]=arr_RezM[iGr].copy()
                         
@@ -279,8 +279,8 @@ if __name__ == '__main__':
                     arr_RezM[iGr]=(np.maximum(arr_RezM[iGr],dd)+np.minimum(arr_RezM[iGr],dd))/2
                     
                 all_RezM[iGr][hhh]=arr_RezM[iGr].copy() 
-                arr_RezM[iGr]=(np.amax(all_RezM[iGr][max(0,hhh-int(NIter/dNIt)):hhh+1,:],axis = 0)+
-                    np.amin(all_RezM[iGr][max(0,hhh-int(NIter/dNIt)):hhh+1,:],axis = 0))/2 
+                arr_RezM[iGr]=(np.amax(all_RezM[iGr][(hhh+1)-nI:hhh+1,:],axis = 0)+
+                    np.amin(all_RezM[iGr][(hhh+1)-nI:hhh+1,:],axis = 0))/2 
                 
                 if Lo:
                     arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1)
@@ -292,8 +292,8 @@ if __name__ == '__main__':
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-arr_RezM[iGr][Nf-NNew]) +(ar0[Nf-NNew-1])
 
                 all_RezNM[iGr][hhh]=arr_RezM[iGr].copy() 
-                arr_RezM[iGr]=(np.amax(all_RezNM[iGr][max(0,hhh-int(NIter/dNIt)):hhh+1,:],axis = 0)+
-                    np.amin(all_RezNM[iGr][max(0,hhh-int(NIter/dNIt)):hhh+1,:],axis = 0))/2                         
+                arr_RezM[iGr]=(np.amax(all_RezNM[iGr][(hhh+1)-nI:hhh+1,:],axis = 0)+
+                    np.amin(all_RezNM[iGr][(hhh+1)-nI:hhh+1,:],axis = 0))/2                         
 
                 all_RezMM[iGr][hhh]=arr_RezM[iGr].copy() 
                 arr_RezM[iGr]=np.mean(all_RezMM[iGr][0:hhh+1],axis = 0)
