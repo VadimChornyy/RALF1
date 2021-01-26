@@ -18,14 +18,14 @@ from RALf1FiltrVID import RALf1FiltrQ
 from RALf1FiltrVID import RandomQ
 import RALF1FilterX as XFilter 
 
-wrkdir = r"c:\Work\\W4\\"
+wrkdir = r"c:\Work\\W7\\"
 aname='lena-Geo'
 Lengt=1000
 Ngroup=3
 Nproc=3*Ngroup#*(mp.cpu_count())
 Lo=0
 aTmStop=6
-NIt=2
+NIt=3
 NIter=100
 DT=0.35
 Nf_K=3
@@ -242,7 +242,7 @@ if __name__ == '__main__':
 
                 all_RezN[iGr][hhh]=arr_RezM[iGr].copy()
                         
-                if nI>1:
+                if nI>1000:
                     NQRandm=512
                     D=np.std(arr_RezM[iGr])                     
                     aa=RandomQ(Nf,512)                        

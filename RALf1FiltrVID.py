@@ -130,7 +130,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
     QRandm_=np.asarray(range(NNQRandm),float)
   
     MM=2
-    Nzz=2*Nhh
+    Nzz=Nhh
     
     Ndel=MM
     NCh=int(np.ceil(sz/Ndel)) 
@@ -301,20 +301,20 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                 if hh==0: 
                     AMX=aMx.copy()
                     AMN=aMn.copy()   
-                    arr_bbbxxx0=[]
                     arr_bbbxxx1=0
+                    arr_bbbxxx2=0
+                    KDD=1
                 else:
+                    arr_bbbxxx1=(AMX+AMN)/2
                     AMX=np.maximum(AMX,aMx)
-                    AMN=np.minimum(AMN,aMn)  
+                    AMN=np.minimum(AMN,aMn)
+                    KDD=np.std((AMX+AMN)/2-arr_bbbxxx1)/np.std(arr_bbbxxx1)
                 
                 ann=1                
-                dd=filterFourierQ((AMX+AMN)/2,arr_b,NNew,NChan)
+                dd=KDD*filterFourierQ((AMX+AMN)/2-arr_bbbxxx1,arr_b,NNew,NChan)
                 if sum(np.abs(dd)==np.Inf)==0:
-                    arr_bbbxxx0.append(dd)
-                    dd=np.asarray(arr_bbbxxx0,float)[0:hh+1,:]                    
-                    dd=(np.amax(dd,axis=0)+np.amin(dd,axis=0))/2                
-                    arr_bbbxxx1=(arr_bbbxxx1*(hh)+dd)/(hh+1)
-                    dd=filterFourierQ(arr_bbbxxx1,arr_b,NNew,NChan)                    
+                    arr_bbbxxx2=(arr_bbbxxx2+dd)
+                    dd=filterFourierQ(arr_bbbxxx2,arr_b,NNew,NChan)                    
                     if sum(abs(dd)==np.Inf)==0:
                         ann=0
                         hh=hh+1
