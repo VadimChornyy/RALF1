@@ -18,7 +18,7 @@ from RALf1FiltrVID import RALf1FiltrQ
 from RALf1FiltrVID import RandomQ
 import RALF1FilterX as XFilter 
 
-wrkdir = r"c:\Work\\W2\\"
+wrkdir = r"c:\Work\\W4\\"
 aname='lena-Geo'
 Lengt=1000
 Ngroup=3
@@ -272,21 +272,11 @@ if __name__ == '__main__':
                         dd[:,int(ii*Nf/2):int((ii+1)*Nf/2)]=mn+(XFilter.RALF1FilterX(  ddA,len(ddA),len(ddA[0]),1,0)-
                                  XFilter.RALF1FilterX(  ddB,len(ddB),len(ddB[0]),1,0))/2 
                     
-                    aMx_=np.zeros(nI,float)
-                    aMn_=np.zeros(nI,float)
-                    aMx=np.zeros(nI,float)
-                    aMn=np.zeros(nI,float)
+                    aMx=np.zeros(nI,float)-np.Inf
+                    aMn=np.zeros(nI,float)+np.Inf
                     for i in range(nI):
-                        if i==0:
-                            aMx_[liix[i]]=dd[i].copy()
-                            aMn_[liix[i]]=dd[i].copy()
-                            aMx[liix[i]]=dd[i].copy()
-                            aMn[liix[i]]=dd[i].copy()
-                        else:
-                            aMx_[liix[i]]=np.maximum(aMx_[liix[i]],dd[i])
-                            aMn_[liix[i]]=np.minimum(aMn_[liix[i]],dd[i])
-                            aMx=(aMx*i+aMx_)/(i+1)
-                            aMn=(aMn*i+aMn_)/(i+1)
+                        aMx[liix[i]]=np.maximum(aMx[liix[i]],dd[i])
+                        aMn[liix[i]]=np.minimum(aMn[liix[i]],dd[i])
                         
                     arr_RezM[iGr]=(aMx+aMn)/2
                     
@@ -295,11 +285,11 @@ if __name__ == '__main__':
                                np.amin(all_RezM[iGr][0:hhh+1,:],axis = 0))/2 
                 
                 if Lo:
-                    arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1)
+                    arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1,1)
                     arr_RezM[iGr][0:Nf-NNew]=np.log(ar0[0:Nf-NNew])  
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-arr_RezM[iGr][Nf-NNew]) +np.log(ar0[Nf-NNew-1])
                 else:
-                    arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],arr_z,NNew,1)
+                    arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],arr_z,NNew,1,1)
                     arr_RezM[iGr][0:Nf-NNew]=ar0[0:Nf-NNew].copy()
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-arr_RezM[iGr][Nf-NNew]) +(ar0[Nf-NNew-1])
 

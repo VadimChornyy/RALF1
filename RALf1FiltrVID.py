@@ -276,16 +276,8 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                         ss4=np.concatenate((aa, aa, aa))
             
             if xxx==0:     
-                if zz==0:	
-                    aXMx=dQ3mx.copy()
-                    aXMn=dQ3mn.copy()                  
-                    AsrXMx=dQ3mx.copy()	                 
-                    AsrXMn=dQ3mn.copy()	               
-                else:	
-                    aXMx=np.maximum(aXMx,dQ3mx)
-                    aXMn=np.minimum(aXMn,dQ3mn)
-                    AsrXMx=(AsrXMx*(zz)+(aXMx))/(zz+1)	
-                    AsrXMn=(AsrXMn*(zz)+(aXMn))/(zz+1) 
+                AsrXMx=np.maximum(AsrXMx,dQ3mx)
+                AsrXMn=np.minimum(AsrXMn,dQ3mn)
                     
                 WW=0                                    
                 zz=zz+1
@@ -298,24 +290,12 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
             WW=WW-1
         
         if not WW<0:
-            aMx_=np.zeros(sz,float)
-            aMn_=np.zeros(sz,float)
-            aMx=np.zeros(sz,float)
-            aMn=np.zeros(sz,float)
+            aMx=np.zeros(sz,float)-np.Inf
+            aMn=np.zeros(sz,float)+np.Inf
             for i in  range(sz):
-                if i==0:
-                    aMx_[liix[i]]=dQ3[i].copy()
-                    aMn_[liix[i]]=dQ3[i].copy()
-                    aMx[liix[i]]=dQ3[i].copy()
-                    aMn[liix[i]]=dQ3[i].copy()
-                else:
-                    aMx_[liix[i]]=np.maximum(aMx_[liix[i]],dQ3[i])
-                    aMn_[liix[i]]=np.minimum(aMn_[liix[i]],dQ3[i])
-                    aMx=(aMx*i+aMx_)/(i+1)
-                    aMn=(aMn*i+aMn_)/(i+1)
-            
-            aMx=aMx+mn
-            aMn=aMn+mn                       
+                aMx[liix[i]]=np.maximum(aMx[liix[i]],dQ3[i])
+                aMn[liix[i]]=np.minimum(aMn[liix[i]],dQ3[i])
+                    
             ann=sum(np.isnan(aMx + aMn))
             if ann==0: 
                 if hh==0: 
