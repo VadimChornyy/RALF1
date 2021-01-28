@@ -443,7 +443,7 @@ def RALf1FiltrQ(args):
                 print(KoefA)
                 if np.isnan(KoefA[Nch]):
                     KoefA[Nch]=0            
-                if KoefA[Nch]>30:
+                if KoefA[Nch]>20:
                     for l in range(NChan):
                         arr_b[Nf-NNew+Nf*l:Nf+Nf*l]=arr_bbx[Nch][Nf-NNew+Nf*l:Nf+Nf*l].copy()    
                     #arr_b=filterFourierQ(arr_b,arr_b,NNew,NChan,0)
