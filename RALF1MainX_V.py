@@ -19,7 +19,7 @@ from RALf1FiltrVID import filterFourierQ
 from RALf1FiltrVID import RALf1FiltrQ
  
 
-wrkdir = r"c:\Work\\W_1\\"
+wrkdir = r"c:\Work\\W_3\\"
 api_key = 'ONKTYPV6TAMZK464' 
 
 ticker ="USDRUB" # "BTCUSD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
@@ -36,7 +36,7 @@ Ngroup=3
 Nproc=2*Ngroup#*(mp.cpu_count())
 Lo=1
 aTmStop=6
-NIt=3
+NIt=2
 NIter=100
 DT=0.25
 Nf_K=3
@@ -115,21 +115,26 @@ def loaddata(aLengt,key):
         
     return arrr,adat_
 
-if __name__ == '__main__':   
-    ImApp=[]
-        
-    arrrxx,adat_=loaddata(Lengt,1)    
-    arrrxx=np.asarray(arrrxx,float)
-    arrrxx=decimat(arrrxx)
-    
-    esz=len(arrrxx)
-    arr_rezDzRez=[[] for j in range(esz)]
-    kkk=0
-    out=0       
-            
+if __name__ == '__main__': 
     try:
         dill.load_session(wrkdir + aname+".ralf")
     except:
+        ImApp=[]
+        try:
+            arrrxx,adat_=loaddata(Lengt,1)  
+            arrrxx=np.asarray(arrrxx,float)
+            arrrxx=decimat(arrrxx)
+        except:
+            try:
+                arrrxx=hkl.load(wrkdir + aname+"dat.rlf1")
+            except:
+                ImApp=ImApp
+            
+        esz=len(arrrxx)
+        arr_rezDzRez=[[] for j in range(esz)]
+        kkk=0
+        out=0   
+
         aname=aname
         arrr=np.asarray(arrrxx).copy()  
 
