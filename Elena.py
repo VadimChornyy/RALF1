@@ -15,24 +15,23 @@ import scipy.interpolate as interp
 
 from RALf1FiltrVID import filterFourierQ
 from RALf1FiltrVID import RALf1FiltrQ
-from RALf1FiltrVID import RandomQ
-import RALF1FilterX as XFilter 
 
 wrkdir = r"c:\Work\\W7\\"
 aname='lena-Geo'
 Lengt=1000
 Ngroup=3
-Nproc=3*Ngroup#*(mp.cpu_count())
+Nproc=2*Ngroup#*(mp.cpu_count())
 Lo=0
 aTmStop=6
 NIt=3
 NIter=100
 DT=0.35
 Nf_K=3
-
 aDecm=1
 
 def decimat(adat_):
+    if Lo:
+        adat_=np.log(adat_)
     adatx=0
     k=0
     adat__=np.zeros(int(len(adat_)/aDecm),float)
@@ -42,7 +41,10 @@ def decimat(adat_):
             adat__[k]=adatx/aDecm
             k=k+1
             adatx=0
-    return adat__[1:len(adat__)-1]
+    if Lo:
+        return np.exp(adat__[1:len(adat__)-1])
+    else:
+        return (adat__[1:len(adat__)-1])
 
 def fig2img ( fig ):
     fig.savefig(wrkdir +'dynamic.png',dpi=150,transparent=False,bbox_inches = 'tight')
@@ -65,8 +67,6 @@ def loaddata(aLengt,key=1):
     return arrr
 
 if __name__ == '__main__':   
-    global NQRandm
-
     ImApp=[]
         
     arrrxx=loaddata(Lengt,1)
@@ -232,58 +232,11 @@ if __name__ == '__main__':
                 WrtTodr=1
                 aDur=4
                     
-            dNIt=10
             arr_RezM=  np.zeros((Ngroup,Nf),float)  
-
             for iGr in range(Ngroup):
-                nI=max(0,hhh-int(NIter/dNIt))
                 arr_RezM[iGr]=(np.amax(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0)+
                                np.amin(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0))/2                
-
-                all_RezN[iGr][hhh]=arr_RezM[iGr].copy()
-                        
-                if nI>1000:
-                    NQRandm=512
-                    D=np.std(arr_RezM[iGr])                     
-                    aa=RandomQ(Nf,512)                        
-                    ss4=np.concatenate((aa, aa, aa))
-                    DD=[]
-                    for hhhc in range(nI):
-                        DD.append(ss4[hhhc:hhhc+Nf])
-                    DD=np.asarray(DD,float)                              
-                    DD=(DD/np.std(DD)+1e-6)*D/2   
-                    
-                    mn=np.mean(all_RezN[iGr][(hhh+1)-nI:hhh+1])
-                    dd=(all_RezN[iGr][(hhh+1)-nI:hhh+1]-mn)
-                    
-                    aa=RandomQ(Nf,512)                        
-                    ss4=np.concatenate((aa, aa, aa))
-                    liix=np.zeros((nI,Nf),int)
-                    for i in range(nI):  
-                        liix[i]=ss4[i:i+Nf].copy()
-                        dd[i]=dd[i][liix[i]].copy()                                
-                        
-                    for ii in range(2):
-                        dd1=dd[:,int(ii*Nf/2):int((ii+1)*Nf/2)].copy()
-                        ddA=dd1*(1-(dd1<0))
-                        ddA=ddA+DD[:,int(ii*Nf/2):int((ii+1)*Nf/2)]*(ddA==0)
-                        ddB=-dd1*(1-(dd1>0))
-                        ddB=ddB+DD[:,int(ii*Nf/2):int((ii+1)*Nf/2)]*(ddB==0)
-                        dd[:,int(ii*Nf/2):int((ii+1)*Nf/2)]=mn+(XFilter.RALF1FilterX(  ddA,len(ddA),len(ddA[0]),1,0)-
-                                 XFilter.RALF1FilterX(  ddB,len(ddB),len(ddB[0]),1,0))/2 
-                    
-                    aMx=np.zeros(nI,float)-np.Inf
-                    aMn=np.zeros(nI,float)+np.Inf
-                    for i in range(nI):
-                        aMx[liix[i]]=np.maximum(aMx[liix[i]],dd[i])
-                        aMn[liix[i]]=np.minimum(aMn[liix[i]],dd[i])
-                        
-                    arr_RezM[iGr]=(aMx+aMn)/2
-                    
-                all_RezM[iGr][hhh]=arr_RezM[iGr].copy() 
-                arr_RezM[iGr]=(np.amax(all_RezM[iGr][0:hhh+1,:],axis = 0)+
-                               np.amin(all_RezM[iGr][0:hhh+1,:],axis = 0))/2 
-                
+                                    
                 if Lo:
                     arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1)
                     arr_RezM[iGr][0:Nf-NNew]=np.log(ar0[0:Nf-NNew])  
@@ -292,7 +245,7 @@ if __name__ == '__main__':
                     arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],arr_z,NNew,1)
                     arr_RezM[iGr][0:Nf-NNew]=ar0[0:Nf-NNew].copy()
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-arr_RezM[iGr][Nf-NNew]) +(ar0[Nf-NNew-1])
-
+                
                 all_RezNM[iGr][hhh]=arr_RezM[iGr].copy() 
                 arr_RezM[iGr]=(np.amax(all_RezNM[iGr][0:hhh+1,:],axis = 0)+
                                np.amin(all_RezNM[iGr][0:hhh+1,:],axis = 0))/2                         
@@ -301,7 +254,7 @@ if __name__ == '__main__':
                 arr_RezM[iGr]=np.mean(all_RezMM[iGr][0:hhh+1],axis = 0)
                 #np.mean(all_RezMM[iGr][max(0,hhhb-int(NIter/2)):hhhb+1,:],axis = 0) 
             
-            arr_rezBz=(np.mean(arr_RezM, axis=0)+np.mean(arr_RezM, axis=0))/2            
+            arr_rezBz=(np.mean(arr_RezM, axis=0)+np.mean(arr_RezM, axis=0))/2  
                 
             if Lo:
                 arr_rezBz[Nf-NNew:]=(arr_rezBz[Nf-NNew:]-arr_rezBz[Nf-NNew]) +np.log(ar0[Nf-NNew-1])                     

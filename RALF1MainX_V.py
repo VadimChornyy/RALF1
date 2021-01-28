@@ -7,6 +7,7 @@ from PIL import Image
 import cv2 as cv
 #import time as tm
 import hickle as hkl
+import os
 
 from scipy import stats as scp
 import dateutil.parser
@@ -16,10 +17,9 @@ import dill
 
 from RALf1FiltrVID import filterFourierQ
 from RALf1FiltrVID import RALf1FiltrQ
-from RALf1FiltrVID import RandomQ
-import RALF1FilterX as XFilter 
+ 
 
-wrkdir = r"c:\Work\\"
+wrkdir = r"c:\Work\\W_1\\"
 api_key = 'ONKTYPV6TAMZK464' 
 
 ticker ="USDRUB" # "BTCUSD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
@@ -32,16 +32,33 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symb
 #d_intervals = {"1min","5min","15min","30min","60min"}
 aname=ticker
 Lengt=1000
-Ngroup=4
+Ngroup=3
 Nproc=2*Ngroup#*(mp.cpu_count())
 Lo=1
-aTmStop=3
+aTmStop=6
 NIt=3
-NIter=60
+NIter=100
 DT=0.25
 Nf_K=3
 aDecm=5
     
+def decimat(adat_):
+    if Lo:
+        adat_=np.log(adat_)
+    adatx=0
+    k=0
+    adat__=np.zeros(int(len(adat_)/aDecm),float)
+    for i in range(len(adat_)):
+        adatx=adatx+adat_[i]
+        if int(i/aDecm)*aDecm==i and i>0:
+            adat__[k]=adatx/aDecm
+            k=k+1
+            adatx=0
+    if Lo:
+        return np.exp(adat__[1:len(adat__)-1])
+    else:
+        return (adat__[1:len(adat__)-1])
+
 def fig2img ( fig ):
     fig.savefig(wrkdir +'dynamic.png',dpi=150,transparent=False,bbox_inches = 'tight')
     frame=Image.open(wrkdir +'dynamic.png')
@@ -97,18 +114,6 @@ def loaddata(aLengt,key):
         file.close()
         
     return arrr,adat_
-
-def decimat(adat_):
-    adatx=0
-    k=0
-    adat__=np.zeros(int(len(adat_)/aDecm),float)
-    for i in range(len(adat_)):
-        adatx=adatx+adat_[i]
-        if int(i/aDecm)*aDecm==i and i>0:
-            adat__[k]=adatx/aDecm
-            k=k+1
-            adatx=0
-    return adat__[1:]
 
 if __name__ == '__main__':   
     ImApp=[]
@@ -175,7 +180,11 @@ if __name__ == '__main__':
                     verticalalignment='bottom', horizontalalignment='right',
                     transform=axes_.transAxes,color='blue', fontsize=14)        
 
-            frame=fig2img(fig) 
+            try:
+                frame=fig2img(fig)  
+            except:
+                os.mkdir(wrkdir)
+                frame=fig2img(fig) 
             ImApp.append(frame)
             cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)        
             gray_sz1=len(cimg[0])
@@ -194,6 +203,10 @@ if __name__ == '__main__':
         Aprocess=[]
         if hhh==int(NIter/1):
             if hhh_<aTmStop-1:
+                try:
+                    os.remove(wrkdir + aname+".rlf1")
+                except:
+                    hhh_=hhh_
                 nnn=int(nn*0.5)
                 aTmStop=6
                 hh0=0
@@ -260,7 +273,7 @@ if __name__ == '__main__':
                 arezAMx= np.asarray(arezAMx,float)*Klg+Asr
                 
                 for iGr in range(Ngroup):
-                    Arr_AAA[iGr][hhh*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup)]=(
+                    Arr_AAA[iGr,hhh*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup)]=(
                         arezAMx[int(iGr*(Nproc/Ngroup)):int((iGr+1)*(Nproc/Ngroup))]).copy()
                 
             WrtTodr=0
@@ -268,55 +281,11 @@ if __name__ == '__main__':
                 WrtTodr=1
                 aDur=4
                 
-            dNIt=10
             arr_RezM=  np.zeros((Ngroup,Nf),float)  
-
             for iGr in range(Ngroup):
                 arr_RezM[iGr]=(np.amax(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0)+
                                np.amin(Arr_AAA[iGr][0:(hhh+1)*int(Nproc/Ngroup),:],axis = 0))/2                
-
-                all_RezN[iGr][hhh]=arr_RezM[iGr].copy()
-                nI=(hhh+1)-max(0,hhh-int(NIter/dNIt))                        
-                if nI>1:
-                    NQRandm=512
-                    D=np.std(arr_RezM[iGr])                     
-                    aa=RandomQ(Nf,512)                        
-                    ss4=np.concatenate((aa, aa, aa))
-                    DD=[]
-                    for hhhc in range(nI):
-                        DD.append(ss4[hhhc:hhhc+Nf])
-                    DD=np.asarray(DD,float)                              
-                    DD=(DD/np.std(DD)+1e-6)*D/2   
-                    
-                    mn=np.mean(all_RezN[iGr][max(0,hhh-int(NIter/dNIt)):hhh+1])
-                    dd=(all_RezN[iGr][max(0,hhh-int(NIter/dNIt)):hhh+1]-mn)
-                    
-                    aa=RandomQ(Nf,512)                        
-                    ss4=np.concatenate((aa, aa, aa))
-                    liix=np.zeros((nI,Nf),int)
-                    for i in range(nI):  
-                        liix[i]=ss4[i:i+Nf].copy()
-                        dd[i]=dd[i][liix[i]].copy()                                
-                        
-                    for ii in range(2):
-                        dd1=dd[:,int(ii*Nf/2):int((ii+1)*Nf/2)].copy()
-                        ddA=dd1*(1-(dd1<0))
-                        ddA=ddA+DD[:,int(ii*Nf/2):int((ii+1)*Nf/2)]*(ddA==0)
-                        ddB=-dd1*(1-(dd1>0))
-                        ddB=ddB+DD[:,int(ii*Nf/2):int((ii+1)*Nf/2)]*(ddB==0)
-                        dd[:,int(ii*Nf/2):int((ii+1)*Nf/2)]=mn+(XFilter.RALF1FilterX(  ddA,len(ddA),len(ddA[0]),1,0)-
-                                 XFilter.RALF1FilterX(  ddB,len(ddB),len(ddB[0]),1,0))/2 
-                
-                    for i in range(nI):
-                        dd[i][liix[i]]=dd[i].copy()
-                        
-                    dd=(np.amax(dd,axis=0)+np.amin(dd,axis=0))/2
-                    arr_RezM[iGr]=(np.maximum(arr_RezM[iGr],dd)+np.minimum(arr_RezM[iGr],dd))/2
-                    
-                all_RezM[iGr][hhh]=arr_RezM[iGr].copy() 
-                arr_RezM[iGr]=(np.amax(all_RezM[iGr][max(0,hhh-int(NIter/dNIt)):hhh+1,:],axis = 0)+
-                    np.amin(all_RezM[iGr][max(0,hhh-int(NIter/dNIt)):hhh+1,:],axis = 0))/2 
-                
+                                    
                 if Lo:
                     arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1)
                     arr_RezM[iGr][0:Nf-NNew]=np.log(ar0[0:Nf-NNew])  
@@ -325,16 +294,16 @@ if __name__ == '__main__':
                     arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],arr_z,NNew,1)
                     arr_RezM[iGr][0:Nf-NNew]=ar0[0:Nf-NNew].copy()
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-arr_RezM[iGr][Nf-NNew]) +(ar0[Nf-NNew-1])
-
+                
                 all_RezNM[iGr][hhh]=arr_RezM[iGr].copy() 
-                arr_RezM[iGr]=(np.amax(all_RezNM[iGr][max(0,hhh-int(NIter/dNIt)):hhh+1,:],axis = 0)+
-                    np.amin(all_RezNM[iGr][max(0,hhh-int(NIter/dNIt)):hhh+1,:],axis = 0))/2                         
+                arr_RezM[iGr]=(np.amax(all_RezNM[iGr][0:hhh+1,:],axis = 0)+
+                               np.amin(all_RezNM[iGr][0:hhh+1,:],axis = 0))/2                         
 
                 all_RezMM[iGr][hhh]=arr_RezM[iGr].copy() 
                 arr_RezM[iGr]=np.mean(all_RezMM[iGr][0:hhh+1],axis = 0)
                 #np.mean(all_RezMM[iGr][max(0,hhhb-int(NIter/2)):hhhb+1,:],axis = 0) 
             
-            arr_rezBz=(np.mean(arr_RezM, axis=0)+np.mean(arr_RezM, axis=0))/2     
+            arr_rezBz=(np.mean(arr_RezM, axis=0)+np.mean(arr_RezM, axis=0))/2  
                 
             if Lo:
                 arr_rezBz[Nf-NNew:]=(arr_rezBz[Nf-NNew:]-arr_rezBz[Nf-NNew]) +np.log(ar0[Nf-NNew-1])                     
