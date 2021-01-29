@@ -319,8 +319,8 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                 if hh==0: 
                     AMX=aMx_.copy()
                     AMN=aMn_.copy()   
-                    arr_bbbxxx1=0
-                    arr_bbbxxx2=0
+                    arr_bbbxxx1=0*AMX
+                    arr_bbbxxx2=0*AMX
                     KDD=1
                 else:
                     arr_bbbxxx1=(AMX+AMN)/2
