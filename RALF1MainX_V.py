@@ -21,7 +21,7 @@ from RALf1FiltrVID import RandomQ
 import RALF1FilterX as XFilter
  
 
-wrkdir = r"c:\Work\\W_0\\"
+wrkdir = r"c:\Work\\W_4\\"
 api_key = 'ONKTYPV6TAMZK464' 
 
 ticker ="USDRUB" # "BTCUSD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#

@@ -129,11 +129,12 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
     NQRandm=NNQRandm
     QRandm_=np.asarray(range(NNQRandm),float)
   
+    MM=2
     Nzz=int(Nhh/2)
     
-    Ndel=3
+    Ndel=MM
     NCh=int(np.ceil(sz/Ndel)) 
-    Ndel0=3
+    Ndel0=MM
     NCh0=int(np.ceil(sz/Ndel0))   
           
     arr_b=np.asarray(arr_bx,float)
@@ -311,16 +312,18 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
             for i in  range(sz):
                 aMx[liix[i]]=np.maximum(aMx[liix[i]],dQ3[i])
                 aMn[liix[i]]=np.minimum(aMn[liix[i]],dQ3[i])
-                aMx_=(aMx_*i+aMx)/(i+1)
-                aMn_=(aMn_*i+aMn)/(i+1)
+                # aMx_=(aMx_*i+aMx)/(i+1)
+                # aMn_=(aMn_*i+aMn)/(i+1)
+                aMx_=aMx
+                aMn_=aMn
                     
             ann=sum(np.isnan(aMx_ + aMn_))
             if ann==0: 
                 if hh==0: 
                     AMX=aMx_.copy()
                     AMN=aMn_.copy()   
-                    arr_bbbxxx1=0*AMX
-                    arr_bbbxxx2=0*AMX
+                    arr_bbbxxx1=0
+                    arr_bbbxxx2=0
                     KDD=1
                 else:
                     arr_bbbxxx1=(AMX+AMN)/2
@@ -331,7 +334,6 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                 ann=1                
                 dd=KDD*filterFourierQ((AMX+AMN)/2-arr_bbbxxx1,arr_b,NNew,NChan)
                 if sum(np.abs(dd)==np.Inf)==0:
-                    dd=(np.maximum(arr_bbbxxx2,dd)+np.minimum(arr_bbbxxx2,dd))/2
                     arr_bbbxxx2=(arr_bbbxxx2+dd)
                     ann=0
                     hh=hh+1
