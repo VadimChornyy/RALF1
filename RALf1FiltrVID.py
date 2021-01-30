@@ -85,16 +85,19 @@ def filterFourierQ(arxx,arb,NNew,NChan,key=0):
     for l in range(NChan):       
         farxx=np.fft.fft(arxx[Nfl-Nnl+Nfl*l:Nfl+Nfl*l])    
         mfarxx=np.abs(farxx)   
-        srmfarxx=0.001*np.mean(mfarxx[1:])
+        if not key<0: 
+            srmfarxx=0.001*np.mean(mfarxx[1:])
+        else:
+            srmfarxx=0.62*np.mean(mfarxx[1:])
+            
         farxxx=np.zeros(Nnl,complex)     
         for j in range(1,Nnl):
             if mfarxx[j]>srmfarxx:
                 farxxx[j]=farxx[j]/mfarxx[j]*farx[j] 
             
-        if not key==0:
+        if key>0:
             farxxx[1]=0*farxxx[1]
-            farxxx[len(farxxx)-1]=0*farxxx[len(farxxx)-1]
-            
+            farxxx[len(farxxx)-1]=0*farxxx[len(farxxx)-1]            
                    
         arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l]=np.fft.ifft(farxxx).real[0:Nnl] 
         arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l]=arxr[Nfl-Nnl+Nfl*l:Nfl+Nfl*l]-arxr[Nfl-Nnl+Nfl*l]+arxr[Nfl-Nnl+Nfl*l-1]
@@ -211,6 +214,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
             NumFri=NumFri0_[NumFri0[ss4[zz]]:NumFri0[ss4[zz]]+2*sz].copy()
             NumFri_=NumFri0[NumFri0_[ss4[zz]]:NumFri0_[ss4[zz]]+2*sz].copy()
             rR=rR0[liiC[ss4[zz]]:liiC[ss4[zz]]+2*sz].copy()
+            rR_=rR0[liiC[ss4[zz+1]]:liiC[ss4[zz+1]]+2*sz].copy()
             kk=-1
             while kk <Ndel-1 and xxx==0:  
                 kk=kk+1                      
@@ -221,14 +225,18 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                     i=int(k*NCh0) 
                     dQ4=np.zeros((NCh,NCh0),float)
                     mDD4=np.zeros((NCh,NCh0),float)
+                    mDD4_=np.zeros((NCh,NCh0),float)
                     mDD4_A=np.zeros((NCh,NCh0),float) 
                     mDD4_B=np.zeros((NCh,NCh0),float)                                    
                     for ll in range(NCh0):
                         dQ4[:,ll]=(dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]])*1.
                         mDD4[:,ll]=(1-(mDD[NumFri[ii:ii+NCh],NumFri_[i+ll]]<D*Koe))*1.
+                        mDD4_[:,ll]=(r5[rR_[ss4[ll]+zz]:rR_[ss4[ll]+zz]+NCh])*1.
                         mDD4_A[:,ll]=(r5[rR[ss4[ll]+zz]:rR[ss4[ll]+zz]+NCh]*(dQ4[:,ll]< D*Koe))*1.
                         mDD4_B[:,ll]=(r5[rR[ss4[ll]+zz]:rR[ss4[ll]+zz]+NCh]*(dQ4[:,ll]>-D*Koe))*1.
-                                                       
+                        
+                    mDD4_=(mDD4_*(1-mDD4))*1.
+                    mDD4_=(mDD4_-np.mean(mDD4_))*2                                  
                     P=np.zeros(3,float)
                                   
                     nNxA=sum(sum(mDD4<D*Koe))
@@ -243,8 +251,8 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                         dQ4_=mNxA
                         
                         dQ4=dQ4-dQ4_
-                        dQ4_A= dQ4_+2*np.asarray(XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+mDD4_A,len(dQ4),len(dQ4[0]),1,0),np.float16)
-                        dQ4_B= dQ4_+2*(   -np.asarray(XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))+mDD4_B,len(dQ4),len(dQ4[0]),1,0),np.float16))
+                        dQ4_A= dQ4_+2*np.asarray(XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+mDD4_A+mDD4_,len(dQ4),len(dQ4[0]),1,0),np.float16)
+                        dQ4_B= dQ4_+2*(   -np.asarray(XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))+mDD4_B+mDD4_,len(dQ4),len(dQ4[0]),1,0),np.float16))
                         dQ4=(dQ4_A+dQ4_B)/2
                         dQ4_A=dQ4.copy()
                         dQ4_B=dQ4.copy()                                     
@@ -260,7 +268,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                         seqB=np.asarray(list(filter(lambda x: abs(x)!= np.Inf, seqB)),float) 
                         seqB=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seqB)),float)
                         
-                        if scp.pearsonr(seqA,seqB)[0]>-10.:
+                        if 100*scp.pearsonr(seqA,seqB)[0]>16:
                             dQ4_A=(dQ4_A-P[1])/P[0] +P[2]
                             dQ4_B=(dQ4_B-P[1])/P[0] +P[2]  
                                       
@@ -297,7 +305,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
         dQ3=dQ3_0*(mDD<D*Koe)+(dQ4)*(np.asarray(1,np.float16)-(mDD<D*Koe))
         if not sum(sum(np.isnan(dQ3)))>0:
             try:
-                if scp.pearsonr(sseq,sseq_)[0]>.2:
+                if 100*scp.pearsonr(sseq,sseq_)[0]>24:
                     WW=WW+1
                 else:
                     return r2/0
@@ -344,7 +352,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                     mn=np.mean(r2)
                     r2=r2-mn
                     if hh==Nhh:
-                        dd=filterFourierQ(arr_bbbxxx2,arr_b,NNew,NChan)                    
+                        dd=filterFourierQ(arr_bbbxxx2,arr_b,NNew,NChan,-1)                    
                         if sum(abs(dd)==np.Inf)==0:
                             anamef="fralf.tmp"
                             fo = open(anamef, "w")

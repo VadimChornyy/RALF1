@@ -21,7 +21,7 @@ from RALf1FiltrVID import RandomQ
 import RALF1FilterX as XFilter
  
 
-wrkdir = r"c:\Work\\W_4\\"
+wrkdir = r"c:\Work\\W_7\\"
 api_key = 'ONKTYPV6TAMZK464' 
 
 ticker ="USDRUB" # "BTCUSD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
@@ -292,68 +292,90 @@ if __name__ == '__main__':
                 WrtTodr=1
                 aDur=4
             
-            dNIt=NIter
+            dNIt=NIter/20
             NQRandm=512
             nI=max(0,hhh-int(NIter/dNIt)+1)
             arr_RezM=  np.zeros((Ngroup,Nf),float)  
             for iGr in range(Ngroup):                
                 ZDat=Arr_AAA[iGr][((hhh)-nI)*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup),:].copy()
                 arr_RezM[iGr]=(np.mean(ZDat,axis = 0)+np.mean(ZDat,axis = 0))/2   
-                           
+                                           
                 anI=len(ZDat)
-                if anI>1:                   
-                    D=np.std(ZDat)                     
-                    aa=RandomQ(Nf,NQRandm)                        
-                    ss4=np.concatenate((aa, aa, aa))
-                    DD=[]
-                    for hhhc in range(anI):
-                        DD.append(ss4[hhhc:hhhc+Nf])
-                    DD=np.asarray(DD,float)                              
-                    DD=(DD/np.std(DD)+1e-6)*D/2   
-                    
-                    mn=np.mean(ZDat)
-                    dd=(ZDat-mn)
-                    
-                    aa=RandomQ(Nf,512)                        
-                    ss4=np.concatenate((aa, aa, aa))
-                    liix=np.zeros((anI,Nf),int)
-                    for i in range(anI):  
-                        liix[i]=ss4[i:i+Nf].copy()
-                        dd[i]=dd[i][liix[i]].copy()  
+                if anI>1:          
+                    for hhhx in range(anI):
+                        D=np.std(ZDat)                     
+                        aa=RandomQ(Nf,NQRandm)                        
+                        ss4=np.concatenate((aa, aa, aa))
+                        DD=[]
+                        for hhhc in range(anI):
+                            DD.append(ss4[hhhc:hhhc+Nf])
+                        DD=np.asarray(DD,float)                              
+                        DD=(DD/np.std(DD)+1e-6)*D/2   
+
+                        aa=RandomQ(Nf,NQRandm)                        
+                        ss4_=np.concatenate((aa, aa, aa))
                         
-                    aNN=3
+                        DD_=[]
+                        for hhhc in range(anI):
+                            DD_.append(ss4_[hhhc:hhhc+Nf])
+                        DD_=np.asarray(DD_,float)                              
+                        DD_=(DD_/np.std(DD_))*D
+                        DD_=(DD_-np.mean(DD_))*2
+                                                
+                        mn=np.mean(ZDat)
+                        dd=(ZDat-mn)
                         
-                    for ii in range(aNN):
-                        dd1=dd[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)].copy()
-                        ddA=dd1*(1-(dd1<0))
-                        ddA=ddA+DD[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]*(ddA==0)
-                        ddB=-dd1*(1-(dd1>0))
-                        ddB=ddB+DD[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]*(ddB==0)
-                        dd[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]=mn+(XFilter.RALF1FilterX(  ddA,len(ddA),len(ddA[0]),1,0)-
-                                 XFilter.RALF1FilterX(  ddB,len(ddB),len(ddB[0]),1,0))/2
-                    
-                    aMx=np.zeros(Nf,float)-np.Inf
-                    aMn=np.zeros(Nf,float)+np.Inf
-                    aMx_=0
-                    aMn_=0
-                    for i in range(anI):
-                        aMx[liix[i]]=np.maximum(aMx[liix[i]],dd[i])
-                        aMn[liix[i]]=np.minimum(aMn[liix[i]],dd[i])
-                        aMx_=(aMx_*i+aMx)/(i+1)
-                        aMn_=(aMn_*i+aMn)/(i+1)
+                        aa=RandomQ(Nf,512)                        
+                        ss4=np.concatenate((aa, aa, aa))
+                        liix=np.zeros((anI,Nf),int)
+                        DD__=DD_.copy()
+                        for i in range(anI):  
+                            liix[i]=ss4[i:i+Nf].copy()
+                            DD__[i,0:Nf-NNew]=0*DD_[i,0:Nf-NNew]
+                            dd[i]=(dd[i]+DD__[i])[liix[i]].copy()  
+                            
+                        aNN=3
+                            
+                        for ii in range(aNN):
+                            dd1=dd[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)].copy()
+                            ddA=dd1*(1-(dd1<0))
+                            ddA=ddA+DD[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]*(ddA==0)
+                            ddB=-dd1*(1-(dd1>0))
+                            ddB=ddB+DD[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]*(ddB==0)
+                            dd[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]=mn+(XFilter.RALF1FilterX(  ddA,len(ddA),len(ddA[0]),1,0)-
+                                     XFilter.RALF1FilterX(  ddB,len(ddB),len(ddB[0]),1,0))/2
                         
-                    arr_RezM[iGr]=(aMx_+aMn_)/2
+                        aMx=np.zeros(Nf,float)-np.Inf
+                        aMn=np.zeros(Nf,float)+np.Inf
+                        aMx_=0
+                        aMn_=0
+                        for i in range(anI):
+                            aMx[liix[i]]=np.maximum(aMx[liix[i]],dd[i])
+                            aMn[liix[i]]=np.minimum(aMn[liix[i]],dd[i])
+                            aMx_=(aMx_*i+aMx)/(i+1)
+                            aMn_=(aMn_*i+aMn)/(i+1)
+                            
+                        dd=(aMx_+aMn_)/2
+                        
+                        if hhhx==0:
+                            arr_RezM[iGr]=dd.copy()
+                            all_RezN[iGr][hhhx]=arr_RezM[iGr].copy()
+                        else:
+                            arr_RezM[iGr]=(np.maximum(arr_RezM[iGr],dd)+np.minimum(arr_RezM[iGr],dd))/2
+                            all_RezM[iGr][hhhx]=(all_RezM[iGr][hhhx-1]*hhhx+arr_RezM[iGr])/(hhhx+1)
                     
+                    arr_RezM[iGr]=all_RezM[iGr][hhhx].copy()                        
+                        
                 all_RezM[iGr][hhh]=arr_RezM[iGr].copy() 
                 arr_RezM[iGr]=(np.amax(all_RezM[iGr][0:hhh+1,:],axis = 0)+
                                 np.amin(all_RezM[iGr][0:hhh+1,:],axis = 0))/2 
     
                 if Lo:
-                    arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1)
+                    arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1,-1)
                     arr_RezM[iGr][0:Nf-NNew]=np.log(ar0[0:Nf-NNew])  
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-arr_RezM[iGr][Nf-NNew]) +np.log(ar0[Nf-NNew-1])
                 else:
-                    arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],arr_z,NNew,1)
+                    arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],arr_z,NNew,1.-1)
                     arr_RezM[iGr][0:Nf-NNew]=ar0[0:Nf-NNew].copy()
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-arr_RezM[iGr][Nf-NNew]) +(ar0[Nf-NNew-1])
                 
@@ -363,7 +385,7 @@ if __name__ == '__main__':
 
                 all_RezMM[iGr][hhh]=arr_RezM[iGr].copy() 
                 arr_RezM[iGr]=np.mean(all_RezMM[iGr][0:hhh+1],axis = 0)
-                #np.mean(all_RezMM[iGr][max(0,hhhb-int(NIter/2)):hhhb+1,:],axis = 0) 
+                    #np.mean(all_RezMM[iGr][max(0,hhhb-int(NIter/2)):hhhb+1,:],axis = 0) 
             
             arr_rezBz=(np.mean(arr_RezM, axis=0)+np.mean(arr_RezM, axis=0))/2  
                 
@@ -409,7 +431,7 @@ if __name__ == '__main__':
                     verticalalignment='bottom', horizontalalignment='right',
                     transform=axes_.transAxes,color='green', fontsize=30)
                 
-                axes__.text(1.8, 0.6, 'Dunning –Kruger\n effect',
+                axes__.text(1.8, 0.6, 'Dunning–Kruger\n effect',
                         verticalalignment='bottom', horizontalalignment='center',
                     transform=axes_.transAxes,color='green', fontsize=14)  
                 axes__.plot(Koef_,'y',linewidth=2.)
