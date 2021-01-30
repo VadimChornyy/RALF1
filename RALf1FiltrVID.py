@@ -251,8 +251,8 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                         dQ4_=mNxA
                         
                         dQ4=dQ4-dQ4_
-                        dQ4_A= dQ4_+2*np.asarray(XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+mDD4_A+mDD4_,len(dQ4),len(dQ4[0]),1,0),np.float16)
-                        dQ4_B= dQ4_+2*(   -np.asarray(XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))+mDD4_B+mDD4_,len(dQ4),len(dQ4[0]),1,0),np.float16))
+                        dQ4_A= dQ4_+2*np.asarray(XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+mDD4_A+abs(mDD4_),len(dQ4),len(dQ4[0]),1,0),np.float16)
+                        dQ4_B= dQ4_+2*(   -np.asarray(XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))+mDD4_B+abs(mDD4_),len(dQ4),len(dQ4[0]),1,0),np.float16))
                         dQ4=(dQ4_A+dQ4_B)/2
                         dQ4_A=dQ4.copy()
                         dQ4_B=dQ4.copy()                                     
@@ -305,7 +305,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
         dQ3=dQ3_0*(mDD<D*Koe)+(dQ4)*(np.asarray(1,np.float16)-(mDD<D*Koe))
         if not sum(sum(np.isnan(dQ3)))>0:
             try:
-                if 100*scp.pearsonr(sseq,sseq_)[0]>24:
+                if 100*scp.pearsonr(sseq,sseq_)[0]>20:
                     WW=WW+1
                 else:
                     return r2/0

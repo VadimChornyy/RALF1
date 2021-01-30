@@ -21,7 +21,7 @@ from RALf1FiltrVID import RandomQ
 import RALF1FilterX as XFilter
  
 
-wrkdir = r"c:\Work\\W_8\\"
+wrkdir = r"c:\Work\\W_9\\"
 api_key = 'ONKTYPV6TAMZK464' 
 
 ticker ="USDRUB" # "BTCUSD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
@@ -38,7 +38,7 @@ Ngroup=3
 Nproc=2*Ngroup#*(mp.cpu_count())
 Lo=1
 aTmStop=6
-NIt=2
+NIt=3
 NIter=100
 DT=0.25
 Nf_K=3
@@ -271,8 +271,8 @@ if __name__ == '__main__':
                         argss[iProc].append(str("%1.6f"%(arr_A[i])))
                 
                 arezAMx=[]
-                # for iProc in range(Nproc):
-                #     arezAMx.append(RALf1FiltrQ(argss[iProc]))
+                for iProc in range(Nproc):
+                    arezAMx.append(RALf1FiltrQ(argss[iProc]))
 
                 with concurrent.futures.ThreadPoolExecutor(max_workers=Nproc) as executor:
                     future_to = {executor.submit(RALf1FiltrQ, argss[iProc]) for iProc in range(Nproc)}
@@ -332,18 +332,19 @@ if __name__ == '__main__':
                         for i in range(anI):  
                             liix[i]=ss4[i:i+Nf].copy()
                             DD__[i,0:Nf-NNew]=0*DD_[i,0:Nf-NNew]
-                            dd[i]=(dd[i]+DD__[i])[liix[i]].copy()  
+                            DD__[i,:]=abs(DD__[i,liix[i]])
+                            dd[i]=(dd[i])[liix[i]].copy()  
                             
-                        aNN=3
-                            
-                        for ii in range(aNN):
-                            dd1=dd[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)].copy()
-                            ddA=dd1*(1-(dd1<0))
+                        aNN=3                        
+                        for ii in range(aNN):                            
+                            dd1=dd[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]
+                            ddA=dd1*(1-(dd1<0)+abs(DD__[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]))
                             ddA=ddA+DD[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]*(ddA==0)
-                            ddB=-dd1*(1-(dd1>0))
+                            ddB=-dd1*(1-(dd1>0))+abs(DD__[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)])
                             ddB=ddB+DD[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]*(ddB==0)
-                            dd[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]=mn+(XFilter.RALF1FilterX(  ddA,len(ddA),len(ddA[0]),1,0)-
-                                     XFilter.RALF1FilterX(  ddB,len(ddB),len(ddB[0]),1,0))/2
+                            dd[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]=(
+                                mn+(XFilter.RALF1FilterX(  ddA,len(ddA),len(ddA[0]),1,0)-
+                                     XFilter.RALF1FilterX(  ddB,len(ddB),len(ddB[0]),1,0))/2)
                         
                         aMx=np.zeros(Nf,float)-np.Inf
                         aMn=np.zeros(Nf,float)+np.Inf
