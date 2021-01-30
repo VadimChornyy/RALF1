@@ -352,7 +352,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                     mn=np.mean(r2)
                     r2=r2-mn
                     if hh==Nhh:
-                        dd=filterFourierQ(arr_bbbxxx2,arr_b,NNew,NChan,-1)                    
+                        dd=filterFourierQ(arr_bbbxxx2,arr_b,NNew,NChan)                    
                         if sum(abs(dd)==np.Inf)==0:
                             anamef="fralf.tmp"
                             fo = open(anamef, "w")
