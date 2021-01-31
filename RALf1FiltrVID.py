@@ -17,6 +17,7 @@ priorityclasses = [win32process.IDLE_PRIORITY_CLASS,
                win32process.REALTIME_PRIORITY_CLASS]  
 
 NNQRandm=512
+DETERM=0.62
 
 def RandomQ(Nfx,NQRandm_=0):
     global NQRandm
@@ -51,13 +52,13 @@ def RandomQ(Nfx,NQRandm_=0):
 
         k2, pp = scp.normaltest(liiX)
             
-    r2=[[],[]]
-    r2[0]= np.asarray(liiX[0:Nfx],float)
-    r2[1]= np.asarray(range(Nfx),int)
-    m=[[r2[j][l] for j in range(len(r2))] for l in range(len(r2[0]))]         
+    rr2=[[],[]]
+    rr2[0]= np.asarray(liiX[0:Nfx],float)
+    rr2[1]= np.asarray(range(Nfx),int)
+    m=[[rr2[j][l] for j in range(len(rr2))] for l in range(len(rr2[0]))]         
     m.sort(key=itemgetter(0))                  
-    r2=[[m[j][l] for j in range(len(m))] for l in range(len(m[0]))]  
-    liiXX=np.asarray(r2[1],int)
+    rr2=[[m[j][l] for j in range(len(m))] for l in range(len(m[0]))]  
+    liiXX=np.asarray(rr2[1],int)
     return liiXX
 
 def filterFourierQ(arxx,arb,NNew,NChan,key=0):  
@@ -86,9 +87,9 @@ def filterFourierQ(arxx,arb,NNew,NChan,key=0):
         farxx=np.fft.fft(arxx[Nfl-Nnl+Nfl*l:Nfl+Nfl*l])    
         mfarxx=np.abs(farxx)   
         if not key<0: 
-            srmfarxx=0.001*np.mean(mfarxx[1:])
+            srmfarxx=0.0001*np.mean(mfarxx[1:])
         else:
-            srmfarxx=0.62*np.mean(mfarxx[1:])
+            srmfarxx=DETERM*np.mean(mfarxx[1:])
             
         farxxx=np.zeros(Nnl,complex)     
         for j in range(1,Nnl):
@@ -160,13 +161,14 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
     AMN=np.zeros((Nhh,sz),float) 
     arr_bbbxxx1=np.zeros((Nhh,sz),float)
     arr_bbbxxx2=np.zeros((Nhh,sz),float)
+    r2=np.zeros((Nhh+1,sz),np.float16)
     while hh<Nhh:  
         if hh==0:
             mn=np.mean(arr_bZ)         
-            r2=np.asarray(arr_b,np.float16)
+            r2[hh]=np.asarray(arr_b,np.float16)
             for l in range(NChan):                
-                r2[Nf-NNew+Nf*l:Nf+Nf*l]=mn   
-            r2=r2-mn               
+                r2[hh,Nf-NNew+Nf*l:Nf+Nf*l]=mn   
+            r2[hh]=r2[hh]-mn               
        
         liix=np.zeros((sz,sz),int) 
         dQ3_0=np.zeros((sz,sz),np.float16)
@@ -180,7 +182,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
         liiD=np.concatenate((aa,aa,aa))           
         for i in range(sz):    
             liix[i]=liiB[liiD[i+liiC[hh]]:sz+liiD[i+liiC[hh]]].copy()
-            dQ3_0[i]=r2[liix[i]].copy()
+            dQ3_0[i]=r2[hh,liix[i]].copy()
             mDD[i]=R4[liix[i]].copy()     
          
         dQ3=dQ3_0.copy() 
@@ -240,7 +242,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                         mDD4_B[:,ll]=(r5[rR[ss4[ll]+zz]:rR[ss4[ll]+zz]+NCh]*(dQ4[:,ll]>-D*Koe))*1.
                         
                     mDD4_=(mDD4_*(1-mDD4))*1.
-                    mDD4_=(mDD4_-np.mean(mDD4_))*2                                  
+                    mDD4_=abs(mDD4_-np.mean(mDD4_))*2                                  
                     P=np.zeros(3,float)
                                   
                     nNxA=sum(sum(mDD4<D*Koe))
@@ -272,7 +274,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                         seqB=np.asarray(list(filter(lambda x: abs(x)!= np.Inf, seqB)),float) 
                         seqB=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seqB)),float)
                         
-                        if 100*scp.pearsonr(seqA,seqB)[0]>16:
+                        if 100*scp.pearsonr(seqA,seqB)[0]>0:
                             dQ4_A=(dQ4_A-P[1])/P[0] +P[2]
                             dQ4_B=(dQ4_B-P[1])/P[0] +P[2]  
                                       
@@ -309,10 +311,10 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
         dQ3=dQ3_0*(mDD<D*Koe)+(dQ4)*(np.asarray(1,np.float16)-(mDD<D*Koe))
         if not sum(sum(np.isnan(dQ3)))>0:
             try:
-                if 100*scp.pearsonr(sseq,sseq_)[0]>24:
+                if 100*scp.pearsonr(sseq,sseq_)[0]>20:
                     WW=WW+1
                 else:
-                    return r2/0
+                    return r2[hh]/0
             except:
                 WW=WW
         
@@ -344,34 +346,35 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                     KDD=np.std((AMX[hh]+AMN[hh])/2-arr_bbbxxx1[hh])/np.std(arr_bbbxxx1[hh])
                 
                 ann=1                
-                dd=KDD*filterFourierQ((AMX[hh]+AMN[hh])/2-arr_bbbxxx1[hh],arr_b,NNew,NChan,-1)
+                dd=KDD*filterFourierQ((AMX[hh]+AMN[hh])/2-arr_bbbxxx1[hh],arr_b,NNew,NChan)
                 if sum(np.abs(dd)==np.Inf)==0:
                     arr_bbbxxx2[hh]=(arr_bbbxxx2[hh-1]+dd)
                     ann=0
+                    hh=hh+1
                                     
+                    r2[hh]=r2[hh-1].copy()
                     for l in range(NChan):   
-                        r2[Nf-NNew+Nf*l:Nf+Nf*l]=arr_bbbxxx2[hh,Nf-NNew+Nf*l:Nf+Nf*l]-arr_bbbxxx2[hh,Nf-NNew+Nf*l]+r2[Nf-NNew-1+Nf*l] 
+                        r2[hh,Nf-NNew+Nf*l:Nf+Nf*l]=arr_bbbxxx2[hh-1,Nf-NNew+Nf*l:Nf+Nf*l]-arr_bbbxxx2[hh-1,Nf-NNew+Nf*l]+r2[hh-1,Nf-NNew-1+Nf*l] 
                             
-                    mn=np.mean(r2)
-                    r2=r2-mn
-                    if hh==Nhh-1:
-                        dd=filterFourierQ(arr_bbbxxx2[hh],arr_b,NNew,NChan)                    
+                    mn=np.mean(r2[hh])
+                    r2[hh]=r2[hh]-mn
+                    
+                    if hh==Nhh:
+                        dd=filterFourierQ(arr_bbbxxx2[hh-1],arr_b,NNew,NChan,-1)                    
                         if sum(abs(dd)==np.Inf)==0:
                             anamef="fralf.tmp"
                             fo = open(anamef, "w")
                             fo.write(str(iProc)+'\n')
                             fo.close()
-                            return r2+mn
+                            return r2[hh]+mn
                         else:
-                            return r2/0
-                    else:
-                        hh=hh+1
-                        
+                            return r2[hh]/0
+
         else:
-            if WW>-Nhh:
-                WW=0
+            if hh>1:
+                hh=hh-2
             else:
-                return r2/0                    
+                return r2[hh]/0                                  
 
 def RALf1FiltrQ(args):    
     pid = win32api.GetCurrentProcessId()
@@ -448,13 +451,13 @@ def RALf1FiltrQ(args):
                 
             if hh==Nhh:            
                 arr_bbx=np.asarray(arr_bbx,np.float16)
-                r2=np.zeros((2,Nhh),float)
-                r2[0]= np.asarray(Koef,float)
-                r2[1]= np.asarray(range(Nhh),float)
-                m=[[r2[j][l] for j in range(len(r2))] for l in range(len(r2[0]))]         
+                r2s=np.zeros((2,Nhh),float)
+                r2s[0]= np.asarray(Koef,float)
+                r2s[1]= np.asarray(range(Nhh),float)
+                m=[[r2s[j][l] for j in range(len(r2s))] for l in range(len(r2s[0]))]         
                 m.sort(key=itemgetter(0))                  
-                r2=[[m[j][l] for j in range(len(m))] for l in range(len(m[0]))]  
-                Nch=int(r2[1][Nhh-1])
+                r2s=[[m[j][l] for j in range(len(m))] for l in range(len(m[0]))]  
+                Nch=int(r2s[1][Nhh-1])
                 print(KoefA)
                 if np.isnan(KoefA[Nch]):
                     KoefA[Nch]=0            
