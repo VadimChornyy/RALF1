@@ -242,7 +242,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                         mDD4_B[:,ll]=(r5[rR[ss4[ll]+zz]:rR[ss4[ll]+zz]+NCh]*(dQ4[:,ll]>-D*Koe))*1.
                         
                     mDD4_=(mDD4_*(1-mDD4))*1.
-                    mDD4_=abs(mDD4_-np.mean(mDD4_))*2                                  
+                    mDD4_=abs(mDD4_-np.mean(mDD4_))                                  
                     P=np.zeros(3,float)
                                   
                     nNxA=sum(sum(mDD4<D*Koe))

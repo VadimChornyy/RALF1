@@ -320,7 +320,7 @@ if __name__ == '__main__':
                             DD_.append(ss4_[hhhc:hhhc+Nf])
                         DD_=np.asarray(DD_,float)                              
                         DD_=(DD_/np.std(DD_))*D
-                        DD_=(DD_-np.mean(DD_))*2
+                        DD_=(DD_-np.mean(DD_))
                                                 
                         mn=np.mean(ZDat)
                         dd=(ZDat-mn)
@@ -384,11 +384,11 @@ if __name__ == '__main__':
                 arr_RezM[iGr]=(np.amax(all_RezNM[iGr][0:hhh+1,:],axis = 0)+
                                np.amin(all_RezNM[iGr][0:hhh+1,:],axis = 0))/2                         
 
-                all_RezMM[iGr][hhh]=arr_RezM[iGr].copy() 
-                arr_RezM[iGr]=np.mean(all_RezMM[iGr][0:hhh+1],axis = 0)
+                # all_RezMM[iGr][hhh]=arr_RezM[iGr].copy() 
+                # arr_RezM[iGr]=np.mean(all_RezMM[iGr][0:hhh+1],axis = 0)
                     #np.mean(all_RezMM[iGr][max(0,hhhb-int(NIter/2)):hhhb+1,:],axis = 0) 
             
-            arr_rezBz=(np.mean(arr_RezM, axis=0)+np.mean(arr_RezM, axis=0))/2  
+            arr_rezBz=(np.amax(arr_RezM, axis=0)+np.amin(arr_RezM, axis=0))/2  
                 
             if Lo:
                 arr_rezBz[Nf-NNew:]=(arr_rezBz[Nf-NNew:]-arr_rezBz[Nf-NNew]) +np.log(ar0[Nf-NNew-1])                     
