@@ -340,7 +340,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                     KDD=np.std((AMX+AMN)/2-arr_bbbxxx1)/np.std(arr_bbbxxx1)
                 
                 ann=1                
-                dd=KDD*filterFourierQ((AMX+AMN)/2-arr_bbbxxx1,arr_b,NNew,NChan)
+                dd=KDD*filterFourierQ((AMX+AMN)/2-arr_bbbxxx1,arr_b,NNew,NChan,-1)
                 if sum(np.abs(dd)==np.Inf)==0:
                     arr_bbbxxx2=(arr_bbbxxx2+dd)
                     ann=0
