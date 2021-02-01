@@ -275,7 +275,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
         r5=D*((r5/np.std(r5))/2+Koe*2) 
         r5=np.concatenate((r5, r5))
         [aa,NQRandm,QRandm_]=RandomQ(sz,NQRandm,QRandm_) 
-        ss4=np.concatenate((aa, aa, aa))                         
+        ss4=np.concatenate((aa, aa, aa, aa))                         
         zz=0  
         xxx=0
                     
