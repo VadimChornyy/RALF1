@@ -361,9 +361,8 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                 zz=zz+1
             else:
                 WW=WW-1
-                [aa,NQRandm,QRandm_]=RandomQ(sz,NQRandm,QRandm_) 
-                ss4=np.concatenate((aa, aa, aa, aa))  
-        
+                ss4=ss4[1:]
+                
         dQ4=(AsrXMx_+AsrXMn_)/2
         
         sseq=dQ4.reshape(sz*sz)*(1/(mDD.reshape(sz*sz)<D*Koe))  
