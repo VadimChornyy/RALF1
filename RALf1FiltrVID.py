@@ -216,8 +216,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
     for l in range(NChan):
         R4[Nf-NNew+Nf*l:Nf+Nf*l]=D*Koe*2  
     
-    hh=0 
-    WW=0             
+    hh=0          
     AMX=np.zeros((Nhh,sz),float)
     AMN=np.zeros((Nhh,sz),float) 
     arr_bbbxxx1=np.zeros((Nhh,sz),float)
@@ -277,15 +276,14 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
         [aa,NQRandm,QRandm_]=RandomQ(sz,NQRandm,QRandm_) 
         ss4=np.concatenate((aa, aa, aa, aa))                         
         zz=0  
-        xxx=0
-                    
-        while zz<Nzz and xxx<Ndel*Ndel0: 
-            xxx=0
+        WW=0    
+        while zz<Nzz and WW>-Nhh: 
             NumFri=NumFri0_[NumFri0[ss4[zz]]:NumFri0[ss4[zz]]+2*sz].copy()
             NumFri_=NumFri0[NumFri0_[ss4[zz]]:NumFri0_[ss4[zz]]+2*sz].copy()
             rR=rR0[liiC[ss4[zz]]:liiC[ss4[zz]]+2*sz].copy()
             rR_=rR0[liiC[ss4[len(ss4)-2*sz+zz]]:liiC[ss4[len(ss4)-2*sz+zz]]+2*sz].copy()
             kk=-1
+            xxx=0
             while kk <Ndel-1 and xxx==0:  
                 kk=kk+1                      
                 ii=int(kk*NCh)
@@ -345,12 +343,13 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                             for ll in range(NCh0):
                                 dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]=np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_A[:,ll])
                                 dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]=np.minimum(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_B[:,ll])
+                       
                         else:
-                            xxx=xxx+1
+                            xxx=1
                             
                     else:     
-                        xxx=xxx+1
-                                
+                        xxx=1
+                        
             if xxx==0:     
                 AsrXMx=np.maximum(AsrXMx,dQ3mx)
                 AsrXMn=np.minimum(AsrXMn,dQ3mn)
@@ -360,9 +359,9 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                 WW=0                                    
                 zz=zz+1
             else:
-                WW=WW-1
                 ss4[0:len(ss4)-1]=ss4[1:]
                 ss4[len(ss4)-1]=ss4[0]
+                WW=WW-1
                 
         dQ4=(AsrXMx_+AsrXMn_)/2
         
