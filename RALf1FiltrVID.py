@@ -284,7 +284,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
             NumFri=NumFri0_[NumFri0[ss4[zz]]:NumFri0[ss4[zz]]+2*sz].copy()
             NumFri_=NumFri0[NumFri0_[ss4[zz]]:NumFri0_[ss4[zz]]+2*sz].copy()
             rR=rR0[liiC[ss4[zz]]:liiC[ss4[zz]]+2*sz].copy()
-            rR_=rR0[liiC[ss4[zz+1]]:liiC[ss4[zz+1]]+2*sz].copy()
+            rR_=rR0[liiC[ss4[len(ss4)-2*sz+zz]]:liiC[ss4[len(ss4)-2*sz+zz]]+2*sz].copy()
             kk=-1
             while kk <Ndel-1 and xxx==0:  
                 kk=kk+1                      
@@ -350,10 +350,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                             
                     else:     
                         xxx=xxx+1
-                        
-                    if xxx>0:
-                        ss4=ss4[1:].copy()
-            
+                                
             if xxx==0:     
                 AsrXMx=np.maximum(AsrXMx,dQ3mx)
                 AsrXMn=np.minimum(AsrXMn,dQ3mn)
@@ -364,6 +361,8 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                 zz=zz+1
             else:
                 WW=WW-1
+                [aa,NQRandm,QRandm_]=RandomQ(sz,NQRandm,QRandm_) 
+                ss4=np.concatenate((aa, aa, aa, aa))  
         
         dQ4=(AsrXMx_+AsrXMn_)/2
         

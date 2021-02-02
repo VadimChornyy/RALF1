@@ -19,7 +19,7 @@ from RALf1FiltrVID import filterFourierQ
 from RALf1FiltrVID import RALf1FiltrQ
 from RALf1FiltrVID import finalAnalysRALF1 
 
-wrkdir = r"c:\Work\\W1_3\\"
+wrkdir = r"c:\Work\\W1_1\\"
 api_key = 'ONKTYPV6TAMZK464' 
 
 ticker ="USDEUR" # "BTCUSD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
@@ -33,14 +33,14 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symb
 aname=ticker
 Lengt=1000
 Ngroup=3
-Nproc=3*Ngroup#*(mp.cpu_count())
+Nproc=2*Ngroup#*(mp.cpu_count())
 Lo=1
 aTmStop=6
 NIt=3
 NIter=100
 DT=0.25
 Nf_K=3
-aDecm=10
+aDecm=5
     
 def decimat(adat_):
     if Lo:
