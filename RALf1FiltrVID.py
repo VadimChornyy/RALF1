@@ -16,7 +16,51 @@ priorityclasses = [win32process.IDLE_PRIORITY_CLASS,
                win32process.HIGH_PRIORITY_CLASS,
                win32process.REALTIME_PRIORITY_CLASS]  
 
-DETERM=0.3
+DETERM=0.1
+NNQRandm=512
+
+def RandomQQ(Nfx,NQRandm_=0):
+    global NQRandm
+    global QRandm_
+    
+    if not NQRandm_==0:
+        NQRandm=NQRandm_
+    
+    KK=3e6
+    liiX=np.zeros(Nfx,float)
+    pp=0
+    while pp<0.55:
+        for ii in range(3):
+            if NQRandm>=NNQRandm:
+                QRandm_=np.asarray(range(NNQRandm),float)
+                NQRandm=0
+            try:                
+                z=(QRandm_[NQRandm]+1)/KK           
+                atim0=tm.time()        
+                tm.sleep(z) 
+                atim=tm.time()     
+                dd=int(((atim-atim0)/z-1)/1000)
+                zz=np.asarray(sample(list(range(Nfx)),Nfx),float)/KK
+                lfib1340.LFib1340(dd).shuffle(zz)  
+                lfib1340.LFib1340(int(2*dd/(1+np.sqrt(5)))).shuffle(QRandm_)
+                
+                if NQRandm>0:
+                    liiX=liiX+zz
+                NQRandm=NQRandm+1
+            except:
+                NQRandm=NNQRandm                
+
+        k2, pp = scp.normaltest(liiX)
+            
+    rr2=[[],[]]
+    rr2[0]= np.asarray(liiX[0:Nfx],float)
+    rr2[1]= np.asarray(range(Nfx),int)
+    m=[[rr2[j][l] for j in range(len(rr2))] for l in range(len(rr2[0]))]         
+    m.sort(key=itemgetter(0))                  
+    rr2=[[m[j][l] for j in range(len(m))] for l in range(len(m[0]))]  
+    liiXX=np.asarray(rr2[1],int)
+    return liiXX
+
 
 def RandomQ(Nfx,NQRandm=512,QRandm_=0):    
     NNQRandm=512
@@ -81,9 +125,9 @@ def filterFourierQ(arxx,arb,NNew,NChan,key=0):
         farxx=np.fft.fft(arxx[Nfl-Nnl+Nfl*l:Nfl+Nfl*l])    
         mfarxx=np.abs(farxx)   
         if not key<0: 
-            srmfarxx=0.0001*np.mean(mfarxx[1:])
-        else:
             srmfarxx=DETERM*np.mean(mfarxx[1:])
+        else:
+            srmfarxx=0.0001*np.mean(mfarxx[1:])
             
         farxxx=np.zeros(Nnl,complex)     
         for j in range(1,Nnl):
@@ -422,7 +466,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                     r2[hh]=r2[hh]-mn
                     
                     if hh==Nhh:
-                        dd=filterFourierQ(arr_bbbxxx2[hh-1],arr_b,NNew,NChan,-1)                    
+                        dd=filterFourierQ(arr_bbbxxx2[hh-1],arr_b,NNew,NChan)                    
                         if sum(abs(dd)==np.Inf)==0:
                             anamef="fralf.tmp"
                             fo = open(anamef, "w")
