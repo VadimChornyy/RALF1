@@ -361,7 +361,8 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                 zz=zz+1
             else:
                 WW=WW-1
-                ss4=ss4[1:]
+                ss4[0:len(ss4)-1]=ss4[1:]
+                ss4[len(ss4)-1]=ss4[0]
                 
         dQ4=(AsrXMx_+AsrXMn_)/2
         
