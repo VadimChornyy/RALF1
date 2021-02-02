@@ -363,21 +363,23 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                 ss4[len(ss4)-1]=ss4[0]
                 WW=WW-1
                 
-        dQ4=(AsrXMx_+AsrXMn_)/2
+        if WW==0:
+            dQ4=(AsrXMx_+AsrXMn_)/2
+            
+            sseq=dQ4.reshape(sz*sz)*(1/(mDD.reshape(sz*sz)<D*Koe))  
+            sseq=np.asarray(list(filter(lambda x: abs(x)!= np.Inf, sseq)),float) 
+            sseq=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, sseq)),float)  
+            WW=WW-1               
+            dQ3=dQ3_0*(mDD<D*Koe)+(dQ4)*(np.asarray(1,np.float16)-(mDD<D*Koe))
+            if not sum(sum(np.isnan(dQ3)))>0:
+                try:
+                    if 100*scp.pearsonr(sseq,sseq_)[0]>20:
+                        WW=WW+1
+                except:
+                    WW=WW
         
-        sseq=dQ4.reshape(sz*sz)*(1/(mDD.reshape(sz*sz)<D*Koe))  
-        sseq=np.asarray(list(filter(lambda x: abs(x)!= np.Inf, sseq)),float) 
-        sseq=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, sseq)),float)  
-        WW=WW-1               
-        dQ3=dQ3_0*(mDD<D*Koe)+(dQ4)*(np.asarray(1,np.float16)-(mDD<D*Koe))
-        if not sum(sum(np.isnan(dQ3)))>0:
-            try:
-                if 100*scp.pearsonr(sseq,sseq_)[0]>20:
-                    WW=WW+1
-            except:
-                WW=WW
-        
-        hh0=hh
+            hh0=hh
+            
         if not WW<0:
             aMx_=0
             aMn_=0
@@ -406,7 +408,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                     KDD=np.std((AMX[hh]+AMN[hh])/2-arr_bbbxxx1[hh])/np.std(arr_bbbxxx1[hh])
                 
                 ann=1                
-                dd=KDD*filterFourierQ((AMX[hh]+AMN[hh])/2-arr_bbbxxx1[hh],arr_b,NNew,NChan,-1)
+                dd=KDD*filterFourierQ((AMX[hh]+AMN[hh])/2-arr_bbbxxx1[hh],arr_b,NNew,NChan)
                 if sum(np.abs(dd)==np.Inf)==0:
                     arr_bbbxxx2[hh]=(arr_bbbxxx2[hh-1]+dd)
                     ann=0
