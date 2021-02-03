@@ -257,8 +257,8 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                         dQ4_=mNxA
                         
                         dQ4=dQ4-dQ4_
-                        dQ4_A= dQ4_+2*np.asarray(XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))-mDD4_A+mDD4_,len(dQ4),len(dQ4[0]),1,0),np.float16)
-                        dQ4_B= dQ4_+2*(   -np.asarray(XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))-mDD4_B+mDD4_,len(dQ4),len(dQ4[0]),1,0),np.float16))
+                        dQ4_A= dQ4_+2*np.asarray(XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+mDD4_A+mDD4_,len(dQ4),len(dQ4[0]),1,0),np.float16)
+                        dQ4_B= dQ4_+2*(   -np.asarray(XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))+mDD4_B+mDD4_,len(dQ4),len(dQ4[0]),1,0),np.float16))
                         dQ4=(dQ4_A+dQ4_B)/2
                         dQ4_A=dQ4.copy()
                         dQ4_B=dQ4.copy()                                     
