@@ -316,7 +316,7 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                 except:
                     WW=WW
         
-            hh0=hh
+        hh0=hh
             
         if not WW<0:
             aMx_=0
