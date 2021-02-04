@@ -21,10 +21,10 @@ from RALf1FiltrVID import RandomQ
 import RALF1FilterX as XFilter
  
 
-wrkdir = r"c:\Work\\W1_1\\"
+wrkdir = r"c:\Work\\W2_5\\"
 api_key = 'ONKTYPV6TAMZK464' 
 
-ticker ="USDEUR" # "BTCUSD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
+ticker ="EURIRR" # "BTCUSD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
 interv="15min"
 interv="Daily"
 url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=%s&interval=%s&outputsize=full&apikey=%s"%(ticker,interv,api_key)        
@@ -33,7 +33,7 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symb
 #INTRADAY
 #d_intervals = {"1min","5min","15min","30min","60min"}
 aname=ticker
-Lengt=1000
+Lengt=3000
 Ngroup=3
 Nproc=2*Ngroup#*(mp.cpu_count())
 Lo=1
@@ -42,7 +42,7 @@ NIt=3
 NIter=100
 DT=0.25
 Nf_K=3
-aDecm=5
+aDecm=10
     
 def decimat(adat_):
     if Lo:
@@ -123,6 +123,8 @@ if __name__ == '__main__':
     except:
         ImApp=[]
         try:
+            arrrxx=hkl.load(wrkdir + aname+"dat.rlf1")
+        except:
             arrrxx,adat_=loaddata(Lengt,1)  
             arrrxx=np.asarray(arrrxx,float)
             arrrxx=decimat(arrrxx)
@@ -131,11 +133,6 @@ if __name__ == '__main__':
             except:
                 os.mkdir(wrkdir)
                 hkl.dump(arrrxx,wrkdir + aname+"dat.rlf1")
-        except:
-            try:
-                arrrxx=hkl.load(wrkdir + aname+"dat.rlf1")
-            except:
-                ImApp=ImApp
             
         esz=len(arrrxx)
         arr_rezDzRez=[[] for j in range(esz)]
@@ -320,7 +317,7 @@ if __name__ == '__main__':
                             DD_.append(ss4_[hhhc:hhhc+Nf])
                         DD_=np.asarray(DD_,float)                              
                         DD_=(DD_/np.std(DD_))*D*2
-                        DD_=(DD_-np.mean(DD_))
+                        DD__=(DD_-np.mean(DD_))
                                                 
                         mn=np.mean(ZDat)
                         dd=(ZDat-mn)
@@ -328,7 +325,7 @@ if __name__ == '__main__':
                         aa=RandomQ(Nf,NQRandm)                        
                         ss4=np.concatenate((aa, aa, aa))
                         liix=np.zeros((anI,Nf),int)
-                        DD__=DD_.copy()
+
                         for i in range(anI):  
                             liix[i]=ss4[i:i+Nf].copy()
                             DD__[i,0:Nf-NNew]=0*DD_[i,0:Nf-NNew]
@@ -338,10 +335,12 @@ if __name__ == '__main__':
                         aNN=3                        
                         for ii in range(aNN):                            
                             dd1=dd[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]
-                            ddA=dd1*(1-(dd1<0)+(DD__[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]))
+                            ddA= dd1*(1-(dd1<0))
                             ddA=ddA+DD[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]*(ddA==0)
-                            ddB=-dd1*(1-(dd1>0))+(DD__[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)])
+                            ddB=-dd1*(1-(dd1>0))
                             ddB=ddB+DD[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]*(ddB==0)
+                            ddA=ddA+(DD__[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)])
+                            ddB=ddB+(DD__[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)])
                             dd[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]=(
                                 mn+(XFilter.RALF1FilterX(  ddA,len(ddA),len(ddA[0]),1,0)-
                                       XFilter.RALF1FilterX(  ddB,len(ddB),len(ddB[0]),1,0))/2)
