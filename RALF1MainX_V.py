@@ -296,7 +296,7 @@ if __name__ == '__main__':
             arr_RezM=  np.zeros((Ngroup,Nf),float)  
             for iGr in range(Ngroup):                
                 ZDat=Arr_AAA[iGr][((hhh)-nI)*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup),:].copy()
-                arr_RezM[iGr]=(np.amax(ZDat,axis = 0)+np.amin(ZDat,axis = 0))/2  
+                arr_RezM[iGr]=(np.mean(ZDat,axis = 0)+np.mean(ZDat,axis = 0))/2  
                                                            
                 anI=len(ZDat)
                 if anI>1000:          
@@ -380,8 +380,8 @@ if __name__ == '__main__':
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-arr_RezM[iGr][Nf-NNew]) +(ar0[Nf-NNew-1])
                 
                 all_RezNM[iGr][hhh]=arr_RezM[iGr].copy() 
-                arr_RezM[iGr]=(np.amax(all_RezNM[iGr][0:hhh+1,:],axis = 0)+
-                               np.amin(all_RezNM[iGr][0:hhh+1,:],axis = 0))/2                         
+                arr_RezM[iGr]=(np.mean(all_RezNM[iGr][0:hhh+1,:],axis = 0)+
+                               np.mean(all_RezNM[iGr][0:hhh+1,:],axis = 0))/2                         
 
                 # all_RezMM[iGr][hhh]=arr_RezM[iGr].copy() 
                 # arr_RezM[iGr]=np.mean(all_RezMM[iGr][0:hhh+1],axis = 0)
