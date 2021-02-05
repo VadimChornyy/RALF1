@@ -336,9 +336,9 @@ if __name__ == '__main__':
                         for ii in range(aNN):                            
                             dd1=dd[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]
                             ddA= dd1*(1-(dd1<0))
-                            ddA=ddA+DD[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]*(ddA==0)
+                            ddA=ddA-DD[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]*(ddA==0)
                             ddB=-dd1*(1-(dd1>0))
-                            ddB=ddB+DD[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]*(ddB==0)
+                            ddB=ddB-DD[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]*(ddB==0)
                             ddA=ddA+(DD__[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)])
                             ddB=ddB+(DD__[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)])
                             dd[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]=(
