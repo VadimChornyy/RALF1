@@ -299,7 +299,7 @@ if __name__ == '__main__':
                 arr_RezM[iGr]=(np.amax(ZDat,axis = 0)+np.amin(ZDat,axis = 0))/2  
                                                            
                 anI=len(ZDat)
-                if anI>1:          
+                if anI>1000:          
                     for hhhx in range(anI):
                         D=np.std(ZDat)                     
                         aa=RandomQ(Nf,NQRandm)                        
