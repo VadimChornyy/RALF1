@@ -21,10 +21,10 @@ from RALf1FiltrVID import RandomQ
 import RALF1FilterX as XFilter
  
 
-wrkdir = r"c:\Work\\W2_5\\"
+wrkdir = r"c:\Work\\W3_8\\"
 api_key = 'ONKTYPV6TAMZK464' 
 
-ticker ="EURIRR" # "BTCUSD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
+ticker ="USDEUR" # "BTCUSD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
 interv="15min"
 interv="Daily"
 url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=%s&interval=%s&outputsize=full&apikey=%s"%(ticker,interv,api_key)        
@@ -33,7 +33,7 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symb
 #INTRADAY
 #d_intervals = {"1min","5min","15min","30min","60min"}
 aname=ticker
-Lengt=3000
+Lengt=6000
 Ngroup=3
 Nproc=2*Ngroup#*(mp.cpu_count())
 Lo=1
@@ -268,15 +268,15 @@ if __name__ == '__main__':
                         argss[iProc].append(str("%1.6f"%(arr_A[i])))
                 
                 arezAMx=[]
-                # for iProc in range(Nproc):
-                #     arezAMx.append(RALf1FiltrQ(argss[iProc]))
+                for iProc in range(Nproc):
+                    arezAMx.append(RALf1FiltrQ(argss[iProc]))
 
-                with concurrent.futures.ThreadPoolExecutor(max_workers=Nproc) as executor:
-                    future_to = {executor.submit(RALf1FiltrQ, argss[iProc]) for iProc in range(Nproc)}
-                    for future in concurrent.futures.as_completed(future_to):                
-                        arezAMx.append(future.result())
-                del(future)                        
-                del(executor)
+                # with concurrent.futures.ThreadPoolExecutor(max_workers=Nproc) as executor:
+                #     future_to = {executor.submit(RALf1FiltrQ, argss[iProc]) for iProc in range(Nproc)}
+                #     for future in concurrent.futures.as_completed(future_to):                
+                #         arezAMx.append(future.result())
+                # del(future)                        
+                # del(executor)
                 
                 arezAMx= np.asarray(arezAMx,float)*Klg+Asr
                 
@@ -291,6 +291,7 @@ if __name__ == '__main__':
             
             dNIt=NIter#/20
             NQRandm=512
+            aNN=3
             nI=max(0,hhh-int(NIter/dNIt)+1)
             arr_RezM=  np.zeros((Ngroup,Nf),float)  
             for iGr in range(Ngroup):                
@@ -332,7 +333,6 @@ if __name__ == '__main__':
                             DD__[i,:]=(DD__[i,liix[i]])
                             dd[i]=(dd[i])[liix[i]].copy()  
                             
-                        aNN=3                        
                         for ii in range(aNN):                            
                             dd1=dd[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]
                             ddA= dd1*(1-(dd1<0))

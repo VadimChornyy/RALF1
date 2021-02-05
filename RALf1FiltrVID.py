@@ -16,7 +16,7 @@ priorityclasses = [win32process.IDLE_PRIORITY_CLASS,
                win32process.HIGH_PRIORITY_CLASS,
                win32process.REALTIME_PRIORITY_CLASS]  
 
-DETERM=0.3
+DETERM=0.62
 NNQRandm=512
 QRandm_=0
 
@@ -257,8 +257,8 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                         dQ4_=mNxA
                         
                         dQ4=dQ4-dQ4_
-                        dQ4_A= dQ4_+2*np.asarray(XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))+mDD4_A+mDD4_,len(dQ4),len(dQ4[0]),1,0),np.float16)
-                        dQ4_B= dQ4_+2*(   -np.asarray(XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))+mDD4_B+mDD4_,len(dQ4),len(dQ4[0]),1,0),np.float16))
+                        dQ4_A= dQ4_+2*np.asarray(XFilter.RALF1FilterX(  dQ4*(1-(dQ4<0))-mDD4_A+mDD4_,len(dQ4),len(dQ4[0]),1,0),np.float16)
+                        dQ4_B= dQ4_+2*(   -np.asarray(XFilter.RALF1FilterX( -dQ4*(1-(dQ4>0))-mDD4_B+mDD4_,len(dQ4),len(dQ4[0]),1,0),np.float16))
                         dQ4=(dQ4_A+dQ4_B)/2
                         dQ4_A=dQ4.copy()
                         dQ4_B=dQ4.copy()                                     
@@ -326,10 +326,10 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
             for i in  range(sz):
                 aMx[liix[i]]=np.maximum(aMx[liix[i]],dQ3[i])
                 aMn[liix[i]]=np.minimum(aMn[liix[i]],dQ3[i])
-                # aMx_=(aMx_*i+aMx)/(i+1)
-                # aMn_=(aMn_*i+aMn)/(i+1)
-                aMx_=aMx
-                aMn_=aMn
+                aMx_=(aMx_*i+aMx)/(i+1)
+                aMn_=(aMn_*i+aMn)/(i+1)
+                # aMx_=aMx
+                # aMn_=aMn
                     
             ann=sum(np.isnan(aMx_ + aMn_))
             if ann==0: 
@@ -346,9 +346,9 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                     KDD=np.std((AMX[hh]+AMN[hh])/2-arr_bbbxxx1[hh])/np.std(arr_bbbxxx1[hh])
                 
                 ann=1                
-                dd=KDD*filterFourierQ((AMX[hh]+AMN[hh])/2-arr_bbbxxx1[hh],arr_b,NNew,NChan)
+                dd=filterFourierQ((AMX[hh]+AMN[hh])/2,arr_b,NNew,NChan)
                 if sum(np.abs(dd)==np.Inf)==0:
-                    arr_bbbxxx2[hh]=(arr_bbbxxx2[hh-1]+dd)
+                    arr_bbbxxx2[hh]=(arr_bbbxxx2[hh-1]*hh+dd)/(hh+1)
                     ann=0
                     hh=hh+1
                                     
