@@ -362,9 +362,9 @@ if __name__ == '__main__':
                             all_RezN[iGr][hhhx]=arr_RezM[iGr].copy()
                         else:
                             arr_RezM[iGr]=(np.maximum(arr_RezM[iGr],dd)+np.minimum(arr_RezM[iGr],dd))/2
-                            all_RezM[iGr][hhhx]=(all_RezM[iGr][hhhx-1]*hhhx+arr_RezM[iGr])/(hhhx+1)
+                            all_RezN[iGr][hhhx]=(all_RezN[iGr][hhhx-1]*hhhx+arr_RezM[iGr])/(hhhx+1)
                     
-                    arr_RezM[iGr]=all_RezM[iGr][hhhx].copy()                        
+                    arr_RezM[iGr]=all_RezN[iGr][hhhx].copy()                        
                         
                 all_RezM[iGr][hhh]=arr_RezM[iGr].copy() 
                 arr_RezM[iGr]=(np.amax(all_RezM[iGr][0:hhh+1,:],axis = 0)+
