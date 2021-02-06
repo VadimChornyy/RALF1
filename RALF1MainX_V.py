@@ -21,7 +21,7 @@ from RALf1FiltrVID import RandomQ
 import RALF1FilterX as XFilter
  
 
-wrkdir = r"c:\Work\\W3_8\\"
+wrkdir = r"c:\Work\\W3_9\\"
 api_key = 'ONKTYPV6TAMZK464' 
 
 ticker ="USDEUR" # "BTCUSD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
@@ -336,14 +336,16 @@ if __name__ == '__main__':
                         for ii in range(aNN):                            
                             dd1=dd[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]
                             ddA= dd1*(1-(dd1<0))
-                            ddA=ddA-DD[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]*(ddA==0)
                             ddB=-dd1*(1-(dd1>0))
-                            ddB=ddB-DD[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]*(ddB==0)
+                            dA=DD[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]*(ddA==0)
+                            dB=DD[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]*(ddB==0)
                             ddA=ddA+(DD__[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)])
                             ddB=ddB+(DD__[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)])
-                            eeA=XFilter.RALF1FilterX(  ddA,len(ddA),len(ddA[0]),1,0)
-                            eeB=XFilter.RALF1FilterX(  ddB,len(ddB),len(ddB[0]),1,0)
-                            dd[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]=mn+((eeA-eeA*(eeA<0))-eeB-eeB*(eeB>0))/2
+                            eeA=(XFilter.RALF1FilterX(  ddA-dA,len(ddA),len(ddA[0]),1,0)+
+                                 XFilter.RALF1FilterX(  ddA-dB,len(ddA),len(ddA[0]),1,0))/2
+                            eeB=-(XFilter.RALF1FilterX(  ddB-dB,len(ddB),len(ddB[0]),1,0)+
+                                  XFilter.RALF1FilterX(  ddB-dA,len(ddB),len(ddB[0]),1,0))/2
+                            dd[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]=mn+((eeA-eeA*(eeA<0))+eeB-eeB*(eeB>0))/2
                         
                         aMx=np.zeros(Nf,float)-np.Inf
                         aMn=np.zeros(Nf,float)+np.Inf
@@ -371,11 +373,11 @@ if __name__ == '__main__':
                                 np.amin(all_RezM[iGr][0:hhh+1,:],axis = 0))/2 
     
                 if Lo:
-                    arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1,-1)
+                    arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1,1)
                     arr_RezM[iGr][0:Nf-NNew]=np.log(ar0[0:Nf-NNew])  
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-arr_RezM[iGr][Nf-NNew]) +np.log(ar0[Nf-NNew-1])
                 else:
-                    arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],arr_z,NNew,1,-1)
+                    arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],arr_z,NNew,1,1)
                     arr_RezM[iGr][0:Nf-NNew]=ar0[0:Nf-NNew].copy()
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-arr_RezM[iGr][Nf-NNew]) +(ar0[Nf-NNew-1])
                 
