@@ -387,7 +387,7 @@ if __name__ == '__main__':
                 # arr_RezM[iGr]=np.mean(all_RezMM[iGr][0:hhh+1],axis = 0)
                     #np.mean(all_RezMM[iGr][max(0,hhhb-int(NIter/2)):hhhb+1,:],axis = 0) 
             
-            arr_rezBz=(np.amax(arr_RezM, axis=0)+np.amin(arr_RezM, axis=0))/2  
+            arr_rezBz=(np.mean(arr_RezM, axis=0)+np.mean(arr_RezM, axis=0))/2  
                 
             if Lo:
                 arr_rezBz[Nf-NNew:]=(arr_rezBz[Nf-NNew:]-arr_rezBz[Nf-NNew]) +np.log(ar0[Nf-NNew-1])                     
