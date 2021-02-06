@@ -239,7 +239,7 @@ if __name__ == '__main__':
                 hh=hh+1
                 
        
-        cap = cv2.VideoCapture(wwrkdir_ +nmfile)#or mp4     
+        cap = cv2.VideoCapture(wwrkdir_ +nmfile)#or mp4      
         ArrXY=[[] for i in range(3)]    
         sz1=int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         sz2=int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
