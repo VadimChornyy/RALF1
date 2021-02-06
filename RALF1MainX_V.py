@@ -296,7 +296,7 @@ if __name__ == '__main__':
             arr_RezM=  np.zeros((Ngroup,Nf),float)  
             for iGr in range(Ngroup):                
                 ZDat=Arr_AAA[iGr][((hhh)-nI)*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup),:].copy()
-                arr_RezM[iGr]=(np.mean(ZDat,axis = 0)+np.mean(ZDat,axis = 0))/2  
+                arr_RezM[iGr]=(np.amax(ZDat,axis = 0)+np.amin(ZDat,axis = 0))/2  
                                                            
                 anI=len(ZDat)
                 if anI>1:          
@@ -371,22 +371,21 @@ if __name__ == '__main__':
                                 np.amin(all_RezM[iGr][0:hhh+1,:],axis = 0))/2 
     
                 if Lo:
-                    arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1)
+                    arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1,-1)
                     arr_RezM[iGr][0:Nf-NNew]=np.log(ar0[0:Nf-NNew])  
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-arr_RezM[iGr][Nf-NNew]) +np.log(ar0[Nf-NNew-1])
                 else:
-                    arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],arr_z,NNew,1)
+                    arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],arr_z,NNew,1,-1)
                     arr_RezM[iGr][0:Nf-NNew]=ar0[0:Nf-NNew].copy()
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-arr_RezM[iGr][Nf-NNew]) +(ar0[Nf-NNew-1])
                 
                 all_RezNM[iGr][hhh]=arr_RezM[iGr].copy() 
-                arr_RezM[iGr]=(np.mean(all_RezNM[iGr][0:hhh+1,:],axis = 0)+
-                               np.mean(all_RezNM[iGr][0:hhh+1,:],axis = 0))/2                         
+                arr_RezM[iGr]=(np.amax(all_RezNM[iGr][0:hhh+1,:],axis = 0)+
+                               np.amin(all_RezNM[iGr][0:hhh+1,:],axis = 0))/2                         
 
-                # all_RezMM[iGr][hhh]=arr_RezM[iGr].copy() 
-                # arr_RezM[iGr]=np.mean(all_RezMM[iGr][0:hhh+1],axis = 0)
-                    #np.mean(all_RezMM[iGr][max(0,hhhb-int(NIter/2)):hhhb+1,:],axis = 0) 
-            
+                all_RezMM[iGr][hhh]=arr_RezM[iGr].copy() 
+                arr_RezM[iGr]=np.mean(all_RezMM[iGr][0:hhh+1],axis = 0)
+                    
             arr_rezBz=(np.mean(arr_RezM, axis=0)+np.mean(arr_RezM, axis=0))/2  
                 
             if Lo:
