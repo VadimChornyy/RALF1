@@ -14,6 +14,7 @@ import dateutil.parser
 from operator import itemgetter
 import dill 
 #from scipy.signal import savgol_filter
+import moviepy.editor as mpv
 
 from RALf1FiltrVID import filterFourierQ
 from RALf1FiltrVID import RALf1FiltrQ
@@ -21,28 +22,23 @@ from RALf1FiltrVID import RandomQ
 import RALF1FilterX as XFilter
  
 
-wrkdir = r"c:\Work\\W3_8\\"
+wrkdir = r"c:\Work\\W4_1\\"
 api_key = 'ONKTYPV6TAMZK464' 
 
-ticker ="USDEUR" # "BTCUSD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
-interv="15min"
-interv="Daily"
-url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=%s&interval=%s&outputsize=full&apikey=%s"%(ticker,interv,api_key)        
-url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=%s&outputsize=full&apikey=%s"%(ticker,api_key)
+wwrkdir_=r".\W10\\"
+nama='explosion'
 
-#INTRADAY
-#d_intervals = {"1min","5min","15min","30min","60min"}
-aname=ticker
 Lengt=6000
+dsiz=5000
 Ngroup=3
 Nproc=2*Ngroup#*(mp.cpu_count())
 Lo=1
 aTmStop=6
 NIt=3
 NIter=100
-DT=0.25
+DT=0.1
 Nf_K=3
-aDecm=10
+aDecm=2
     
 def decimat(adat_):
     if Lo:
@@ -59,7 +55,7 @@ def decimat(adat_):
     if Lo:
         return np.exp(adat__[1:len(adat__)-1])
     else:
-        return (adat__[1:len(adat__)-1])
+        return (adat__[1:int(0.8*len(adat__))-1])
 
 def fig2img ( fig ):
     fig.savefig(wrkdir +'dynamic.png',dpi=150,transparent=False,bbox_inches = 'tight')
@@ -70,76 +66,47 @@ def fig2img ( fig ):
     return frame
 
 def loaddata(aLengt,key):
-    adat_=[]
-    if key>0:  
-        data = json.loads(urllib.request.urlopen(url_string).read().decode())['Time Series (%s)'%(interv)]
-        df = pd.DataFrame(columns=['Date','Low','High','Close','Open'])
-        arrr=[]
-        adate=[]
-        adt=[]
-        for k,v in data.items():
-            date = dateutil.parser.parse(k)
-            data_row = [date.date(),float(v['3. low']),float(v['2. high']),
-                                float(v['4. close']),float(v['1. open'])]
-            df.loc[-1,:] = data_row
-            rr=(np.asarray(data_row)[1]+np.asarray(data_row)[2])/2
-            if rr!=0:
-                adate.append(date.timestamp())
-                adt.append(k)
-                arrr.append(rr)
-            df.index = df.index + 1
-    #        if np.asarray(arrr,int).size>=aLengt:#495:1023:
-    #            break
-        aa=[[] for i in range(3)]
-        aa[0]=adate
-        aa[1]=arrr  
-        aa[2]=adt
-        m=aa
-        aa=[[m[j][l] for j in range(len(m))] for l in range(len(m[0]))]   
-        aa.sort(key=itemgetter(0))
-        m=aa
-        aa=[[m[j][l] for j in range(len(m))] for l in range(len(m[0]))]     
-        ada=list(aa)[2]
-        arrr=list(aa)[1]
-        sz=np.asarray(arrr).size
-        ln=min(sz,aLengt)
-        arr=np.asarray(arrr).copy()
-        arrr=[]        
-        for i in range(ln-1):
-            arrr.append(arr[sz-ln+i])
-            adat_.append(ada[sz-ln+i])
-    else:
-        file=open(ticker+ '.txt','r')
-        arrr=np.asarray(file.readlines(),float).copy()
-        if len(arrr)>aLengt:
-            arrr=arrr[len(arrr)-aLengt:]
-        file.close()
-        
-    return arrr,adat_
+    audio = mpv.AudioFileClip(wwrkdir_ +nama+".mp4")
+    samplerate, samples = audio.fps, np.asarray(audio.to_soundarray(),float)
+    siz=len(samples)
+
+    siz_=int(siz/dsiz)
+    samplesx=np.zeros(siz_,float)
+    for i in range(siz_):            
+        samplesx[i]=(((np.mean(samples[i*dsiz+0:(i+1)*dsiz,0]))))
+    samplesx=np.log(abs(samplesx))
+    samplesx_=np.mean(np.asarray(list(filter((-np.Inf).__ne__, samplesx)),float))
+    samplesx=samplesx-samplesx_
+    siz=len(samplesx)
+    samplesy=np.concatenate((samplesx,np.zeros(siz,float)))
+    samplesx=samplesy[np.asarray(range(siz),int)+siz*(samplesx==-np.Inf)]  
+    samplesx=samplesx-np.amin(samplesx)
+    arrrxx=np.asarray(samplesx,float)
+    return arrrxx[1:int(0.8*len(arrrxx))-1]
 
 if __name__ == '__main__': 
     try:
-        dill.load_session(wrkdir + aname+".ralf")
+        dill.load_session(wrkdir + nama+".ralf")
     except:
         ImApp=[]
         try:
-            arrrxx=hkl.load(wrkdir + aname+"dat.rlf1")
+            arrrxx=hkl.load(wrkdir + nama+"dat.rlf1")
         except:
-            arrrxx,adat_=loaddata(Lengt,1)  
+            arrrxx=loaddata(Lengt,1)  
             arrrxx=np.asarray(arrrxx,float)
             arrrxx=decimat(arrrxx)
             try:                
-                hkl.dump(arrrxx,wrkdir + aname+"dat.rlf1")
+                hkl.dump(arrrxx,wrkdir + nama+"dat.rlf1")
             except:
                 os.mkdir(wrkdir)
-                hkl.dump(arrrxx,wrkdir + aname+"dat.rlf1")
+                hkl.dump(arrrxx,wrkdir + nama+"dat.rlf1")
             
         esz=len(arrrxx)
         arr_rezDzRez=[[] for j in range(esz)]
         kkk=0
         out=0   
 
-        aname=aname
+        interv="%d"%dsiz        
         arrr=np.asarray(arrrxx).copy()  
 
         arrr=np.asarray(arrr,float)    
@@ -147,7 +114,7 @@ if __name__ == '__main__':
         Nf=Lengt
         
         nn=int(Nf*DT)             
-        NNew=int(Nf*0.6)  
+        NNew=int(Nf*0.5)  
         Nf=Nf+nn        
         ar0=np.asarray(arrr[0:])           
         
@@ -177,7 +144,7 @@ if __name__ == '__main__':
         ZZ=0
         key=0
         try:
-            dill.load_session(wrkdir + aname+".ralf")
+            dill.load_session(wrkdir + nama+".ralf")
         except:    
             fig = plt.figure()
             axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])
@@ -185,7 +152,7 @@ if __name__ == '__main__':
             axes__ = fig.add_axes([0.4, 0, 0.3, 0.3])
             axes.plot(ar0, 'r.')
             axes.plot(arr_z, 'go-')  #cut data used for model
-            axes.text(4, 4, 'Reflection on Action of Lorentz Forces-1, #2011612714  \n\n Course = %s, start = %s, step = %s * %s'%(aname,adat0,interv,aDecm),
+            axes.text(4, 4, 'Reflection on Action of Lorentz Forces-1, #2011612714  \n\n Course = %s, start = %s, step = %s * %s'%(nama,adat0,interv,aDecm),
                     verticalalignment='bottom', horizontalalignment='right',
                     transform=axes_.transAxes,color='blue', fontsize=14)        
 
@@ -199,7 +166,7 @@ if __name__ == '__main__':
             gray_sz2=len(cimg)
             aDur=2
             fourcc = cv.VideoWriter_fourcc(*'MP4V')
-            out = cv.VideoWriter(wrkdir + aname+'.mp4',fourcc, aDur, (gray_sz1,gray_sz2))                   
+            out = cv.VideoWriter(wrkdir + nama+'.mp4',fourcc, aDur, (gray_sz1,gray_sz2))                   
             for icl in range(len(ImApp)):
                 cimgx=(cv.cvtColor(np.array(ImApp[icl]), cv.COLOR_RGB2BGR)) 
                 out.write(cimgx[0:gray_sz2,0:gray_sz1,:]) 
@@ -212,7 +179,7 @@ if __name__ == '__main__':
         if hhh==int(NIter/1):
             if hhh_<aTmStop-1:
                 try:
-                    os.remove(wrkdir + aname+".rlf1")
+                    os.remove(wrkdir + nama+".rlf1")
                 except:
                     hhh_=hhh_
                 nnn=int(nn*0.5)
@@ -244,7 +211,7 @@ if __name__ == '__main__':
         
         if ZZ==0:                  
             try:
-                [hhha,Arr_BBB]=(hkl.load(wrkdir + aname+".rlf1"))       
+                [hhha,Arr_BBB]=(hkl.load(wrkdir + nama+".rlf1"))       
                 Arr_AAA[:,0:int(Nproc*hhha/Ngroup),:]=Arr_BBB[:,0:int(Nproc*hhha/Ngroup),:].copy()
             except:            
                 hhha=hhh-1
@@ -299,7 +266,7 @@ if __name__ == '__main__':
                 arr_RezM[iGr]=(np.mean(ZDat,axis = 0)+np.mean(ZDat,axis = 0))/2  
                                                            
                 anI=len(ZDat)
-                if anI>1:          
+                if anI>1000:          
                     for hhhx in range(anI):
                         D=np.std(ZDat)                     
                         aa=RandomQ(Nf,NQRandm)                        
@@ -407,7 +374,7 @@ if __name__ == '__main__':
             mm2=arr_rezBz[Nf-NNew:len(ar0)].copy()   
             if np.std(mm1)>0 and np.std(mm2)>0:
                 if hhh>=hhha:                               
-                    hkl.dump([hhh+1,Arr_AAA], wrkdir + aname+".rlf1")                        
+                    hkl.dump([hhh+1,Arr_AAA], wrkdir + nama+".rlf1")                        
                 Koef_.append(100*scp.pearsonr(mm1,mm2)[0])                               
                 fig = plt.figure()
                 axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])
@@ -421,7 +388,7 @@ if __name__ == '__main__':
                 axes.text(-0.1, 4, '%s  '%(hhh+1),
                         verticalalignment='bottom', horizontalalignment='left',
                         transform=axes_.transAxes,color='black', fontsize=24) 
-                axes.text(4, 4, 'Reflection on Action of Lorentz Forces-1, #2011612714  \n\n Course = %s, start = %s, step = %s * %s'%(aname,adat0,interv,aDecm),
+                axes.text(4, 4, 'Reflection on Action of Lorentz Forces-1, #2011612714  \n\n Course = %s, start = %s, step = %s * %s'%(nama,adat0,interv,aDecm),
                         verticalalignment='bottom', horizontalalignment='right',
                         transform=axes_.transAxes,color='blue', fontsize=14)     
                 gint=np.polyfit(mm1,mm2,1)
@@ -442,7 +409,7 @@ if __name__ == '__main__':
                 gray_sz2=min(gray_sz2,len(cimg))
                 ImApp.append(frame)
                 if WrtTodr>0:
-                    out = cv.VideoWriter(wrkdir + aname+'.mp4',fourcc, aDur, (gray_sz1,gray_sz2))                   
+                    out = cv.VideoWriter(wrkdir + nama+'.mp4',fourcc, aDur, (gray_sz1,gray_sz2))                   
                     for icl in range(len(ImApp)):
                         cimgx=(cv.cvtColor(np.array(ImApp[icl]), cv.COLOR_RGB2BGR)) 
                         out.write(cimgx[0:gray_sz2,0:gray_sz1,:]) 
@@ -453,12 +420,12 @@ if __name__ == '__main__':
                 #arr_z=arr_rezBz.copy()
             else:
                 try:
-                    dill.load_session(wrkdir + aname+".ralf")
+                    dill.load_session(wrkdir + nama+".ralf")
                 except:
                     hh0=hh0                  
             hh0=hh0+1
             if WrtTodr>0:
-                dill.dump_session(wrkdir + aname+".ralf")   
+                dill.dump_session(wrkdir + nama+".ralf")   
             if hh0==2*NIter:
                 hhh=NIter 
             print (hhh+10000*hh0)
@@ -478,7 +445,7 @@ if __name__ == '__main__':
     axes__ = fig.add_axes([0.4, 0, 0.3, 0.3]) 
     axes.plot(arrr, 'ro-')
     axes.plot(arr_rezBz, 'cx-', alpha=0.5) #predicted data
-    axes.text(4, 4, 'Reflection on Action of Lorentz Forces-1, #2011612714  \n\n Course = %s, start = %s, step = %s * %s'%(aname,adat0,interv,aDecm),
+    axes.text(4, 4, 'Reflection on Action of Lorentz Forces-1, #2011612714  \n\n Course = %s, start = %s, step = %s * %s'%(nama,adat0,interv,aDecm),
             verticalalignment='bottom', horizontalalignment='right',
             transform=axes_.transAxes,color='blue', fontsize=14)     
     gint=np.polyfit(mm1,mm2,1)
@@ -499,7 +466,7 @@ if __name__ == '__main__':
     gray_sz2=min(gray_sz2,len(cimg))
     for icl in range(10):
         ImApp.append(frame)
-    out = cv.VideoWriter(wrkdir + aname+'.mp4',fourcc, aDur, (gray_sz1,gray_sz2))                   
+    out = cv.VideoWriter(wrkdir + nama+'.mp4',fourcc, aDur, (gray_sz1,gray_sz2))                   
     for icl in range(len(ImApp)):
         cimgx=(cv.cvtColor(np.array(ImApp[icl]), cv.COLOR_RGB2BGR)) 
         out.write(cimgx[0:gray_sz2,0:gray_sz1,:])       
