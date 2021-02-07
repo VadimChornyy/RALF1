@@ -299,7 +299,7 @@ if __name__ == '__main__':
                 arr_RezM[iGr]=(np.amax(ZDat,axis = 0)+np.amin(ZDat,axis = 0))/2  
                                                            
                 anI=len(ZDat)
-                if anI>1:          
+                if anI>1000:          
                     for hhhx in range(anI):
                         D=np.std(ZDat)                     
                         aa=RandomQ(Nf,NQRandm)                        
@@ -366,11 +366,10 @@ if __name__ == '__main__':
                             arr_RezM[iGr]=(np.maximum(arr_RezM[iGr],dd)+np.minimum(arr_RezM[iGr],dd))/2
                             all_RezN[iGr][hhhx]=(all_RezN[iGr][hhhx-1]*hhhx+arr_RezM[iGr])/(hhhx+1)
                     
-                    arr_RezM[iGr]=all_RezN[iGr][hhhx].copy()                        
-                        
-                all_RezM[iGr][hhh]=arr_RezM[iGr].copy() 
-                arr_RezM[iGr]=(np.amax(all_RezM[iGr][0:hhh+1,:],axis = 0)+
-                                np.amin(all_RezM[iGr][0:hhh+1,:],axis = 0))/2 
+                    arr_RezM[iGr]=all_RezN[iGr][hhhx].copy()    
+                    # all_RezM[iGr][hhh]=arr_RezM[iGr].copy() 
+                    # arr_RezM[iGr]=(np.mean(all_RezM[iGr][0:hhh+1,:],axis = 0)+
+                    #                 np.mean(all_RezM[iGr][0:hhh+1,:],axis = 0))/2 
     
                 if Lo:
                     arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1)

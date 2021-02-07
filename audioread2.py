@@ -261,9 +261,10 @@ if __name__ == '__main__':
             aNN=3
             nI=max(0,hhh-int(NIter/dNIt)+1)
             arr_RezM=  np.zeros((Ngroup,Nf),float)  
+
             for iGr in range(Ngroup):                
                 ZDat=Arr_AAA[iGr][((hhh)-nI)*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup),:].copy()
-                arr_RezM[iGr]=(np.mean(ZDat,axis = 0)+np.mean(ZDat,axis = 0))/2  
+                arr_RezM[iGr]=(np.amax(ZDat,axis = 0)+np.amin(ZDat,axis = 0))/2  
                                                            
                 anI=len(ZDat)
                 if anI>1000:          
@@ -303,14 +304,16 @@ if __name__ == '__main__':
                         for ii in range(aNN):                            
                             dd1=dd[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]
                             ddA= dd1*(1-(dd1<0))
-                            ddA=ddA-DD[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]*(ddA==0)
                             ddB=-dd1*(1-(dd1>0))
-                            ddB=ddB-DD[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]*(ddB==0)
+                            dA=DD[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]*(ddA==0)
+                            dB=DD[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]*(ddB==0)
                             ddA=ddA+(DD__[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)])
                             ddB=ddB+(DD__[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)])
-                            eeA=XFilter.RALF1FilterX(  ddA,len(ddA),len(ddA[0]),1,0)
-                            eeB=XFilter.RALF1FilterX(  ddB,len(ddB),len(ddB[0]),1,0)
-                            dd[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]=mn+((eeA-eeA*(eeA<0))-eeB-eeB*(eeB>0))/2
+                            eeA=(XFilter.RALF1FilterX(  ddA-dA,len(ddA),len(ddA[0]),1,0)+
+                                 XFilter.RALF1FilterX(  ddA-dB,len(ddA),len(ddA[0]),1,0))/2
+                            eeB=-(XFilter.RALF1FilterX(  ddB-dB,len(ddB),len(ddB[0]),1,0)+
+                                  XFilter.RALF1FilterX(  ddB-dA,len(ddB),len(ddB[0]),1,0))/2
+                            dd[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]=mn+((eeA-eeA*(eeA<0))+eeB-eeB*(eeB>0))/2
                         
                         aMx=np.zeros(Nf,float)-np.Inf
                         aMn=np.zeros(Nf,float)+np.Inf
@@ -329,13 +332,12 @@ if __name__ == '__main__':
                             all_RezN[iGr][hhhx]=arr_RezM[iGr].copy()
                         else:
                             arr_RezM[iGr]=(np.maximum(arr_RezM[iGr],dd)+np.minimum(arr_RezM[iGr],dd))/2
-                            all_RezM[iGr][hhhx]=(all_RezM[iGr][hhhx-1]*hhhx+arr_RezM[iGr])/(hhhx+1)
+                            all_RezN[iGr][hhhx]=(all_RezN[iGr][hhhx-1]*hhhx+arr_RezM[iGr])/(hhhx+1)
                     
-                    arr_RezM[iGr]=all_RezM[iGr][hhhx].copy()                        
-                        
-                all_RezM[iGr][hhh]=arr_RezM[iGr].copy() 
-                arr_RezM[iGr]=(np.amax(all_RezM[iGr][0:hhh+1,:],axis = 0)+
-                                np.amin(all_RezM[iGr][0:hhh+1,:],axis = 0))/2 
+                    arr_RezM[iGr]=all_RezN[iGr][hhhx].copy()    
+                    # all_RezM[iGr][hhh]=arr_RezM[iGr].copy() 
+                    # arr_RezM[iGr]=(np.mean(all_RezM[iGr][0:hhh+1,:],axis = 0)+
+                    #                 np.mean(all_RezM[iGr][0:hhh+1,:],axis = 0))/2 
     
                 if Lo:
                     arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1)
@@ -347,13 +349,12 @@ if __name__ == '__main__':
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-arr_RezM[iGr][Nf-NNew]) +(ar0[Nf-NNew-1])
                 
                 all_RezNM[iGr][hhh]=arr_RezM[iGr].copy() 
-                arr_RezM[iGr]=(np.mean(all_RezNM[iGr][0:hhh+1,:],axis = 0)+
-                               np.mean(all_RezNM[iGr][0:hhh+1,:],axis = 0))/2                         
+                arr_RezM[iGr]=(np.amax(all_RezNM[iGr][0:hhh+1,:],axis = 0)+
+                               np.amin(all_RezNM[iGr][0:hhh+1,:],axis = 0))/2                         
 
-                # all_RezMM[iGr][hhh]=arr_RezM[iGr].copy() 
-                # arr_RezM[iGr]=np.mean(all_RezMM[iGr][0:hhh+1],axis = 0)
-                    #np.mean(all_RezMM[iGr][max(0,hhhb-int(NIter/2)):hhhb+1,:],axis = 0) 
-            
+                all_RezMM[iGr][hhh]=arr_RezM[iGr].copy() 
+                arr_RezM[iGr]=np.mean(all_RezMM[iGr][0:hhh+1],axis = 0)
+                    
             arr_rezBz=(np.mean(arr_RezM, axis=0)+np.mean(arr_RezM, axis=0))/2  
                 
             if Lo:
