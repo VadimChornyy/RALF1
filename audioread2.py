@@ -80,7 +80,7 @@ def loaddata(aLengt,key):
     siz=len(samplesx)
     samplesy=np.concatenate((samplesx,np.zeros(siz,float)))
     samplesx=samplesy[np.asarray(range(siz),int)+siz*(samplesx==-np.Inf)]  
-    samplesx=samplesx-np.amin(samplesx)
+    samplesx=samplesx-np.amin(samplesx)+np.std(samplesx)
     arrrxx=np.asarray(samplesx,float)
     return arrrxx[1:int(0.8*len(arrrxx))-1]
 
@@ -255,7 +255,7 @@ if __name__ == '__main__':
             if hhh>=hhha-1:    
                 WrtTodr=1
                 aDur=4
-            
+                
             dNIt=NIter#/20
             NQRandm=512
             aNN=3
