@@ -289,7 +289,7 @@ if __name__ == '__main__':
                 WrtTodr=1
                 aDur=4
             
-            dNIt=NIter#/20
+            dNIt=NIter/10
             NQRandm=512
             aNN=3
             nI=max(0,hhh-int(NIter/dNIt)+1)
@@ -366,19 +366,24 @@ if __name__ == '__main__':
                             arr_RezM[iGr]=(np.maximum(arr_RezM[iGr],dd)+np.minimum(arr_RezM[iGr],dd))/2
                             all_RezN[iGr][hhhx]=(all_RezN[iGr][hhhx-1]*hhhx+arr_RezM[iGr])/(hhhx+1)
                     
-                    arr_RezM[iGr]=all_RezN[iGr][hhhx].copy()                        
-                                                           
+                    arr_RezM[iGr]=all_RezN[iGr][hhhx].copy()                  
+                
+                all_RezM[iGr][hhh]=arr_RezM[iGr].copy()                    
+                arr_RezM[iGr]=(np.mean(all_RezM[iGr][0:hhh+1],axis = 0)+
+                               np.mean(all_RezM[iGr][0:hhh+1],axis = 0))/2
+                                                                           
                 if Lo:
-                    arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1,-1)
+                    arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1)
                     arr_RezM[iGr][0:Nf-NNew]=np.log(ar0[0:Nf-NNew])  
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-arr_RezM[iGr][Nf-NNew]) +np.log(ar0[Nf-NNew-1])
                 else:
-                    arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],arr_z,NNew,1,-1)
+                    arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],arr_z,NNew,1)
                     arr_RezM[iGr][0:Nf-NNew]=ar0[0:Nf-NNew].copy()
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-arr_RezM[iGr][Nf-NNew]) +(ar0[Nf-NNew-1])
 
                 all_RezMM[iGr][hhh]=arr_RezM[iGr].copy() 
-                arr_RezM[iGr]=np.mean(all_RezMM[iGr][0:hhh+1],axis = 0)
+                arr_RezM[iGr]=(np.mean(all_RezMM[iGr][0:hhh+1],axis = 0)+
+                               np.mean(all_RezMM[iGr][0:hhh+1],axis = 0))/2
                     
             arr_rezBz=(np.mean(arr_RezM, axis=0)+np.mean(arr_RezM, axis=0))/2  
                 
