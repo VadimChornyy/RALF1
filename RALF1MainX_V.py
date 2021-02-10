@@ -289,7 +289,7 @@ if __name__ == '__main__':
                 WrtTodr=1
                 aDur=4
             
-            dNIt=NIter/10
+            dNIt=NIter/7
             NQRandm=512
             aNN=3
             nI=max(0,hhh-int(NIter/dNIt)+1)
@@ -369,8 +369,8 @@ if __name__ == '__main__':
                     arr_RezM[iGr]=all_RezN[iGr][hhhx].copy()                  
                 
                 all_RezM[iGr][hhh]=arr_RezM[iGr].copy()                    
-                arr_RezM[iGr]=(np.mean(all_RezM[iGr][0:hhh+1],axis = 0)+
-                               np.mean(all_RezM[iGr][0:hhh+1],axis = 0))/2
+                arr_RezM[iGr]=(np.amax(all_RezM[iGr][0:hhh+1],axis = 0)+
+                                np.amin(all_RezM[iGr][0:hhh+1],axis = 0))/2
                                                                            
                 if Lo:
                     arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1)
