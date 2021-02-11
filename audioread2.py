@@ -256,7 +256,7 @@ if __name__ == '__main__':
                 WrtTodr=1
                 aDur=4
             
-            dNIt=NIter/7
+            dNIt=7
             NQRandm=512
             aNN=3
             nI=max(0,hhh-int(NIter/dNIt)+1)

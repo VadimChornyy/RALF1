@@ -21,7 +21,7 @@ from RALf1FiltrVID import RandomQ
 import RALF1FilterX as XFilter
  
 
-wrkdir = r"c:\Work\\W5_4\\"
+wrkdir = r"c:\Work\\W5_7\\"
 api_key = 'ONKTYPV6TAMZK464' 
 
 ticker ="USDEUR" # "BTCUSD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
@@ -289,7 +289,7 @@ if __name__ == '__main__':
                 WrtTodr=1
                 aDur=4
             
-            dNIt=NIter/7
+            dNIt=7
             NQRandm=512
             aNN=3
             nI=max(0,hhh-int(NIter/dNIt)+1)
