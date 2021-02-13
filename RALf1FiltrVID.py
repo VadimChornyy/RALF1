@@ -330,8 +330,8 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
             for i in  range(sz):
                 aMx[liix[i]]=np.maximum(aMx[liix[i]],dQ3[i])
                 aMn[liix[i]]=np.minimum(aMn[liix[i]],dQ3[i])
-                aMx_=(aMx_*i+aMx)/(i+1)
-                aMn_=(aMn_*i+aMn)/(i+1)
+                aMx_=aMx.copy()#(aMx_*i+aMx)/(i+1)
+                aMn_=aMn.copy()#(aMn_*i+aMn)/(i+1)
                 # aMx_=aMx
                 # aMn_=aMn
                     
@@ -345,8 +345,8 @@ def RALF1Calculation(arr_bx,Nf,NNew,NChan,D,Nhh,iProc):
                 else:
                     AMX[hh]=np.maximum(AMX[hh-1],aMx)
                     AMN[hh]=np.minimum(AMN[hh-1],aMn)
-                    arr_bbbxxx1[hh]=(arr_bbbxxx1[hh-1]*hh+AMX[hh])/(hh+1)
-                    arr_bbbxxx2[hh]=(arr_bbbxxx2[hh-1]*hh+AMN[hh])/(hh+1)                  
+                    arr_bbbxxx1[hh]=AMX[hh].copy()#(arr_bbbxxx1[hh-1]*hh+AMX[hh])/(hh+1)
+                    arr_bbbxxx2[hh]=AMN[hh].copy()#(arr_bbbxxx2[hh-1]*hh+AMN[hh])/(hh+1)                  
 
                 ann=1                
                 dd=filterFourierQ((arr_bbbxxx1[hh]+arr_bbbxxx2[hh])/2,arr_b,NNew,NChan)

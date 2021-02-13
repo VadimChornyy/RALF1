@@ -1,8 +1,6 @@
 import concurrent.futures
 import pylab as plt
 import numpy as np
-import urllib.request, json
-import pandas as pd
 from PIL import Image 
 import cv2 as cv
 #import time as tm
@@ -10,8 +8,6 @@ import hickle as hkl
 import os
 
 from scipy import stats as scp
-import dateutil.parser
-from operator import itemgetter
 import dill 
 #from scipy.signal import savgol_filter
 import moviepy.editor as mpv
@@ -22,7 +18,7 @@ from RALf1FiltrVID import RandomQ
 import RALF1FilterX as XFilter
  
 
-wrkdir = r"c:\Work\\W4_1\\"
+wrkdir = r"c:\Work\\W2_1\\"
 api_key = 'ONKTYPV6TAMZK464' 
 
 wwrkdir_=r".\W10\\"
@@ -67,7 +63,7 @@ def fig2img ( fig ):
 
 def loaddata(aLengt,key):
     audio = mpv.AudioFileClip(wwrkdir_ +nama+".mp4")
-    samplerate, samples = audio.fps, np.asarray(audio.to_soundarray(),float)
+    samples = np.asarray(audio.to_soundarray(),float)
     siz=len(samples)
 
     siz_=int(siz/dsiz)
@@ -80,9 +76,9 @@ def loaddata(aLengt,key):
     siz=len(samplesx)
     samplesy=np.concatenate((samplesx,np.zeros(siz,float)))
     samplesx=samplesy[np.asarray(range(siz),int)+siz*(samplesx==-np.Inf)]  
-    samplesx=samplesx-np.amin(samplesx)
+    samplesx=samplesx-np.amin(samplesx)+np.std(samplesx)
     arrrxx=np.asarray(samplesx,float)
-    return arrrxx[1:int(0.8*len(arrrxx))-1]
+    return arrrxx[1:int(0.7*len(arrrxx))-1]
 
 if __name__ == '__main__': 
     try:
@@ -154,8 +150,7 @@ if __name__ == '__main__':
             axes.plot(arr_z, 'go-')  #cut data used for model
             axes.text(4, 4, 'Reflection on Action of Lorentz Forces-1, #2011612714  \n\n Course = %s, start = %s, step = %s * %s'%(nama,adat0,interv,aDecm),
                     verticalalignment='bottom', horizontalalignment='right',
-                    transform=axes_.transAxes,color='blue', fontsize=14)        
-
+                    transform=axes_.transAxes,color='blue', fontsize=14)  
             try:
                 frame=fig2img(fig)  
             except:
@@ -208,7 +203,7 @@ if __name__ == '__main__':
             else:
                 hhh_=hhh_+1
                 ZZ=1
-        
+                
         if ZZ==0:                  
             try:
                 [hhha,Arr_BBB]=(hkl.load(wrkdir + nama+".rlf1"))       
@@ -255,10 +250,11 @@ if __name__ == '__main__':
             if hhh>=hhha-1:    
                 WrtTodr=1
                 aDur=4
-            
-            dNIt=7
+                
+            dNIt=NIter/6
             NQRandm=512
-            aNN=3
+            aNN=2
+            aMM=2
             nI=max(0,hhh-int(NIter/dNIt)+1)
             arr_RezM=  np.zeros((Ngroup,Nf),float)  
             for iGr in range(Ngroup):                
@@ -266,7 +262,7 @@ if __name__ == '__main__':
                 arr_RezM[iGr]=(np.mean(ZDat,axis = 0)+np.mean(ZDat,axis = 0))/2  
 
                 anI=len(ZDat)
-                if anI>1:          
+                if anI>aNN:          
                     aMx=np.zeros(Nf,float)-np.Inf
                     aMn=np.zeros(Nf,float)+np.Inf
                     aMx_=0
@@ -304,25 +300,26 @@ if __name__ == '__main__':
                             DD__[i,:]=(DD__[i,liix[i]])
                             dd[i]=(dd[i])[liix[i]].copy()  
                             
-                        for ii in range(aNN):                            
-                            dd1=dd[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]
-                            ddA= dd1*(1-(dd1<0))
-                            ddB=-dd1*(1-(dd1>0))
-                            dA=DD[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]*(ddA==0)
-                            dB=DD[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]*(ddB==0)
-                            ddA=ddA+(DD__[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)])
-                            ddB=ddB+(DD__[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)])
-                            eeA=(XFilter.RALF1FilterX(  ddA-dA,len(ddA),len(ddA[0]),1,0)+
-                                 XFilter.RALF1FilterX(  ddA-dB,len(ddA),len(ddA[0]),1,0))/2
-                            eeB=-(XFilter.RALF1FilterX(  ddB-dB,len(ddB),len(ddB[0]),1,0)+
-                                  XFilter.RALF1FilterX(  ddB-dA,len(ddB),len(ddB[0]),1,0))/2
-                            dd[:,int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]=mn+(eeA+eeB)/2#(eeA*(1-(eeA>0))+eeB*(1-(eeB<0)))/2#
+                        for ii in range(aNN):   
+                            for jj in range(aMM):
+                                dd1=dd[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]
+                                ddA= dd1*(1-(dd1<0))
+                                ddB=-dd1*(1-(dd1>0))
+                                dA=DD[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]*(ddA==0)
+                                dB=DD[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]*(ddB==0)
+                                ddA=ddA+(DD__[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(ii*Nf/aNN):int((ii+1)*Nf/aNN)])
+                                ddB=ddB+(DD__[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(ii*Nf/aNN):int((ii+1)*Nf/aNN)])
+                                eeA=(XFilter.RALF1FilterX(  ddA-dA,len(ddA),len(ddA[0]),1,0)+
+                                     XFilter.RALF1FilterX(  ddA-dB,len(ddA),len(ddA[0]),1,0))/2
+                                eeB=-(XFilter.RALF1FilterX(  ddB-dB,len(ddB),len(ddB[0]),1,0)+
+                                      XFilter.RALF1FilterX(  ddB-dA,len(ddB),len(ddB[0]),1,0))/2
+                                dd[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]=mn+(eeA*(1-(eeA>0))+eeB*(1-(eeB<0)))/2#(eeA+eeB)/2
                             
                         for i in range(anI):
                             aMx[liix[i]]=np.maximum(aMx[liix[i]],dd[i])
                             aMn[liix[i]]=np.minimum(aMn[liix[i]],dd[i])
-                            aMx_=(aMx_*i+aMx)/(i+1)
-                            aMn_=(aMn_*i+aMn)/(i+1)
+                            aMx_=aMx.copy()#(aMx_*i+aMx)/(i+1)
+                            aMn_=aMn.copy()#(aMn_*i+aMn)/(i+1)
                             
                         dd=(aMx_+aMn_)/2
                                                 
@@ -331,13 +328,13 @@ if __name__ == '__main__':
                             all_RezN[iGr][hhhx]=arr_RezM[iGr].copy()
                         else:
                             arr_RezM[iGr]=(np.maximum(arr_RezM[iGr],dd)+np.minimum(arr_RezM[iGr],dd))/2
-                            all_RezN[iGr][hhhx]=(all_RezN[iGr][hhhx-1]*hhhx+arr_RezM[iGr])/(hhhx+1)
+                            all_RezN[iGr][hhhx]=arr_RezM[iGr].copy()#$(all_RezN[iGr][hhhx-1]*hhhx+arr_RezM[iGr])/(hhhx+1)
                     
                     arr_RezM[iGr]=all_RezN[iGr][hhhx].copy()                  
                 
                 all_RezM[iGr][hhh]=arr_RezM[iGr].copy()                    
                 arr_RezM[iGr]=(np.amax(all_RezM[iGr][0:hhh+1],axis = 0)+
-                                np.amin(all_RezM[iGr][0:hhh+1],axis = 0))/2
+                               np.amin(all_RezM[iGr][0:hhh+1],axis = 0))/2
                                                                            
                 if Lo:
                     arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1)
