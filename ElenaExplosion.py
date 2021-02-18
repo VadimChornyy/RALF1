@@ -1,7 +1,6 @@
 import concurrent.futures
 import pylab as plt
 import numpy as np
-import urllib.request, json
 import pandas as pd
 from PIL import Image 
 import cv2 as cv
@@ -10,10 +9,9 @@ import hickle as hkl
 import os
 
 from scipy import stats as scp
-import dateutil.parser
-from operator import itemgetter
 import dill 
 #from scipy.signal import savgol_filter
+import scipy.interpolate as interp
 
 from RALf1FiltrVID import filterFourierQ
 from RALf1FiltrVID import RALf1FiltrQ
@@ -21,29 +19,19 @@ from RALf1FiltrVID import RandomQ
 import RALF1FilterX as XFilter
  
 
-wrkdir = r"c:\Work\\W5_9\\"
-api_key = 'ONKTYPV6TAMZK464' 
-
-ticker ="USDEUR" # "BTCUSD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
-interv="15min"
-interv="Daily"
-url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=%s&interval=%s&outputsize=full&apikey=%s"%(ticker,interv,api_key)        
-url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=%s&outputsize=full&apikey=%s"%(ticker,api_key)
-
-#INTRADAY
-#d_intervals = {"1min","5min","15min","30min","60min"}
-aname=ticker
-Lengt=6000
+wrkdir = r"c:\Work\\W7\\"
+aname='lena-Geo'
+Lengt=1000
 Ngroup=3
 Nproc=2*Ngroup#*(mp.cpu_count())
-Lo=1
+Lo=0
 aTmStop=6
 NIt=3
 NIter=100
-DT=0.25
+DT=0.35
 Nf_K=3
-aDecm=10
-    
+aDecm=1
+
 def decimat(adat_):
     if Lo:
         adat_=np.log(adat_)
@@ -68,77 +56,34 @@ def fig2img ( fig ):
     # frame=Image.frombytes('RGB', fig.canvas.get_width_height(),
     #                        fig.canvas.tostring_rgb())
     return frame
+    
+def loaddata(aLengt,key=1):
+    arrr=[]
+    excel_data_df = pd.read_excel('lena.xls', sheet_name='1')
+    
+    dat=np.asarray(excel_data_df, float)
+    f=interp.interp1d(dat[:,0], dat[:,1],'cubic')
+    xnew=np.asarray(range(3,463),float)[::4]
+    arrr=np.asarray(f(xnew),float)
+    arrr=decimat(arrr)
+            
+    return arrr
 
-def loaddata(aLengt,key):
-    adat_=[]
-    if key>0:  
-        data = json.loads(urllib.request.urlopen(url_string).read().decode())['Time Series (%s)'%(interv)]
-        df = pd.DataFrame(columns=['Date','Low','High','Close','Open'])
-        arrr=[]
-        adate=[]
-        adt=[]
-        for k,v in data.items():
-            date = dateutil.parser.parse(k)
-            data_row = [date.date(),float(v['3. low']),float(v['2. high']),
-                                float(v['4. close']),float(v['1. open'])]
-            df.loc[-1,:] = data_row
-            rr=(np.asarray(data_row)[1]+np.asarray(data_row)[2])/2
-            if rr!=0:
-                adate.append(date.timestamp())
-                adt.append(k)
-                arrr.append(rr)
-            df.index = df.index + 1
-    #        if np.asarray(arrr,int).size>=aLengt:#495:1023:
-    #            break
-        aa=[[] for i in range(3)]
-        aa[0]=adate
-        aa[1]=arrr  
-        aa[2]=adt
-        m=aa
-        aa=[[m[j][l] for j in range(len(m))] for l in range(len(m[0]))]   
-        aa.sort(key=itemgetter(0))
-        m=aa
-        aa=[[m[j][l] for j in range(len(m))] for l in range(len(m[0]))]     
-        ada=list(aa)[2]
-        arrr=list(aa)[1]
-        sz=np.asarray(arrr).size
-        ln=min(sz,aLengt)
-        arr=np.asarray(arrr).copy()
-        arrr=[]        
-        for i in range(ln-1):
-            arrr.append(arr[sz-ln+i])
-            adat_.append(ada[sz-ln+i])
-    else:
-        file=open(ticker+ '.txt','r')
-        arrr=np.asarray(file.readlines(),float).copy()
-        if len(arrr)>aLengt:
-            arrr=arrr[len(arrr)-aLengt:]
-        file.close()
+if __name__ == '__main__':   
+    ImApp=[]
         
-    return arrr,adat_
-
-if __name__ == '__main__': 
+    arrrxx=loaddata(Lengt,1)
+    arrrxx=np.asarray(arrrxx,float)
+ 
+    arr_rezDzRez=[]
+    kkk=0
+    out=0       
+            
+    w=0
+  
     try:
         dill.load_session(wrkdir + aname+".ralf")
     except:
-        ImApp=[]
-        try:
-            arrrxx=hkl.load(wrkdir + aname+"dat.rlf1")
-        except:
-            arrrxx,adat_=loaddata(Lengt,1)  
-            arrrxx=np.asarray(arrrxx,float)
-            arrrxx=decimat(arrrxx)
-            try:                
-                hkl.dump(arrrxx,wrkdir + aname+"dat.rlf1")
-            except:
-                os.mkdir(wrkdir)
-                hkl.dump(arrrxx,wrkdir + aname+"dat.rlf1")
-            
-        esz=len(arrrxx)
-        arr_rezDzRez=[[] for j in range(esz)]
-        kkk=0
-        out=0   
-
         aname=aname
         arrr=np.asarray(arrrxx).copy()  
 
@@ -185,13 +130,14 @@ if __name__ == '__main__':
             axes__ = fig.add_axes([0.4, 0, 0.3, 0.3])
             axes.plot(ar0, 'r.')
             axes.plot(arr_z, 'go-')  #cut data used for model
-            axes.text(4, 4, 'Reflection on Action of Lorentz Forces-1, #2011612714  \n\n Course = %s, start = %s, step = %s * %s'%(aname,adat0,interv,aDecm),
+            axes.text(4, 4, 'Reflection on Action of Lorentz Forces-1, #2011612714  \n\n Course = %s'%(aname),
                     verticalalignment='bottom', horizontalalignment='right',
                     transform=axes_.transAxes,color='blue', fontsize=14)        
 
             try:
                 frame=fig2img(fig)  
             except:
+                os.mkdir(wrkdir)
                 frame=fig2img(fig) 
             ImApp.append(frame)
             cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)        
@@ -245,7 +191,7 @@ if __name__ == '__main__':
         if ZZ==0:                  
             try:
                 [hhha,Arr_BBB]=(hkl.load(wrkdir + aname+".rlf1"))       
-                Arr_AAA[:,0:int(Nproc*hhha/Ngroup),:]=Arr_BBB[:,0:int(Nproc*hhha/Ngroup),:].copy()
+                Arr_AAA[:,0:int(Nproc*hhha/Ngroup),:Nf]=Arr_BBB[:,0:int(Nproc*hhha/Ngroup),:Nf].copy()
             except:            
                 hhha=hhh-1
             
@@ -281,14 +227,14 @@ if __name__ == '__main__':
                 arezAMx= np.asarray(arezAMx,float)*Klg+Asr
                 
                 for iGr in range(Ngroup):
-                    Arr_AAA[iGr,hhh*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup)]=(
+                    Arr_AAA[iGr][hhh*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup)]=(
                         arezAMx[int(iGr*(Nproc/Ngroup)):int((iGr+1)*(Nproc/Ngroup))]).copy()
                 
             WrtTodr=0
             if hhh>=hhha-1:    
                 WrtTodr=1
                 aDur=4
-                
+                    
             dNIt=NIter/3
             NQRandm=512
             aNN=2
@@ -299,15 +245,16 @@ if __name__ == '__main__':
                 ZDat_=Arr_AAA[iGr][((hhh)-nI)*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup),:].copy()
                 anI=len(ZDat_)
                 ZDat=ZDat_.copy()
-                aStr=ZDat[0][0]
-                for i in range(anI):
-                    ZDat[i,0]=0
-                    ZDat[i,1:]=np.diff(ZDat_[i,:])
+                aStr=np.Inf
+                # aStr=ZDat[0][0]
+                # for i in range(anI):
+                #     ZDat[i,0]=0
+                #     ZDat[i,1:]=np.diff(ZDat_[i,:])
                 
                 arr_RezM[iGr]=(np.mean(ZDat,axis = 0)+np.mean(ZDat,axis = 0))/2  
                 hhhx=0
                 all_RezM[iGr][hhhx]=arr_RezM[iGr].copy()
-                all_RezN[iGr][hhhx]=arr_RezM[iGr].copy()                  
+                all_RezN[iGr][hhhx]=arr_RezM[iGr].copy() 
                 if anI>aNN:   
                     aMx=np.zeros(Nf,float)-np.Inf
                     aMn=np.zeros(Nf,float)+np.Inf
@@ -364,18 +311,24 @@ if __name__ == '__main__':
                         for i in range(anI):
                             aMx[liix[i]]=np.maximum(aMx[liix[i]],dd[i])
                             aMn[liix[i]]=np.minimum(aMn[liix[i]],dd[i])
-                            aMx_=aMx.copy()#(aMx_*i+aMx)/(i+1)
-                            aMn_=aMn.copy()#(aMn_*i+aMn)/(i+1)
+                            aMx_=(aMx_*i+aMx)/(i+1)
+                            aMn_=(aMn_*i+aMn)/(i+1)
 
                         all_RezM[iGr][hhhx]=(all_RezM[iGr][hhhx-1]*hhhx+np.maximum(all_RezM[iGr][hhhx-1],aMx_))/(hhhx+1)
                         all_RezN[iGr][hhhx]=(all_RezN[iGr][hhhx-1]*hhhx+np.minimum(all_RezN[iGr][hhhx-1],aMn_) )/(hhhx+1)
                                                               
                 if Lo:
-                    arr_RezM[iGr]=filterFourierQ(aStr+np.cumsum(all_RezM[iGr][hhhx]),np.log(arr_z),NNew,1)
+                    if aStr==np.Inf:
+                        arr_RezM[iGr]=filterFourierQ(all_RezM[iGr][hhhx],np.log(arr_z),NNew,1)
+                    else:                        
+                        arr_RezM[iGr]=filterFourierQ(aStr+np.cumsum(all_RezM[iGr][hhhx]),np.log(arr_z),NNew,1)
                     arr_RezM[iGr][0:Nf-NNew]=np.log(ar0[0:Nf-NNew])  
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-np.mean(arr_RezM[iGr][Nf-NNew:Nf-NNew+int(NNew*0.1)])) +np.mean(np.log(ar0[Nf-NNew:Nf-NNew+int(NNew*0.1)]))
                 else:
-                    arr_RezM[iGr]=filterFourierQ(aStr+np.cumsum(all_RezM[iGr][hhhx]),(arr_z),NNew,1)
+                    if aStr==np.Inf:
+                        arr_RezM[iGr]=filterFourierQ(all_RezM[iGr][hhhx],(arr_z),NNew,1)
+                    else:
+                        arr_RezM[iGr]=filterFourierQ(aStr+np.cumsum(all_RezM[iGr][hhhx]),(arr_z),NNew,1)
                     arr_RezM[iGr][0:Nf-NNew]=ar0[0:Nf-NNew].copy()
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-np.mean(arr_RezM[iGr][Nf-NNew:Nf-NNew+int(NNew*0.1)])) +np.mean((ar0[Nf-NNew:Nf-NNew+int(NNew*0.1)]))
 
@@ -406,7 +359,7 @@ if __name__ == '__main__':
                 for iGr in range(Ngroup): 
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]/np.std(arr_RezM[iGr][Nf-NNew:Nf-NNew+int(NNew*0.1)])) *np.std((ar0[Nf-NNew:Nf-NNew+int(NNew*0.1)]))
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-np.mean(arr_RezM[iGr][Nf-NNew:Nf-NNew+int(NNew*0.1)])) +np.mean((ar0[Nf-NNew:Nf-NNew+int(NNew*0.1)]))
-                                                       
+                                                        
             if Lo:   
                 for iGr in range(Ngroup):    
                     arr_RezM[iGr]=np.exp(arr_RezM[iGr]) 
@@ -430,7 +383,7 @@ if __name__ == '__main__':
                 axes.text(-0.1, 4, '%s  '%(hhh+1),
                         verticalalignment='bottom', horizontalalignment='left',
                         transform=axes_.transAxes,color='black', fontsize=24) 
-                axes.text(4, 4, 'Reflection on Action of Lorentz Forces-1, #2011612714  \n\n Course = %s, start = %s, step = %s * %s'%(aname,adat0,interv,aDecm),
+                axes.text(4, 4, 'Reflection on Action of Lorentz Forces-1, #2011612714  \n\n Course = %s'%(aname),
                         verticalalignment='bottom', horizontalalignment='right',
                         transform=axes_.transAxes,color='blue', fontsize=14)     
                 gint=np.polyfit(mm1,mm2,1)
@@ -440,12 +393,12 @@ if __name__ == '__main__':
                     verticalalignment='bottom', horizontalalignment='right',
                     transform=axes_.transAxes,color='green', fontsize=30)
                 
-                axes__.text(1.8, 0.6, 'Dunning–Kruger\n effect',
+                axes__.text(1.8, 0.6, 'Dunning –Kruger\n effect',
                         verticalalignment='bottom', horizontalalignment='center',
                     transform=axes_.transAxes,color='green', fontsize=14)  
                 axes__.plot(Koef_,'y',linewidth=2.)
                 
-                frame=fig2img(fig) 
+                frame=fig2img(fig)  
                 cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)        
                 gray_sz1=min(gray_sz1,len(cimg[0]))
                 gray_sz2=min(gray_sz2,len(cimg))
@@ -487,7 +440,7 @@ if __name__ == '__main__':
     axes__ = fig.add_axes([0.4, 0, 0.3, 0.3]) 
     axes.plot(arrr, 'ro-')
     axes.plot(arr_rezBz, 'cx-', alpha=0.5) #predicted data
-    axes.text(4, 4, 'Reflection on Action of Lorentz Forces-1, #2011612714  \n\n Course = %s, start = %s, step = %s * %s'%(aname,adat0,interv,aDecm),
+    axes.text(4, 4, 'Reflection on Action of Lorentz Forces-1, #2011612714  \n\n Course = %s'%(aname),
             verticalalignment='bottom', horizontalalignment='right',
             transform=axes_.transAxes,color='blue', fontsize=14)     
     gint=np.polyfit(mm1,mm2,1)
