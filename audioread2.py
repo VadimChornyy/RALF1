@@ -110,7 +110,7 @@ if __name__ == '__main__':
         Nf=Lengt
         
         nn=int(Nf*DT)             
-        NNew=int(Nf*0.5)  
+        NNew=int(Nf*0.45)  
         Nf=Nf+nn        
         ar0=np.asarray(arrr[0:])           
         

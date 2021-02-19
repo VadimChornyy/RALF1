@@ -482,8 +482,9 @@ def RALf1FiltrQ(args):
                                 fo = open(anamef, "w")
                                 fo.write(str(args[0])+'\n')
                                 fo.close() 
-                                print('.')
-                                KoefA.append(100*(scp.pearsonr(mm1,mm2)[0]))
+                                coef=100*(scp.pearsonr(mm1,mm2)[0])
+                                print('.%s'%(coef))
+                                KoefA.append(coef)
                                 #mm1=mm1*np.std(mm2)/np.std(mm1)                       
                                 Koef.append(-np.std(mm1-mm2))
                                 arr_bbx.append(arr_bbbxxx) 
@@ -501,7 +502,7 @@ def RALf1FiltrQ(args):
                 
                 if np.isnan(KoefA[Nch]):
                     KoefA[Nch]=0            
-                if KoefA[Nch]>20:
+                if KoefA[Nch]>10:
                     print(KoefA)
                     for l in range(NChan):
                         arr_b[Nf-NNew+Nf*l:Nf+Nf*l]=arr_bbx_[Nch][Nf-NNew+Nf*l:Nf+Nf*l].copy()    
