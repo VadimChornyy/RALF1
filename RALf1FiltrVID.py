@@ -185,8 +185,13 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,D,Nhh,iProc):
         for i in range(sz):    
             liix[i]=liiB[liiD[i+liiC[hh]]:sz+liiD[i+liiC[hh]]].copy()
             dQ3_0[i]=r2[hh,liix[i]].copy()
-            mDD[i]=R4[liix[i]].copy()     
+            mDD[i]=R4[liix[i]].copy()    
          
+        dQ3=dQ3_0.copy()             
+        aStr=dQ3_0[0][0]
+        dQ3=dQ3_0.reshape((sz*sz))
+        dQ3[1:]=np.diff(dQ3)
+        dQ3_0=dQ3.reshape((sz,sz))
         dQ3=dQ3_0.copy() 
                
         ##########################################       
@@ -211,7 +216,7 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,D,Nhh,iProc):
         liiC=np.concatenate((aa, aa, aa)) 
         aa=RandomQ(sz)  
         r5=aa.copy()
-        r5=D*((r5/np.std(r5))/2+Koe*2) 
+        r5=D*np.sqrt(2)*((r5/np.std(r5))/2+Koe*2) 
         r5=np.concatenate((r5, r5))
         aa=RandomQ(sz) 
         ss4=np.concatenate((aa, aa, aa, aa))                         
@@ -308,13 +313,13 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,D,Nhh,iProc):
                 WW=WW-1
                 
         if WW==0:
-            dQ4=(AsrXMx_+AsrXMn_)/2
-            
+            dQ4=(AsrXMx_+AsrXMn_)/2            
             sseq=dQ4.reshape(sz*sz)*(1/(mDD.reshape(sz*sz)<D*Koe))  
             sseq=np.asarray(list(filter(lambda x: abs(x)!= np.Inf, sseq)),float) 
             sseq=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, sseq)),float)  
-            WW=WW-1               
+            WW=WW-1  
             dQ3=dQ3_0*(mDD<D*Koe)+(dQ4)*(np.asarray(1,np.float16)-(mDD<D*Koe))
+
             if not sum(sum(np.isnan(dQ3)))>0:
                 try:
                     if 100*scp.pearsonr(sseq,sseq_)[0]>20:
@@ -325,6 +330,9 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,D,Nhh,iProc):
         hh0=hh
             
         if not WW<0:
+            dQ3=dQ3.reshape((sz*sz))
+            dQ3=np.cumsum(dQ3)+aStr
+            dQ3=dQ3.reshape((sz,sz))
             aMx_=0
             aMn_=0
             aMx=np.zeros(sz,float)-np.Inf
@@ -413,11 +421,7 @@ def RALf1FiltrQ(args):
         arr_bb.append(args[4+i])
     arr_bb=np.asarray(arr_bb,float)
     arr_b=arr_bb.copy()
-    
-    aStr=arr_b[0]
-    arr_b[0]=0
-    arr_b[1:]=np.diff(arr_bb)    
-    
+   
     Nf=int(arr_b.size/NChan)    
     NNew0=int(NNew*1.1) 
     arr_c=[]
@@ -508,7 +512,7 @@ def RALf1FiltrQ(args):
                         arr_b[Nf-NNew+Nf*l:Nf+Nf*l]=arr_bbx_[Nch][Nf-NNew+Nf*l:Nf+Nf*l].copy()    
                     #arr_b=filterFourierQ(arr_b,arr_b,NNew,NChan,0)
 
-                    return np.cumsum(arr_b)+aStr
+                    return arr_b
                 else:
                     Nhh=Nhh+1
 

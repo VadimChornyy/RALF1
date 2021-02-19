@@ -262,10 +262,6 @@ if __name__ == '__main__':
                 anI=len(ZDat_)
                 ZDat=ZDat_.copy()
                 aStr=np.Inf
-                # aStr=ZDat[0][0]
-                # for i in range(anI):
-                #     ZDat[i,0]=0
-                #     ZDat[i,1:]=np.diff(ZDat_[i,:])
                 
                 arr_RezM[iGr]=(np.mean(ZDat,axis = 0)+np.mean(ZDat,axis = 0))/2  
                 hhhx=0
@@ -298,6 +294,10 @@ if __name__ == '__main__':
                         
                         mn=np.mean(ZDat)
                         dd=(ZDat-mn)
+                        aStr=ZDat[0][0]
+                        ZDatx=ZDat.copy()
+                        ZDatx[1:]=dd.reshape((anI*Nf))
+                        dd=ZDatx.reshape((anI,Nf)                        
                         
                         aa=RandomQ(Nf,NQRandm)                        
                         ss4=np.concatenate((aa, aa, aa))
@@ -324,6 +324,8 @@ if __name__ == '__main__':
                                       XFilter.RALF1FilterX(  ddB-dA,len(ddB),len(ddB[0]),1,0))/2
                                 dd[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]=mn+(eeA*(1-(eeA>0))+eeB*(1-(eeB<0)))/2#(eeA+eeB)/2
                             
+                        ddx=dd.reshape((anI*Nf))
+                        dd=(aStr+np.cumsum(ddx)).reshape((anI,Nf))
                         for i in range(anI):
                             aMx[liix[i]]=np.maximum(aMx[liix[i]],dd[i])
                             aMn[liix[i]]=np.minimum(aMn[liix[i]],dd[i])
