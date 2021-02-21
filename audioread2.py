@@ -18,7 +18,7 @@ from RALf1FiltrVID import RandomQ
 import RALF1FilterX as XFilter
  
 
-wrkdir = r"c:\Work\\W6_1\\"
+wrkdir = r"c:\Work\\W1_1\\"
 api_key = 'ONKTYPV6TAMZK464' 
 
 wwrkdir_=r".\W10\\"
@@ -34,7 +34,7 @@ NIt=3
 NIter=100
 DT=0.1
 Nf_K=3
-aDecm=1
+aDecm=2
     
 def decimat(adat_):
     if Lo:
@@ -90,7 +90,7 @@ if __name__ == '__main__':
         except:
             arrrxx=loaddata(Lengt,1)  
             arrrxx=np.asarray(arrrxx,float)
-            #arrrxx=decimat(arrrxx)
+            arrrxx=decimat(arrrxx)
             try:                
                 hkl.dump(arrrxx,wrkdir + nama+"dat.rlf1")
             except:
@@ -262,7 +262,10 @@ if __name__ == '__main__':
                 anI=len(ZDat_)
                 ZDat=ZDat_.copy()
                 aStr=np.Inf
-                
+                aStr=ZDat[0][0]
+                for i in range(anI):
+                    ZDat[i,0]=0
+                    ZDat[i,1:]=np.diff(ZDat_[i,:])                
                 arr_RezM[iGr]=(np.mean(ZDat,axis = 0)+np.mean(ZDat,axis = 0))/2  
                 hhhx=0
                 all_RezM[iGr][hhhx]=arr_RezM[iGr].copy()
@@ -280,7 +283,7 @@ if __name__ == '__main__':
                         for hhhc in range(anI):
                             DD.append(ss4[hhhc:hhhc+Nf])
                         DD=np.asarray(DD,float)                              
-                        DD=(DD/np.std(DD)+1e-6)*D/2   
+                        DD=(DD/np.std(DD)+1e-6)*D/2   *2
 
                         aa=RandomQ(Nf,NQRandm)                        
                         ss4_=np.concatenate((aa, aa, aa))
@@ -294,10 +297,12 @@ if __name__ == '__main__':
                         
                         mn=np.mean(ZDat)
                         dd=(ZDat-mn)
-                        aStr=ZDat[0][0]
-                        ZDatx=ZDat.copy()
-                        ZDatx[1:]=dd.reshape((anI*Nf))
-                        dd=ZDatx.reshape((anI,Nf)                        
+                        aStrx=np.Inf
+                        aStrx=dd[0][0]
+                        ZDatx=np.zeros((anI*Nf),float)
+                        ZDatx[0]=0
+                        ZDatx[1:]=np.diff(dd.reshape((anI*Nf)))
+                        dd=ZDatx.reshape((anI,Nf))                     
                         
                         aa=RandomQ(Nf,NQRandm)                        
                         ss4=np.concatenate((aa, aa, aa))
@@ -324,13 +329,16 @@ if __name__ == '__main__':
                                       XFilter.RALF1FilterX(  ddB-dA,len(ddB),len(ddB[0]),1,0))/2
                                 dd[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]=mn+(eeA*(1-(eeA>0))+eeB*(1-(eeB<0)))/2#(eeA+eeB)/2
                             
-                        ddx=dd.reshape((anI*Nf))
-                        dd=(aStr+np.cumsum(ddx)).reshape((anI,Nf))
+                        if not aStrx==np.Inf:
+                            ddx=dd.reshape((anI*Nf))
+                            dd=(aStrx+np.cumsum(ddx)).reshape((anI,Nf))
                         for i in range(anI):
                             aMx[liix[i]]=np.maximum(aMx[liix[i]],dd[i])
                             aMn[liix[i]]=np.minimum(aMn[liix[i]],dd[i])
-                            aMx_=(aMx_*i+aMx)/(i+1)
-                            aMn_=(aMn_*i+aMn)/(i+1)
+                            # aMx_=(aMx_*i+aMx)/(i+1)
+                            # aMn_=(aMn_*i+aMn)/(i+1)
+                            aMx_=aMx.copy()
+                            aMn_=aMn.copy()
 
                         all_RezM[iGr][hhhx]=(all_RezM[iGr][hhhx-1]*hhhx+np.maximum(all_RezM[iGr][hhhx-1],aMx_))/(hhhx+1)
                         all_RezN[iGr][hhhx]=(all_RezN[iGr][hhhx-1]*hhhx+np.minimum(all_RezN[iGr][hhhx-1],aMn_) )/(hhhx+1)
