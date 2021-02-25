@@ -58,14 +58,14 @@ for j in range(3):
     im_[:,:,j]=aaaa.copy()
 
 lvls1= np.linspace(-0.15,0.15,15)
-
+ddx=np.zeros((13,100,100),float)
 for i in range(13):  
     dd=zi[i]-dd_
     dd=dd-gaussian_filter(dd, sigma=2)
-
+    ddx[i]=-(dd)
     ax = plt.gca()  
     #CS = plt.contour(xi,yi,dd_,levels=lvls2,linewidths=0.5,colors='k')
-    CS = ax.contourf(xi,yi,-(dd),levels=lvls1,cmap='RdBu')      
+    CS = ax.contourf(xi,yi,ddx[i],levels=lvls1,cmap='RdBu')      
     plt.title('Anomaly intensity of magnetic field amplitude %s'%(1900+i*10))
     for c in CS.collections:
         c.set_edgecolor("face")        

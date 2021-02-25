@@ -21,10 +21,10 @@ from RALf1FiltrVID import RandomQ
 import RALF1FilterX as XFilter
  
 
-wrkdir = r"c:\Work\\W5_9\\"
+wrkdir = r"c:\Work\\W3_4\\"
 api_key = 'ONKTYPV6TAMZK464' 
 
-ticker ="USDEUR" # "BTCUSD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
+ticker ="BTCUSD" # "BTCUSD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
 interv="15min"
 interv="Daily"
 url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=%s&interval=%s&outputsize=full&apikey=%s"%(ticker,interv,api_key)        
@@ -33,7 +33,7 @@ url_string =  "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symb
 #INTRADAY
 #d_intervals = {"1min","5min","15min","30min","60min"}
 aname=ticker
-Lengt=6000
+Lengt=2000
 Ngroup=3
 Nproc=2*Ngroup#*(mp.cpu_count())
 Lo=1
@@ -42,7 +42,7 @@ NIt=3
 NIter=100
 DT=0.25
 Nf_K=3
-aDecm=10
+aDecm=3
     
 def decimat(adat_):
     if Lo:
@@ -147,7 +147,7 @@ if __name__ == '__main__':
         Nf=Lengt
         
         nn=int(Nf*DT)             
-        NNew=int(Nf*0.6)  
+        NNew=int(Nf*0.4)  
         Nf=Nf+nn        
         ar0=np.asarray(arrr[0:])           
         
@@ -290,7 +290,7 @@ if __name__ == '__main__':
                 aDur=4
                 
             dNIt=NIter/3
-            NQRandm=512
+
             aNN=2
             aMM=2
             nI=max(0,hhh-int(NIter/dNIt)+1)
@@ -299,15 +299,15 @@ if __name__ == '__main__':
                 ZDat_=Arr_AAA[iGr][((hhh)-nI)*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup),:].copy()
                 anI=len(ZDat_)
                 ZDat=ZDat_.copy()
-                aStr=ZDat[0][0]
-                for i in range(anI):
-                    ZDat[i,0]=0
-                    ZDat[i,1:]=np.diff(ZDat_[i,:])
-                
+                aStr=np.Inf
+                # aStr=ZDat[0][0]
+                # for i in range(anI):
+                #     ZDat[i,0]=0
+                #     ZDat[i,1:]=np.diff(ZDat_[i,:])                
                 arr_RezM[iGr]=(np.mean(ZDat,axis = 0)+np.mean(ZDat,axis = 0))/2  
                 hhhx=0
                 all_RezM[iGr][hhhx]=arr_RezM[iGr].copy()
-                all_RezN[iGr][hhhx]=arr_RezM[iGr].copy()                  
+                all_RezN[iGr][hhhx]=arr_RezM[iGr].copy() 
                 if anI>aNN:   
                     aMx=np.zeros(Nf,float)-np.Inf
                     aMn=np.zeros(Nf,float)+np.Inf
@@ -315,15 +315,15 @@ if __name__ == '__main__':
                     aMn_=0
                     for hhhx in range(anI):
                         D=np.std(ZDat)                     
-                        aa=RandomQ(Nf,NQRandm)                        
+                        aa=RandomQ(Nf)                        
                         ss4=np.concatenate((aa, aa, aa))
                         DD=[]
                         for hhhc in range(anI):
                             DD.append(ss4[hhhc:hhhc+Nf])
                         DD=np.asarray(DD,float)                              
-                        DD=(DD/np.std(DD)+1e-6)*D/2   
+                        DD=(DD/np.std(DD)+1e-6)*D/2   *2
 
-                        aa=RandomQ(Nf,NQRandm)                        
+                        aa=RandomQ(Nf)                        
                         ss4_=np.concatenate((aa, aa, aa))
                         
                         DD_=[]
@@ -335,8 +335,14 @@ if __name__ == '__main__':
                         
                         mn=np.mean(ZDat)
                         dd=(ZDat-mn)
+                        aStrx=np.Inf
+                        # aStrx=dd[0][0]
+                        # dd=dd.reshape((anI*Nf))
+                        # dd[0]=0
+                        # dd[1:]=np.diff(dd)
+                        # dd=dd.reshape((anI,Nf))                     
                         
-                        aa=RandomQ(Nf,NQRandm)                        
+                        aa=RandomQ(Nf)                        
                         ss4=np.concatenate((aa, aa, aa))
                         liix=np.zeros((anI,Nf),int)
 
@@ -361,21 +367,32 @@ if __name__ == '__main__':
                                       XFilter.RALF1FilterX(  ddB-dA,len(ddB),len(ddB[0]),1,0))/2
                                 dd[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]=mn+(eeA*(1-(eeA>0))+eeB*(1-(eeB<0)))/2#(eeA+eeB)/2
                             
+                        if not aStrx==np.Inf:
+                            ddx=dd.reshape((anI*Nf))
+                            dd=(aStrx+np.cumsum(ddx)).reshape((anI,Nf))
                         for i in range(anI):
                             aMx[liix[i]]=np.maximum(aMx[liix[i]],dd[i])
                             aMn[liix[i]]=np.minimum(aMn[liix[i]],dd[i])
-                            aMx_=aMx.copy()#(aMx_*i+aMx)/(i+1)
-                            aMn_=aMn.copy()#(aMn_*i+aMn)/(i+1)
+                            # aMx_=(aMx_*i+aMx)/(i+1)
+                            # aMn_=(aMn_*i+aMn)/(i+1)
+                            aMx_=aMx.copy()
+                            aMn_=aMn.copy()
 
                         all_RezM[iGr][hhhx]=(all_RezM[iGr][hhhx-1]*hhhx+np.maximum(all_RezM[iGr][hhhx-1],aMx_))/(hhhx+1)
                         all_RezN[iGr][hhhx]=(all_RezN[iGr][hhhx-1]*hhhx+np.minimum(all_RezN[iGr][hhhx-1],aMn_) )/(hhhx+1)
                                                               
                 if Lo:
-                    arr_RezM[iGr]=filterFourierQ(aStr+np.cumsum(all_RezM[iGr][hhhx]),np.log(arr_z),NNew,1)
+                    if aStr==np.Inf:
+                        arr_RezM[iGr]=filterFourierQ(all_RezM[iGr][hhhx],np.log(arr_z),NNew,1)
+                    else:                        
+                        arr_RezM[iGr]=filterFourierQ(aStr+np.cumsum(all_RezM[iGr][hhhx]),np.log(arr_z),NNew,1)
                     arr_RezM[iGr][0:Nf-NNew]=np.log(ar0[0:Nf-NNew])  
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-np.mean(arr_RezM[iGr][Nf-NNew:Nf-NNew+int(NNew*0.1)])) +np.mean(np.log(ar0[Nf-NNew:Nf-NNew+int(NNew*0.1)]))
                 else:
-                    arr_RezM[iGr]=filterFourierQ(aStr+np.cumsum(all_RezM[iGr][hhhx]),(arr_z),NNew,1)
+                    if aStr==np.Inf:
+                        arr_RezM[iGr]=filterFourierQ(all_RezM[iGr][hhhx],(arr_z),NNew,1)
+                    else:
+                        arr_RezM[iGr]=filterFourierQ(aStr+np.cumsum(all_RezM[iGr][hhhx]),(arr_z),NNew,1)
                     arr_RezM[iGr][0:Nf-NNew]=ar0[0:Nf-NNew].copy()
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-np.mean(arr_RezM[iGr][Nf-NNew:Nf-NNew+int(NNew*0.1)])) +np.mean((ar0[Nf-NNew:Nf-NNew+int(NNew*0.1)]))
 
@@ -406,7 +423,7 @@ if __name__ == '__main__':
                 for iGr in range(Ngroup): 
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]/np.std(arr_RezM[iGr][Nf-NNew:Nf-NNew+int(NNew*0.1)])) *np.std((ar0[Nf-NNew:Nf-NNew+int(NNew*0.1)]))
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-np.mean(arr_RezM[iGr][Nf-NNew:Nf-NNew+int(NNew*0.1)])) +np.mean((ar0[Nf-NNew:Nf-NNew+int(NNew*0.1)]))
-                                                       
+                                                        
             if Lo:   
                 for iGr in range(Ngroup):    
                     arr_RezM[iGr]=np.exp(arr_RezM[iGr]) 

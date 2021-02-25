@@ -17,24 +17,15 @@ priorityclasses = [win32process.IDLE_PRIORITY_CLASS,
                win32process.REALTIME_PRIORITY_CLASS]  
 
 DETERM=0.62
-NNQRandm=512
-QRandm_=0
 
 def RandomQ(Nfx,NQRandm_=0):
-    global NQRandm
-    global QRandm_
-    
-    if not NQRandm_==0:
-        NQRandm=NQRandm_
+    QRandm_=np.asarray(range(512),float)
     
     KK=3e6
     liiX=np.zeros(Nfx,float)
     pp=0
     while pp<0.55:
         for ii in range(3):
-            if NQRandm>=NNQRandm:
-                QRandm_=np.asarray(range(NNQRandm),float)
-                NQRandm=0
             try:                
                 z=(QRandm_[NQRandm]+1)/KK           
                 atim0=tm.time()        
@@ -49,7 +40,7 @@ def RandomQ(Nfx,NQRandm_=0):
                     liiX=liiX+zz
                 NQRandm=NQRandm+1
             except:
-                NQRandm=NNQRandm                
+                NQRandm=0                
 
         k2, pp = scp.normaltest(liiX)
             
@@ -187,14 +178,8 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,D,Nhh,iProc):
             dQ3_0[i]=r2[hh,liix[i]].copy()
             mDD[i]=R4[liix[i]].copy()     
          
-        dQ3=dQ3_0.reshape((sz*sz))
-        asta=np.Inf
-        asta=dQ3[0]
-        dQ3[0]=0
-        dQ3[1:]=np.diff(dQ3)
-        dQ3=dQ3.reshape((sz,sz))
-        dQ3_0=dQ3.copy()               
-               
+        dQ3=dQ3_0.copy()
+              
         ##########################################       
         sseq_=dQ3_0.reshape(sz*sz)*(1/(mDD.reshape(sz*sz)<D*Koe))  
         sseq_=np.asarray(list(filter(lambda x: abs(x)!= np.Inf, sseq_)),float) 
@@ -325,10 +310,7 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,D,Nhh,iProc):
                 try:
                     if 100*scp.pearsonr(sseq,sseq_)[0]>20:
                         WW=WW+1
-                        if not asta==np.Inf:
-                            dQ3=dQ3.reshape((sz*sz))
-                            dQ3=np.cumsum(dQ3)+asta
-                            dQ3=dQ3.reshape((sz,sz))
+
                 except:
                     WW=WW
         
@@ -443,10 +425,10 @@ def RALf1FiltrQ(args):
     while 1==1: 
         hh=0
         ann=0
-        arr_bbx=[]
+        arr_bbx=np.zeros((Nhh*10,Nf),float)
         Nch=0
-        Koef=[]
-        KoefA=[]
+        Koef=np.zeros(Nhh*10,float)
+        KoefA=np.zeros(Nhh*10,float)
         while hh<Nhh:
             if hh<Nhh:       
                 arr_bbbxxx=RALF1Calculation(arr_b,arr_c,Nf,NNew0,NNew,NChan,D,NumIt,args[0])
@@ -493,16 +475,16 @@ def RALf1FiltrQ(args):
                                 fo.close() 
                                 coef=100*(scp.pearsonr(mm1,mm2)[0])
                                 print('.%s'%(coef))
-                                KoefA.append(coef)
+                                KoefA[hh]=coef
                                 #mm1=mm1*np.std(mm2)/np.std(mm1)                       
-                                Koef.append(-np.std(mm1-mm2))
-                                arr_bbx.append(arr_bbbxxx) 
+                                Koef[hh]=-np.std(mm1-mm2)
+                                arr_bbx[hh]=arr_bbbxxx.copy() 
                                 hh=hh+1
                 
             if hh==Nhh:            
-                arr_bbx_=np.asarray(arr_bbx,np.float16)
+                arr_bbx_=np.asarray(arr_bbx[0:Nhh],np.float16)
                 r2s=np.zeros((2,Nhh),float)
-                r2s[0]= np.asarray(Koef,float)
+                r2s[0]= np.asarray(Koef[0:Nhh],float)
                 r2s[1]= np.asarray(range(Nhh),float)
                 m=[[r2s[j][l] for j in range(len(r2s))] for l in range(len(r2s[0]))]         
                 m.sort(key=itemgetter(0))                  
@@ -511,8 +493,8 @@ def RALf1FiltrQ(args):
                 
                 if np.isnan(KoefA[Nch]):
                     KoefA[Nch]=0            
-                if KoefA[Nch]>10:
-                    print(KoefA)
+                if KoefA[Nch]>0:
+                    print(KoefA[0:Nhh])
                     for l in range(NChan):
                         arr_b[Nf-NNew+Nf*l:Nf+Nf*l]=arr_bbx_[Nch][Nf-NNew+Nf*l:Nf+Nf*l].copy()    
                     #arr_b=filterFourierQ(arr_b,arr_b,NNew,NChan,0)

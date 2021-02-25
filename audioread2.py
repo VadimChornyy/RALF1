@@ -18,7 +18,7 @@ from RALf1FiltrVID import RandomQ
 import RALF1FilterX as XFilter
  
 
-wrkdir = r"c:\Work\\W1_1\\"
+wrkdir = r"c:\Work\\W4_1\\"
 api_key = 'ONKTYPV6TAMZK464' 
 
 wwrkdir_=r".\W10\\"
@@ -252,7 +252,7 @@ if __name__ == '__main__':
                 aDur=4
                 
             dNIt=NIter/3
-            NQRandm=512
+
             aNN=2
             aMM=2
             nI=max(0,hhh-int(NIter/dNIt)+1)
@@ -262,10 +262,10 @@ if __name__ == '__main__':
                 anI=len(ZDat_)
                 ZDat=ZDat_.copy()
                 aStr=np.Inf
-                aStr=ZDat[0][0]
-                for i in range(anI):
-                    ZDat[i,0]=0
-                    ZDat[i,1:]=np.diff(ZDat_[i,:])                
+                # aStr=ZDat[0][0]
+                # for i in range(anI):
+                #     ZDat[i,0]=0
+                #     ZDat[i,1:]=np.diff(ZDat_[i,:])                
                 arr_RezM[iGr]=(np.mean(ZDat,axis = 0)+np.mean(ZDat,axis = 0))/2  
                 hhhx=0
                 all_RezM[iGr][hhhx]=arr_RezM[iGr].copy()
@@ -277,7 +277,7 @@ if __name__ == '__main__':
                     aMn_=0
                     for hhhx in range(anI):
                         D=np.std(ZDat)                     
-                        aa=RandomQ(Nf,NQRandm)                        
+                        aa=RandomQ(Nf)                        
                         ss4=np.concatenate((aa, aa, aa))
                         DD=[]
                         for hhhc in range(anI):
@@ -285,7 +285,7 @@ if __name__ == '__main__':
                         DD=np.asarray(DD,float)                              
                         DD=(DD/np.std(DD)+1e-6)*D/2   *2
 
-                        aa=RandomQ(Nf,NQRandm)                        
+                        aa=RandomQ(Nf)                        
                         ss4_=np.concatenate((aa, aa, aa))
                         
                         DD_=[]
@@ -298,13 +298,13 @@ if __name__ == '__main__':
                         mn=np.mean(ZDat)
                         dd=(ZDat-mn)
                         aStrx=np.Inf
-                        aStrx=dd[0][0]
-                        ZDatx=np.zeros((anI*Nf),float)
-                        ZDatx[0]=0
-                        ZDatx[1:]=np.diff(dd.reshape((anI*Nf)))
-                        dd=ZDatx.reshape((anI,Nf))                     
+                        # aStrx=dd[0][0]
+                        # dd=dd.reshape((anI*Nf))
+                        # dd[0]=0
+                        # dd[1:]=np.diff(dd)
+                        # dd=dd.reshape((anI,Nf))                     
                         
-                        aa=RandomQ(Nf,NQRandm)                        
+                        aa=RandomQ(Nf)                        
                         ss4=np.concatenate((aa, aa, aa))
                         liix=np.zeros((anI,Nf),int)
 
