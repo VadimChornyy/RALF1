@@ -18,7 +18,7 @@ from RALf1FiltrVID import RandomQ
 import RALF1FilterX as XFilter
  
 
-wrkdir = r"c:\Work\\W4_1\\"
+wrkdir = r"c:\Work\\W5_1\\"
 api_key = 'ONKTYPV6TAMZK464' 
 
 wwrkdir_=r".\W10\\"
