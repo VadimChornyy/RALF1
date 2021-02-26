@@ -18,14 +18,14 @@ from RALf1FiltrVID import RandomQ
 import RALF1FilterX as XFilter
  
 
-wrkdir = r"c:\Work\\W5_1\\"
+wrkdir = r"c:\Work\\W10_2\\"
 api_key = 'ONKTYPV6TAMZK464' 
 
 wwrkdir_=r".\W10\\"
 nama='explosion'
 
 Lengt=6000
-dsiz=5000
+dsiz=3000
 Ngroup=3
 Nproc=2*Ngroup#*(mp.cpu_count())
 Lo=1
@@ -34,7 +34,7 @@ NIt=3
 NIter=100
 DT=0.1
 Nf_K=3
-aDecm=2
+aDecm=1
     
 def decimat(adat_):
     if Lo:
@@ -262,10 +262,6 @@ if __name__ == '__main__':
                 anI=len(ZDat_)
                 ZDat=ZDat_.copy()
                 aStr=np.Inf
-                # aStr=ZDat[0][0]
-                # for i in range(anI):
-                #     ZDat[i,0]=0
-                #     ZDat[i,1:]=np.diff(ZDat_[i,:])                
                 arr_RezM[iGr]=(np.mean(ZDat,axis = 0)+np.mean(ZDat,axis = 0))/2  
                 hhhx=0
                 all_RezM[iGr][hhhx]=arr_RezM[iGr].copy()
@@ -298,11 +294,11 @@ if __name__ == '__main__':
                         mn=np.mean(ZDat)
                         dd=(ZDat-mn)
                         aStrx=np.Inf
-                        # aStrx=dd[0][0]
-                        # dd=dd.reshape((anI*Nf))
-                        # dd[0]=0
-                        # dd[1:]=np.diff(dd)
-                        # dd=dd.reshape((anI,Nf))                     
+                        aStrx=dd[0][0]
+                        ddd=dd.reshape((anI*Nf))
+                        ddd[0]=0
+                        ddd[1:]=np.diff(dd.reshape((anI*Nf)))
+                        dd=ddd.reshape((anI,Nf))                     
                         
                         aa=RandomQ(Nf)                        
                         ss4=np.concatenate((aa, aa, aa))

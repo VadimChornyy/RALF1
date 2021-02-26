@@ -180,9 +180,9 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,D,Nhh,iProc):
          
         dQ3=dQ3_0.copy()
         dQ3=dQ3.reshape((sz*sz))
-        asart=dQ3[0]
+        astart=dQ3[0]
         dQ3[0]=0
-        dQ3[1:]=np.diff(dQ3_0)
+        dQ3[1:]=np.diff(dQ3_0.reshape((sz*sz)))
         dQ3=dQ3.reshape((sz,sz))
         dQ3_0=dQ3.copy()
               
@@ -324,7 +324,8 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,D,Nhh,iProc):
             
         if not WW<0:
             dQ3=dQ3.reshape((sz*sz))
-            dQ3=astart+(np.cumsum(dQ3)).reshape((sz,sz))
+            dQ3=np.cumsum(dQ3)+astart
+            dQ3=dQ3.reshape((sz,sz))            
             aMx_=0
             aMn_=0
             aMx=np.zeros(sz,float)-np.Inf
