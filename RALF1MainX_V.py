@@ -19,9 +19,8 @@ from RALf1FiltrVID import filterFourierQ
 from RALf1FiltrVID import RALf1FiltrQ
 from RALf1FiltrVID import RandomQ
 import RALF1FilterX as XFilter
- 
 
-wrkdir = r"c:\Work\\W3_4\\"
+wrkdir = r"c:\Work\\W1_3\\"
 api_key = 'ONKTYPV6TAMZK464' 
 
 ticker ="BTCUSD" # "BTCUSD"#"GLD"#"DJI","LOIL.L"#""BZ=F" "LNGA.MI" #"BTC-USD"#"USDUAH"#"LTC-USD"#"USDUAH"#
@@ -40,9 +39,9 @@ Lo=1
 aTmStop=6
 NIt=3
 NIter=100
-DT=0.25
+DT=0.2
 Nf_K=3
-aDecm=3
+aDecm=5
     
 def decimat(adat_):
     if Lo:
@@ -183,8 +182,14 @@ if __name__ == '__main__':
             axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])
             axes_ = fig.add_axes([0, 0, 0.3, 0.3])     
             axes__ = fig.add_axes([0.4, 0, 0.3, 0.3])
-            axes.plot(ar0, 'r.')
-            axes.plot(arr_z, 'go-')  #cut data used for model
+            
+            if Lo:
+                axes.semilogy(ar0, 'r.')
+                axes.semilogy(arr_z, 'go-')  #cut data used for model
+            else:
+                axes.plot(ar0, 'r.')
+                axes.plot(arr_z, 'go-')  #cut data used for model
+
             axes.text(4, 4, 'Reflection on Action of Lorentz Forces-1, #2011612714  \n\n Course = %s, start = %s, step = %s * %s'%(aname,adat0,interv,aDecm),
                     verticalalignment='bottom', horizontalalignment='right',
                     transform=axes_.transAxes,color='blue', fontsize=14)        
@@ -295,20 +300,15 @@ if __name__ == '__main__':
             aMM=2
             nI=max(0,hhh-int(NIter/dNIt)+1)
             arr_RezM=  np.zeros((Ngroup,Nf),float)  
+            arr_RezN=  np.zeros((Ngroup,Nf),float)  
             for iGr in range(Ngroup):                
-                ZDat_=Arr_AAA[iGr][((hhh)-nI)*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup),:].copy()
-                anI=len(ZDat_)
-                ZDat=ZDat_.copy()
-                aStr=np.Inf
-                # aStr=ZDat[0][0]
-                # for i in range(anI):
-                #     ZDat[i,0]=0
-                #     ZDat[i,1:]=np.diff(ZDat_[i,:])                
-                arr_RezM[iGr]=(np.mean(ZDat,axis = 0)+np.mean(ZDat,axis = 0))/2  
+                ZDat=Arr_AAA[iGr][((hhh)-nI)*int(Nproc/Ngroup):(hhh+1)*int(Nproc/Ngroup),:].copy()
                 hhhx=0
-                all_RezM[iGr][hhhx]=arr_RezM[iGr].copy()
-                all_RezN[iGr][hhhx]=arr_RezM[iGr].copy() 
-                if anI>aNN:   
+                anI=len(ZDat)
+                if anI<1000*aNN: 
+                    all_RezM[iGr][hhhx]=np.amax(ZDat,axis=0)
+                    all_RezN[iGr][hhhx]=np.amin(ZDat,axis=0)
+                else:
                     aMx=np.zeros(Nf,float)-np.Inf
                     aMn=np.zeros(Nf,float)+np.Inf
                     aMx_=0
@@ -331,16 +331,9 @@ if __name__ == '__main__':
                             DD_.append(ss4_[hhhc:hhhc+Nf])
                         DD_=np.asarray(DD_,float)                              
                         DD_=(DD_/np.std(DD_))*D*2
-                        DD__=(DD_-np.mean(DD_))                                      
-                        
-                        mn=np.mean(ZDat)
+                        DD__=(DD_-np.mean(DD_))
+                                                
                         dd=(ZDat-mn)
-                        aStrx=np.Inf
-                        # aStrx=dd[0][0]
-                        # dd=dd.reshape((anI*Nf))
-                        # dd[0]=0
-                        # dd[1:]=np.diff(dd)
-                        # dd=dd.reshape((anI,Nf))                     
                         
                         aa=RandomQ(Nf)                        
                         ss4=np.concatenate((aa, aa, aa))
@@ -350,11 +343,20 @@ if __name__ == '__main__':
                             liix[i]=ss4[i:i+Nf].copy()
                             DD__[i,0:Nf-NNew]=0*DD_[i,0:Nf-NNew]
                             DD__[i,:]=(DD__[i,liix[i]])
-                            dd[i]=(dd[i])[liix[i]].copy() 
+                            dd[i]=(dd[i])[liix[i]].copy()  
                             
+                        astart=np.Inf
+                        dd=dd.reshape((anI*Nf))
+                        ddd=dd.copy()
+                        astart=dd[0]
+                        ddd[0]=0
+                        ddd[1:]=np.diff(dd)
+                        dd=ddd.reshape((anI,Nf))
+                            
+                        dd_AA=dd.copy()
                         for ii in range(aNN):   
                             for jj in range(aMM):
-                                dd1=dd[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]
+                                dd1=dd_AA[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(ii*Nf/aNN):int((ii+1)*Nf/aNN)].copy()
                                 ddA= dd1*(1-(dd1<0))
                                 ddB=-dd1*(1-(dd1>0))
                                 dA=DD[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]*(ddA==0)
@@ -365,65 +367,93 @@ if __name__ == '__main__':
                                      XFilter.RALF1FilterX(  ddA-dB,len(ddA),len(ddA[0]),1,0))/2
                                 eeB=-(XFilter.RALF1FilterX(  ddB-dB,len(ddB),len(ddB[0]),1,0)+
                                       XFilter.RALF1FilterX(  ddB-dA,len(ddB),len(ddB[0]),1,0))/2
-                                dd[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]=mn+(eeA*(1-(eeA>0))+eeB*(1-(eeB<0)))/2#(eeA+eeB)/2
-                            
-                        if not aStrx==np.Inf:
-                            ddx=dd.reshape((anI*Nf))
-                            dd=(aStrx+np.cumsum(ddx)).reshape((anI,Nf))
+                                dd_AA[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]=mn+eeA*(1-(eeA>0))
+
+                        dd_BB=dd.copy()
+                        for ii in range(aNN):   
+                            for jj in range(aMM):
+                                dd1=dd_BB[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(ii*Nf/aNN):int((ii+1)*Nf/aNN)].copy()
+                                ddA= dd1*(1-(dd1<0))
+                                ddB=-dd1*(1-(dd1>0))
+                                dA=DD[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]*(ddA==0)
+                                dB=DD[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]*(ddB==0)
+                                ddA=ddA+(DD__[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(ii*Nf/aNN):int((ii+1)*Nf/aNN)])
+                                ddB=ddB+(DD__[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(ii*Nf/aNN):int((ii+1)*Nf/aNN)])
+                                eeA=(XFilter.RALF1FilterX(  ddA-dA,len(ddA),len(ddA[0]),1,0)+
+                                     XFilter.RALF1FilterX(  ddA-dB,len(ddA),len(ddA[0]),1,0))/2
+                                eeB=-(XFilter.RALF1FilterX(  ddB-dB,len(ddB),len(ddB[0]),1,0)+
+                                      XFilter.RALF1FilterX(  ddB-dA,len(ddB),len(ddB[0]),1,0))/2
+                                dd_BB[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(ii*Nf/aNN):int((ii+1)*Nf/aNN)]=mn+eeB*(1-(eeB<0))
+                                
+                        if not astart==np.Inf:
+                            dd_AA=dd_AA.reshape((anI*Nf))
+                            dd_AA=astart+np.cumsum(dd_AA)
+                            dd_AA=dd_AA.reshape((anI,Nf))
+                            dd_BB=dd_BB.reshape((anI*Nf))
+                            dd_BB=astart+np.cumsum(dd_AA)
+                            dd_BB=dd_AA.reshape((anI,Nf))
+                        
                         for i in range(anI):
-                            aMx[liix[i]]=np.maximum(aMx[liix[i]],dd[i])
-                            aMn[liix[i]]=np.minimum(aMn[liix[i]],dd[i])
-                            # aMx_=(aMx_*i+aMx)/(i+1)
-                            # aMn_=(aMn_*i+aMn)/(i+1)
-                            aMx_=aMx.copy()
-                            aMn_=aMn.copy()
-
-                        all_RezM[iGr][hhhx]=(all_RezM[iGr][hhhx-1]*hhhx+np.maximum(all_RezM[iGr][hhhx-1],aMx_))/(hhhx+1)
-                        all_RezN[iGr][hhhx]=(all_RezN[iGr][hhhx-1]*hhhx+np.minimum(all_RezN[iGr][hhhx-1],aMn_) )/(hhhx+1)
-                                                              
-                if Lo:
-                    if aStr==np.Inf:
-                        arr_RezM[iGr]=filterFourierQ(all_RezM[iGr][hhhx],np.log(arr_z),NNew,1)
-                    else:                        
-                        arr_RezM[iGr]=filterFourierQ(aStr+np.cumsum(all_RezM[iGr][hhhx]),np.log(arr_z),NNew,1)
-                    arr_RezM[iGr][0:Nf-NNew]=np.log(ar0[0:Nf-NNew])  
-                    arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-np.mean(arr_RezM[iGr][Nf-NNew:Nf-NNew+int(NNew*0.1)])) +np.mean(np.log(ar0[Nf-NNew:Nf-NNew+int(NNew*0.1)]))
-                else:
-                    if aStr==np.Inf:
-                        arr_RezM[iGr]=filterFourierQ(all_RezM[iGr][hhhx],(arr_z),NNew,1)
-                    else:
-                        arr_RezM[iGr]=filterFourierQ(aStr+np.cumsum(all_RezM[iGr][hhhx]),(arr_z),NNew,1)
-                    arr_RezM[iGr][0:Nf-NNew]=ar0[0:Nf-NNew].copy()
-                    arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-np.mean(arr_RezM[iGr][Nf-NNew:Nf-NNew+int(NNew*0.1)])) +np.mean((ar0[Nf-NNew:Nf-NNew+int(NNew*0.1)]))
-
-                all_RezMM[iGr][hhh]=(all_RezMM[iGr][hhh-1]*hhh+arr_RezM[iGr])/(hhh+1) 
+                            aMx[liix[i]]=np.maximum(aMx[liix[i]],dd_AA[i])
+                            aMn[liix[i]]=np.minimum(aMn[liix[i]],dd_BB[i])
+                            aMx_=(aMx_*i+aMx)/(i+1)
+                            aMn_=(aMn_*i+aMn)/(i+1)
+                                                
+                        if hhhx==0:
+                            all_RezM[iGr][hhhx]=aMx_.copy()
+                            all_RezN[iGr][hhhx]=aMn_.copy()
+                        else:
+                            all_RezM[iGr][hhhx]=np.maximum(all_RezM[iGr][hhhx-1],aMx_)
+                            all_RezN[iGr][hhhx]=np.minimum(all_RezN[iGr][hhhx-1],aMn_) 
 
                 if Lo:
-                    arr_RezM[iGr]=filterFourierQ(aStr+np.cumsum(all_RezN[iGr][hhhx]),np.log(arr_z),NNew,1)
-                    arr_RezM[iGr][0:Nf-NNew]=np.log(ar0[0:Nf-NNew])  
-                    arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-np.mean(arr_RezM[iGr][Nf-NNew:Nf-NNew+int(NNew*0.1)])) +np.mean(np.log(ar0[Nf-NNew:Nf-NNew+int(NNew*0.1)]))
-                else:
-                    arr_RezM[iGr]=filterFourierQ(aStr+np.cumsum(all_RezM[iGr][hhhx]),arr_z,NNew,1)
-                    arr_RezM[iGr][0:Nf-NNew]=ar0[0:Nf-NNew].copy()
-                    arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-np.mean(arr_RezM[iGr][Nf-NNew:Nf-NNew+int(NNew*0.1)])) +np.mean((ar0[Nf-NNew:Nf-NNew+int(NNew*0.1)]))
-    
-                all_RezNM[iGr][hhh]=(all_RezNM[iGr][hhh-1]*hhh+arr_RezM[iGr])/(hhh+1)                
-                arr_RezM[iGr]=(all_RezMM[iGr,hhh]+all_RezNM[iGr,hhh])/2
-                                    
-            arr_rezBz=(np.mean(arr_RezM, axis=0)+np.mean(arr_RezM, axis=0))/2  
-            if Lo:
-                arr_rezBz[Nf-NNew:]=(arr_rezBz[Nf-NNew:]/np.std(arr_rezBz[Nf-NNew:Nf-NNew+int(NNew*0.1)])) *np.std(np.log(ar0[Nf-NNew:Nf-NNew+int(NNew*0.1)]))
-                arr_rezBz[Nf-NNew:]=(arr_rezBz[Nf-NNew:]-np.mean(arr_rezBz[Nf-NNew:Nf-NNew+int(NNew*0.1)])) +np.mean(np.log(ar0[Nf-NNew:Nf-NNew+int(NNew*0.1)]))
-                for iGr in range(Ngroup): 
+                    arr_RezM[iGr]=filterFourierQ(all_RezM[iGr][hhhx],np.log(arr_z),NNew,1)
+                    arr_RezM[iGr][0:Nf-NNew]=np.log(ar0[0:Nf-NNew])
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]/np.std(arr_RezM[iGr][Nf-NNew:Nf-NNew+int(NNew*0.1)])) *np.std(np.log(ar0[Nf-NNew:Nf-NNew+int(NNew*0.1)]))
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-np.mean(arr_RezM[iGr][Nf-NNew:Nf-NNew+int(NNew*0.1)])) +np.mean(np.log(ar0[Nf-NNew:Nf-NNew+int(NNew*0.1)]))
-            else:
-                arr_rezBz[Nf-NNew:]=(arr_rezBz[Nf-NNew:]/np.std(arr_rezBz[Nf-NNew:Nf-NNew+int(NNew*0.1)])) *np.std(np.log(ar0[Nf-NNew:Nf-NNew+int(NNew*0.1)]))
-                arr_rezBz[Nf-NNew:]=(arr_rezBz[Nf-NNew:]-np.mean(arr_rezBz[Nf-NNew:Nf-NNew+int(NNew*0.1)])) +np.mean((ar0[Nf-NNew:Nf-NNew+int(NNew*0.1)]))
-                for iGr in range(Ngroup): 
+                else:
+                    arr_RezM[iGr]=filterFourierQ(all_RezM[iGr][hhhx],(arr_z),NNew,1)
+                    arr_RezM[iGr][0:Nf-NNew]=ar0[0:Nf-NNew].copy()
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]/np.std(arr_RezM[iGr][Nf-NNew:Nf-NNew+int(NNew*0.1)])) *np.std((ar0[Nf-NNew:Nf-NNew+int(NNew*0.1)]))
                     arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-np.mean(arr_RezM[iGr][Nf-NNew:Nf-NNew+int(NNew*0.1)])) +np.mean((ar0[Nf-NNew:Nf-NNew+int(NNew*0.1)]))
-                                                        
+                if Lo:
+                    arr_RezN[iGr]=filterFourierQ(all_RezN[iGr][hhhx],np.log(arr_z),NNew,1)
+                    arr_RezN[iGr][0:Nf-NNew]=np.log(ar0[0:Nf-NNew])
+                    arr_RezN[iGr][Nf-NNew:]=(arr_RezN[iGr][Nf-NNew:]/np.std(arr_RezN[iGr][Nf-NNew:Nf-NNew+int(NNew*0.1)])) *np.std(np.log(ar0[Nf-NNew:Nf-NNew+int(NNew*0.1)]))
+                    arr_RezN[iGr][Nf-NNew:]=(arr_RezN[iGr][Nf-NNew:]-np.mean(arr_RezN[iGr][Nf-NNew:Nf-NNew+int(NNew*0.1)])) +np.mean(np.log(ar0[Nf-NNew:Nf-NNew+int(NNew*0.1)]))
+                else:
+                    arr_RezN[iGr]=filterFourierQ(all_RezN[iGr][hhhx],(arr_z),NNew,1)
+                    arr_RezN[iGr][0:Nf-NNew]=ar0[0:Nf-NNew].copy()
+                    arr_RezN[iGr][Nf-NNew:]=(arr_RezN[iGr][Nf-NNew:]/np.std(arr_RezN[iGr][Nf-NNew:Nf-NNew+int(NNew*0.1)])) *np.std((ar0[Nf-NNew:Nf-NNew+int(NNew*0.1)]))
+                    arr_RezN[iGr][Nf-NNew:]=(arr_RezN[iGr][Nf-NNew:]-np.mean(arr_RezN[iGr][Nf-NNew:Nf-NNew+int(NNew*0.1)])) +np.mean((ar0[Nf-NNew:Nf-NNew+int(NNew*0.1)]))
+                
+                all_RezM[iGr][hhhx]=arr_RezM[iGr].copy()
+                all_RezN[iGr][hhhx]=arr_RezN[iGr].copy()
+                if hhh>0:
+                    all_RezMM[iGr][hhh]=np.maximum(all_RezMM[iGr][hhh-1],all_RezM[iGr][hhhx])
+                    all_RezNM[iGr][hhh]=np.minimum(all_RezNM[iGr][hhh-1],all_RezN[iGr][hhhx])
+                else:
+                    all_RezMM[iGr][hhh]=all_RezM[iGr][hhhx].copy()
+                    all_RezNM[iGr][hhh]=all_RezN[iGr][hhhx].copy()
+
+                dd1=np.mean(all_RezMM[iGr,0:hhh+1],axis=0)
+                dd2=np.mean(all_RezNM[iGr,0:hhh+1],axis=0)                    
+                asr1=((dd1-mn)>(dd2-mn))
+                asr2=((dd1-mn)<(dd2-mn))
+                arr_RezM[iGr][Nf-NNew:Nf]=(dd1*asr1+dd2*asr2)[Nf-NNew:Nf]  
+                if Lo:
+                    arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],np.log(arr_z),NNew,1)
+                    arr_RezM[iGr][0:Nf-NNew]=np.log(ar0[0:Nf-NNew])
+                    arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]/np.std(arr_RezM[iGr][Nf-NNew:Nf-NNew+int(NNew*0.1)])) *np.std(np.log(ar0[Nf-NNew:Nf-NNew+int(NNew*0.1)]))
+                    arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-np.mean(arr_RezM[iGr][Nf-NNew:Nf-NNew+int(NNew*0.1)])) +np.mean(np.log(ar0[Nf-NNew:Nf-NNew+int(NNew*0.1)]))
+                else:
+                    arr_RezM[iGr]=filterFourierQ(arr_RezM[iGr],(arr_z),NNew,1)
+                    arr_RezM[iGr][0:Nf-NNew]=ar0[0:Nf-NNew].copy()
+                    arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]/np.std(arr_RezM[iGr][Nf-NNew:Nf-NNew+int(NNew*0.1)])) *np.std((ar0[Nf-NNew:Nf-NNew+int(NNew*0.1)]))
+                    arr_RezM[iGr][Nf-NNew:]=(arr_RezM[iGr][Nf-NNew:]-np.mean(arr_RezM[iGr][Nf-NNew:Nf-NNew+int(NNew*0.1)])) +np.mean((ar0[Nf-NNew:Nf-NNew+int(NNew*0.1)]))
+
+            arr_rezBz=(np.mean(arr_RezM, axis=0)+np.mean(arr_RezM, axis=0))/2
+                                                      
             if Lo:   
                 for iGr in range(Ngroup):    
                     arr_RezM[iGr]=np.exp(arr_RezM[iGr]) 
@@ -438,21 +468,39 @@ if __name__ == '__main__':
                 fig = plt.figure()
                 axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])
                 axes_ = fig.add_axes([0, 0, 0.3, 0.3]) 
-                axes__ = fig.add_axes([0.4, 0, 0.3, 0.3])                     
-                axes.plot(ar0, 'ro-', alpha=0.1)
-                axes.plot(arrr, 'rx-')
-                for iGr in range(Ngroup):
-                    axes.plot(arr_RezM[iGr],linewidth=3.,alpha=0.2)
-                axes.plot(arr_rezBz,'yx-',linewidth=4.,alpha=0.5)
+                axes__ = fig.add_axes([0.4, 0, 0.3, 0.3])        
+                
+                if Lo:
+                    axes.semilogy(ar0, 'ro-', alpha=0.1)
+                    axes.semilogy(arrr, 'rx-')
+                    for iGr in range(Ngroup):
+                        axes.semilogy(arr_RezM[iGr],linewidth=3.,alpha=0.2)
+                    axes.semilogy(arr_rezBz,'yx-',linewidth=4.,alpha=0.5)
+                else:
+                    axes.plot(ar0, 'ro-', alpha=0.1)
+                    axes.plot(arrr, 'rx-')
+                    for iGr in range(Ngroup):
+                        axes.plot(arr_RezM[iGr],linewidth=3.,alpha=0.2)
+                    axes.plot(arr_rezBz,'yx-',linewidth=4.,alpha=0.5)
+                
                 axes.text(-0.1, 4, '%s  '%(hhh+1),
                         verticalalignment='bottom', horizontalalignment='left',
                         transform=axes_.transAxes,color='black', fontsize=24) 
                 axes.text(4, 4, 'Reflection on Action of Lorentz Forces-1, #2011612714  \n\n Course = %s, start = %s, step = %s * %s'%(aname,adat0,interv,aDecm),
                         verticalalignment='bottom', horizontalalignment='right',
-                        transform=axes_.transAxes,color='blue', fontsize=14)     
-                gint=np.polyfit(mm1,mm2,1)
-                axes_.plot(mm1,gint[1]+gint[0]*mm1,'y.',linewidth=2.)                    
-                axes_.plot(mm1,mm2, 'ok', markersize=3, alpha=0.1) 
+                        transform=axes_.transAxes,color='blue', fontsize=14)    
+                if Lo:
+                    gint=np.polyfit(np.log(mm1),np.log(mm2),1)
+                else:
+                    gint=np.polyfit(mm1,mm2,1)
+                
+                if Lo:                
+                    axes_.loglog(mm1,np.exp(gint[1]+gint[0]*np.log(mm1)),'y.',linewidth=2.)                    
+                    axes_.loglog(mm1,mm2, 'ok', markersize=3, alpha=0.1) 
+                else:
+                    axes_.plot(mm1,gint[1]+gint[0]*mm1,'y.',linewidth=2.)                    
+                    axes_.plot(mm1,mm2, 'ok', markersize=3, alpha=0.1) 
+                
                 axes_.text(0.2, 0.6, '%d'%int(np.floor(np.asarray(Koef_,float)[::-1][0])),
                     verticalalignment='bottom', horizontalalignment='right',
                     transform=axes_.transAxes,color='green', fontsize=30)
@@ -502,14 +550,29 @@ if __name__ == '__main__':
     axes = fig.add_axes([0.1, 0.1, 1.2, 1.2])
     axes_ = fig.add_axes([0, 0, 0.3, 0.3])
     axes__ = fig.add_axes([0.4, 0, 0.3, 0.3]) 
-    axes.plot(arrr, 'ro-')
-    axes.plot(arr_rezBz, 'cx-', alpha=0.5) #predicted data
+    
+    if Lo:
+        axes.semilogy(arrr, 'ro-')
+        axes.semilogy(arr_rezBz, 'cx-', alpha=0.5) #predicted data
+    else:
+        axes.plot(arrr, 'ro-')
+        axes.plot(arr_rezBz, 'cx-', alpha=0.5) #predicted data
+    
     axes.text(4, 4, 'Reflection on Action of Lorentz Forces-1, #2011612714  \n\n Course = %s, start = %s, step = %s * %s'%(aname,adat0,interv,aDecm),
             verticalalignment='bottom', horizontalalignment='right',
             transform=axes_.transAxes,color='blue', fontsize=14)     
-    gint=np.polyfit(mm1,mm2,1)
-    axes_.plot(mm1,gint[0]+gint[1]*mm1,'y',linewidth=2.) 
-    axes_.plot(mm1,mm2, 'ok', markersize=3, alpha=0.1)    
+    if Lo:
+        gint=np.polyfit(np.log(mm1),np.log(mm2),1)
+    else:
+        gint=np.polyfit(mm1,mm2,1)
+    
+    if Lo:
+        axes_.loglog(mm1,np.exp(gint[0]+gint[1]*np.log(mm1)),'y',linewidth=2.) 
+        axes_.loglog(mm1,mm2, 'ok', markersize=3, alpha=0.1)    
+    else:
+        axes_.plot(mm1,gint[0]+gint[1]*mm1,'y',linewidth=2.) 
+        axes_.plot(mm1,mm2, 'ok', markersize=3, alpha=0.1)    
+    
     axes_.text(0.2, 0.6, '%d'%int(np.floor(np.asarray(Koef_,float)[::-1][0])),
         verticalalignment='bottom', horizontalalignment='right',
         transform=axes_.transAxes,color='green', fontsize=30)    
