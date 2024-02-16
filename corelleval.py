@@ -700,9 +700,9 @@ if __name__ == '__main__':
                                         if len(dd1)>1 and len(dd1[0])>=len(dd1):
                                             eeB=-(XFilter.RALF1FilterX( seqA_*((DD__A))-dd1,len(dd1),len(dd1[0]),1,0))#+seqA_*((DD__A))
                                             eeA=-(XFilter.RALF1FilterX(-seqA_*((DD__B))-dd1,len(dd1),len(dd1[0]),1,0))#-seqA_*((DD__B))
-                                            dd1=(eeA+eeB)/2
-                                            eeA=dd1.copy()
-                                            eeB=dd1.copy()
+                                            # dd1=(eeA+eeB)/2
+                                            # eeA=dd1.copy()
+                                            # eeB=dd1.copy()
                                             dd_AA[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=eeA.copy()#*(eeB>0)*((eeA+eeB)>0)
                                             dd_BB[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=eeB.copy()#*(eeA<0)*((eeA+eeB)<0)
                                       
