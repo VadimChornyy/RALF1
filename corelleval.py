@@ -698,8 +698,8 @@ if __name__ == '__main__':
                                         DD__B=DD__B*(DD__B>0)
                                         
                                         if len(dd1)>1 and len(dd1[0])>=len(dd1):
-                                            eeB=-(XFilter.RALF1FilterX( seqA_*((DD__A))-dd1,len(dd1),len(dd1[0]),1,0))#+seqA_*((DD__A))
-                                            eeA=-(XFilter.RALF1FilterX(-seqA_*((DD__B))-dd1,len(dd1),len(dd1[0]),1,0))#-seqA_*((DD__B))
+                                            eeB= (XFilter.RALF1FilterX( seqA_*((DD__A))+dd1,len(dd1),len(dd1[0]),1,0))#+seqA_*((DD__A))
+                                            eeA=-(XFilter.RALF1FilterX( seqA_*((DD__B))-dd1,len(dd1),len(dd1[0]),1,0))#-seqA_*((DD__B))
                                             # dd1=(eeA+eeB)/2
                                             # eeA=dd1.copy()
                                             # eeB=dd1.copy()
