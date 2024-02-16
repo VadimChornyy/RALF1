@@ -24,7 +24,7 @@ import RALF1FilterX as XFilter
 
 MxTime=0.5*60*60 # 2 haurs
 #https://query1.finance.yahoo.com/v7/finance/download/LRC-USD?period1=1635554377&period2=1667097577&interval=1d&events=history&includeAdjustedClose=true
-wrkdir = r"C:/Work/WX22/"
+wrkdir = r"C:/Work/WX25/"
 api_key = 'ONKTYPV6TAMZK464' 
  
 interv="15min"
@@ -33,7 +33,7 @@ interv="Daily"
 #INTRADAY
 #d_intervals = {"1min","5min","15min","30min","60min"}
 
-Lengt0=700
+Lengt0=1200
 Ngroup=3
 Nproc=3*Ngroup#*(os.cpu_count())
 Lo=1  
@@ -43,7 +43,7 @@ NIt=3
 NIter=100
 DT=0.3
 dNIt=4
-aDecm=2
+aDecm=3
 KPP=0
 
 aKEY=0
@@ -698,8 +698,8 @@ if __name__ == '__main__':
                                         DD__B=DD__B*(DD__B>0)
                                         
                                         if len(dd1)>1 and len(dd1[0])>=len(dd1):
-                                            eeB= (XFilter.RALF1FilterX( seqA_*((DD__A))+dd1,len(dd1),len(dd1[0]),1,0))#+seqA_*((DD__A))
-                                            eeA=-(XFilter.RALF1FilterX( seqA_*((DD__B))-dd1,len(dd1),len(dd1[0]),1,0))#-seqA_*((DD__B))
+                                            eeB=-(XFilter.RALF1FilterX( seqA_*((DD__A))-dd1,len(dd1),len(dd1[0]),1,0))#+seqA_*((DD__A))
+                                            eeA=-(XFilter.RALF1FilterX(-seqA_*((DD__B))-dd1,len(dd1),len(dd1[0]),1,0))#-seqA_*((DD__B))
                                             # dd1=(eeA+eeB)/2
                                             # eeA=dd1.copy()
                                             # eeB=dd1.copy()
