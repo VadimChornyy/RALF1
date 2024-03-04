@@ -309,7 +309,7 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                         for ll in range(NCh0):
                             vvv=r5[rR[ss4[ll]+zz]:rR[ss4[ll]+zz]+NCh].copy()
                             mDD4_A[:,ll]=vvv.copy()
-                            mDD4_B[:,ll]=vvv.copy()#-vvv[::-1].copy()
+                            mDD4_B[:,ll]=-vvv[::-1].copy()
                        
                         mDD4_A=(mDD4_A-np.mean(mDD4_A))#*0
                         mDD4_B=(mDD4_B-np.mean(mDD4_B))#*0
@@ -328,8 +328,11 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                             seqA=np.asarray(list(filter(lambda x: abs(x)!= np.Inf, seqA)),float) 
                             seqA=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seqA)),float)
 
-                            dQ4_A= np.asarray( -XFilter.RALF1FilterX( seqA_*((mDD4_A))-(dQ4),len(dQ4),len(dQ4[0]),1,0),np.float16)
-                            dQ4_B= np.asarray( -XFilter.RALF1FilterX(-seqA_*((mDD4_A))-(dQ4),len(dQ4),len(dQ4[0]),1,0),np.float16)
+                            # dQ4_A= np.asarray(  XFilter.RALF1FilterX(-seqA_*((mDD4_A))+(dQ4),len(dQ4),len(dQ4[0]),1,0),np.float16)
+                            # dQ4_B= np.asarray( -XFilter.RALF1FilterX(-seqA_*((mDD4_A))-(dQ4),len(dQ4),len(dQ4[0]),1,0),np.float16)
+                            dQ4_A= -np.asarray(  mDD4_A-XFilter.RALF1FilterX(((mDD4_A))+(dQ4),len(dQ4),len(dQ4[0]),1,0),np.float16)
+                            dQ4_B= -np.asarray( -mDD4_B+XFilter.RALF1FilterX(((mDD4_B))-(dQ4),len(dQ4),len(dQ4[0]),1,0),np.float16)
+
                             #dQ4=dQ4_B*(dQ4_B>0)*((dQ4_A+dQ4_B)>0)+dQ4_A*(dQ4_A<0)*((dQ4_A+dQ4_B)<0)#                      
                             # dQ4=(dQ4_A+dQ4_B)/2
                             # dQ4_A=dQ4.copy()
@@ -349,7 +352,7 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                                 # P[0]=np.std(seqB)/np.std(seqA)
                                 # P[1]=np.mean(seqB)-P[0]*np.mean(seqA)  
                                 # P[2]=0
-                                if 100*scp.pearsonr(seqA,seqB)[0]>50 and 100*scp.pearsonr(seqA,seqC)[0]>50 and not (abs(P_1[0]-1)>0.5 or abs(P_2[0]-1)>0.5):   
+                                if 100*scp.pearsonr(seqA,seqB)[0]>40 and 100*scp.pearsonr(seqA,seqC)[0]>40 and not (abs(P_1[0]-1)>0.5 or abs(P_2[0]-1)>0.5):   
                                     # dQ4_A=(dQ4_A-P_1[1])/P_1[0]
                                     # dQ4_B=(dQ4_B-P_2[1])/P_2[0]                                      
                                     for ll in range(NCh0):
