@@ -313,14 +313,23 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                        
                         mDD4_A=(mDD4_A-np.mean(mDD4_A))#*0
                         mDD4_B=(mDD4_B-np.mean(mDD4_B))#*0
-                        mDD4_A=mDD4_A*(mDD4_A>0)
-                        mDD4_B=mDD4_B*(mDD4_B>0)
+                        # mDD4_A=mDD4_A*(mDD4_A>0)
+                        # mDD4_B=mDD4_B*(mDD4_B>0)
                         
                         nNxA=sum(sum(mDD4==1))     
                         nNxA_=sum(sum(mDD4==0))  
                         # if nNxA>nNxA_ and nNxA_>0:  
                         if nNxA_>0:  
-                            seqA=(dQ4.reshape(NCh*NCh0))[1:]*np.ceil(0.5*(1/(mDD4.reshape(NCh*NCh0)==1)[0:NCh*NCh0-1]+1/(mDD4.reshape(NCh*NCh0)==1)[1:]))
+                            seqA0=(dQ4.reshape(NCh*NCh0))[1:]*np.ceil(0.5*(1/(mDD4.reshape(NCh*NCh0)==1)[0:NCh*NCh0-1]+1/(mDD4.reshape(NCh*NCh0)==1)[1:]))
+                            seqA0_=  mDD4.reshape(NCh*NCh0)*0
+                            seqA0_[0]=1
+                            seqA0_[1:]=(abs(seqA0)==np.Inf)+np.isnan(seqA0)
+                            seqA0_=seqA0_.reshape((NCh,NCh0))
+                            seqA0=np.asarray(list(filter(lambda x: abs(x)!= np.Inf, seqA0)),float) 
+                            seqA0=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seqA0)),float)
+
+                            
+                            seqA=(dQ4.reshape(NCh*NCh0))[1:]*np.ceil(0.5*np.fabs(1/(1*(mDD4.reshape(NCh*NCh0)==1)[0:NCh*NCh0-1]-1*(mDD4.reshape(NCh*NCh0)==1)[1:])))
                             seqA_=  mDD4.reshape(NCh*NCh0)*0
                             seqA_[0]=1
                             seqA_[1:]=(abs(seqA)==np.Inf)+np.isnan(seqA)
@@ -330,18 +339,18 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
 
                             # dQ4_A= np.asarray(  XFilter.RALF1FilterX(-seqA_*((mDD4_A))+(dQ4),len(dQ4),len(dQ4[0]),1,0),np.float16)
                             # dQ4_B= np.asarray( -XFilter.RALF1FilterX(-seqA_*((mDD4_A))-(dQ4),len(dQ4),len(dQ4[0]),1,0),np.float16)
-                            dQ4_A= -np.asarray(  mDD4_A-XFilter.RALF1FilterX(((mDD4_A))+(dQ4),len(dQ4),len(dQ4[0]),1,0),np.float16)
-                            dQ4_B= -np.asarray( -mDD4_B+XFilter.RALF1FilterX(((mDD4_B))-(dQ4),len(dQ4),len(dQ4[0]),1,0),np.float16)
-
+                            dQ4_A= -(seqA0_)*(mDD4_A+dQ4)-seqA0_*np.asarray( -XFilter.RALF1FilterX(((mDD4_A))+(dQ4),len(dQ4),len(dQ4[0]),1,0),np.float16)
+                            dQ4_B=  (seqA0_)*(mDD4_B-dQ4)+seqA0_*np.asarray( -XFilter.RALF1FilterX(((mDD4_B))-(dQ4),len(dQ4),len(dQ4[0]),1,0),np.float16)
+                            
                             #dQ4=dQ4_B*(dQ4_B>0)*((dQ4_A+dQ4_B)>0)+dQ4_A*(dQ4_A<0)*((dQ4_A+dQ4_B)<0)#                      
                             # dQ4=(dQ4_A+dQ4_B)/2
                             # dQ4_A=dQ4.copy()
                             # dQ4_B=dQ4.copy() 
                             
-                            seqB=(dQ4_A.reshape(NCh*NCh0))[1:]*np.ceil(0.5*(1/(mDD4.reshape(NCh*NCh0)==1)[0:NCh*NCh0-1]+1/(mDD4.reshape(NCh*NCh0)==1)[1:]))
+                            seqB=(dQ4_A.reshape(NCh*NCh0))[1:]*np.ceil(0.5*np.fabs(1/(1*(mDD4.reshape(NCh*NCh0)==1)[0:NCh*NCh0-1]-1*(mDD4.reshape(NCh*NCh0)==1)[1:])))
                             seqB=np.asarray(list(filter(lambda x: abs(x)!= np.Inf, seqB)),float) 
                             seqB=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seqB)),float)
-                            seqC=(dQ4_B.reshape(NCh*NCh0))[1:]*np.ceil(0.5*(1/(mDD4.reshape(NCh*NCh0)==1)[0:NCh*NCh0-1]+1/(mDD4.reshape(NCh*NCh0)==1)[1:]))
+                            seqC=(dQ4_B.reshape(NCh*NCh0))[1:]*np.ceil(0.5*np.fabs(1/(1*(mDD4.reshape(NCh*NCh0)==1)[0:NCh*NCh0-1]-1*(mDD4.reshape(NCh*NCh0)==1)[1:])))
                             seqC=np.asarray(list(filter(lambda x: abs(x)!= np.Inf, seqC)),float) 
                             seqC=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seqC)),float)
                             try:    
@@ -349,24 +358,27 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                                 P_2=P.copy()
                                 P_1[0:2]=np.polyfit(seqA,seqB,1)
                                 P_2[0:2]=np.polyfit(seqA,seqC,1)
-                                # P[0]=np.std(seqB)/np.std(seqA)
-                                # P[1]=np.mean(seqB)-P[0]*np.mean(seqA)  
-                                # P[2]=0
-                                if 100*scp.pearsonr(seqA,seqB)[0]>40 and 100*scp.pearsonr(seqA,seqC)[0]>40 and not (abs(P_1[0]-1)>0.5 or abs(P_2[0]-1)>0.5):   
-                                    # dQ4_A=(dQ4_A-P_1[1])/P_1[0]
-                                    # dQ4_B=(dQ4_B-P_2[1])/P_2[0]                                      
+                                P_1[0]=np.std(seqB)/np.std(seqA)
+                                P_1[1]=np.mean(seqB)-P_1[0]*np.mean(seqA)  
+                                P_1[2]=0
+                                P_2[0]=np.std(seqC)/np.std(seqA)
+                                P_2[1]=np.mean(seqC)-P_2[0]*np.mean(seqA)  
+                                P_2[2]=0
+                                if 100*scp.pearsonr(seqA,seqB)[0]>0 and 100*scp.pearsonr(seqA,seqC)[0]>0:# and not (abs(P_1[0]-1)>0.5 or abs(P_2[0]-1)>0.5):   
+                                    dQ4_A=(dQ4_A-P_1[1])/P_1[0]
+                                    dQ4_B=(dQ4_B-P_2[1])/P_2[0]                                      
                                     for ll in range(NCh0):
-                                        dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(#dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
-                                                                                np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_A[:,ll]))#/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
-                                        dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(#dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
-                                                                                np.minimum(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_B[:,ll]))#/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
+                                        # dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(#dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
+                                        #                                         np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_A[:,ll]))#/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
+                                        # dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(#dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
+                                        #                                         np.minimum(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_B[:,ll]))#/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
 
-                                        # dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
-                                        #                                         dQ4_A[:,ll])/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
-                                        # dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
-                                        #                                         dQ4_B[:,ll])/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
+                                        dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
+                                                                                dQ4_A[:,ll])/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
+                                        dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
+                                                                                dQ4_B[:,ll])/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
                                         dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]=dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1
-                                        dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(1-seqA_[:,ll])*dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]]+seqA_[:,ll]*((dQ3mx+dQ3mn)[NumFri[ii:ii+NCh],NumFri_[i+ll]])/2
+                                        dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(1-seqA0_[:,ll])*dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]]+seqA0_[:,ll]*((dQ3mx+dQ3mn)[NumFri[ii:ii+NCh],NumFri_[i+ll]])/2
 
                                     ll=ll+1
                                 else:
