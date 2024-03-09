@@ -57,7 +57,7 @@ class BaseLCG( BaseRandom ):
         raise NotImplementedError
 
 class FastRand63( BaseLCG ):
-
+#Copyright (c) 2016-2019 Philippe Schmouker, schmouk (at) typee.ovh
     def random(self):
 
         self._value = (9219741426499971445 * self._value + 1) & 0x7fffffffffffffff
