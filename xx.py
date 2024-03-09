@@ -19,7 +19,7 @@ from scipy.signal import savgol_filter
 from random import Random
 import time
 
-wrkdir = r"C:/Work/WX28/"
+wrkdir = r""
 
 class BaseRandom( Random ):
 
