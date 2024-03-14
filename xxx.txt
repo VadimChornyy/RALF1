@@ -374,11 +374,11 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
             dQ3[i]=rrr[liix[i]].copy()
         
         astart=np.Inf
-        dQ3=dQ3.reshape((sz*sz))
-        astart=dQ3[0]            
-        dQ3[1:]=np.diff(dQ3)
-        dQ3[0]=0
-        dQ3=dQ3.reshape((sz,sz))
+        # dQ3=dQ3.reshape((sz*sz))
+        # astart=dQ3[0]            
+        # dQ3[1:]=np.diff(dQ3)
+        # dQ3[0]=0
+        # dQ3=dQ3.reshape((sz,sz))
         dQ3_=dQ3.copy()
         
         D=np.std(dQ3)
@@ -1023,28 +1023,12 @@ def RALF1Cella(arrgs):
     www=0
     while (not www):
         try:
-            arrgsx=hkl.load("maxmindat.rlf2") 
+            [Nf,anI,NNew,hhhx,aMM,aNN,Numproc,ZDat]=hkl.load("maxmindat.rlf2") 
             www=1
         except:
             tm.sleep(0.6)
-        
-    Nf=int(arrgsx[0]) 
-    anI=int(arrgsx[1])
-    NNew=int(arrgsx[2])
-    hhhx=int(arrgsx[3])
-    aMM=int(arrgsx[4])
-    aNN=int(arrgsx[5])
-    Numproc=int(arrgsx[6])
-    ZDat=np.zeros((anI,Nf),float)
-    for oio in range(anI):
-        for ojo in range(Nf):
-            ZDat[oio,ojo]=float(arrgsx[oio*anI+ojo+6])
-    ww=0
-    
-    # anamef="maxmin_.tmp"
-    # fo = open(anamef, "w")
-    # fo.write(str(' %s'%(ZDat)))
-    # fo.close() 
+    ww=0      
+    #ZData_=np.mean(ZDat[:,0:Nf-NNew],axis=0)
     while (not ww):
         aa=RandomQ(Nf)                        
         ss0=np.concatenate((aa, aa, aa))
@@ -1061,11 +1045,12 @@ def RALF1Cella(arrgs):
             mdd4[i]=mdd4_[liix[i]].copy()
             
         astart=np.Inf
-        dd=dd.reshape((anI*Nf))  
-        astart=dd[0]
-        dd[1:]=np.diff(dd)
-        dd[0]=0                        
-        dd=dd.reshape((anI,Nf))                                 
+        # dd=dd.reshape((anI*Nf))  
+        # astart=dd[0]
+        # dd[1:]=np.diff(dd)
+        # dd[0]=0                        
+        # dd=dd.reshape((anI,Nf))    
+        dd0=dd.copy()                             
         D=np.std(dd)
      
         P=np.zeros(3,float)
@@ -1146,7 +1131,7 @@ def RALF1Cella(arrgs):
                             aanum=dd_Num[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]
                             dd_CC[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=(dd_CC[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]*aanum+0.5*((dd2_1.copy()-P_1[1])/P_1[0]+(dd2_2.copy()-P_2[1])/P_2[0]))/(aanum+1)
                             dd_Num[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=aanum+1
-                            dd[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=(1-seqA0_)*dd[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]+seqA0_*dd_CC[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]
+                            dd[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=(1-seqA0_)*dd0[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]+seqA0_*dd_CC[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]
                         # else:
                         #     PP=0    
                     except:
@@ -1168,8 +1153,8 @@ def RALF1Cella(arrgs):
         aMx=np.zeros(Nf,float)-1e32
         aMn=np.zeros(Nf,float)+1e32   
         if not PP==0:
-            dd_AA=dd_CC*PP*(dd_CC>0)
-            dd_BB=dd_CC*PP*(dd_CC<0)                                                                                     
+            # dd_AA=dd_CC*PP*(dd_CC>0)
+            # dd_BB=dd_CC*PP*(dd_CC<0)                                                                                     
             if not astart==np.Inf: 
                 dd_AA=dd_AA.reshape((anI*Nf))
                 dd_AA=astart+np.cumsum(dd_AA)
@@ -1208,8 +1193,6 @@ def RALF1Cella(arrgs):
         else:
             ww=1
             return
-
-
 
 warnings.filterwarnings("ignore", category=RuntimeWarning) 
 #nnams__=nnams_.copy()
@@ -1572,17 +1555,13 @@ if __name__ == '__main__':
                             while hhhx<int(NIter):
                                 #if dNIt*int(hhhx/dNIt)==hhhx:
                                 areza=[]
-                                hkl.dump([],"maxmin.rlf2")
-                                arrgs=["%s"%Nf,"%s"%anI,"%s"%NNew,"%s"%hhhx,"%s"%aMM,"%s"%aNN,"%s"%Numproc]
-                                arrgsx=arrgs.copy()
-                                for oio in range(anI):
-                                    for ojo in range(Nf):
-                                        arrgsx.append("%s"%ZDat[oio,ojo])
+                                hkl.dump([],"maxmin.rlf2")                                       
+                                arrgsx=[Nf,anI,NNew,hhhx,aMM,aNN,Numproc,ZDat]
                                 hkl.dump(arrgsx,"maxmindat.rlf2")
                                 tm.sleep(0.6)
-                                #areza=RALF1Cella(arrgs)
+                                #RALF1Cella(arrgsx)
                                 pool = mp.Pool(processes=Numproc)
-                                pool.map(RALF1Cella, arrgs)
+                                pool.map(RALF1Cella, arrgsx)
                                 del(pool)
                                 areza=hkl.load("maxmin.rlf2")  
                                 areza=np.asarray(areza,float)
