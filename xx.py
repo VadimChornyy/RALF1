@@ -19,15 +19,15 @@ from scipy.signal import savgol_filter
 from random import Random
 import time
 import struct
-# import win32api,win32process,win32con         
-# priorityclasses = [win32process.IDLE_PRIORITY_CLASS,
-#                 win32process.BELOW_NORMAL_PRIORITY_CLASS,
-#                 win32process.NORMAL_PRIORITY_CLASS,
-#                 win32process.ABOVE_NORMAL_PRIORITY_CLASS,
-#                 win32process.HIGH_PRIORITY_CLASS,
-#                 win32process.REALTIME_PRIORITY_CLASS]  
+import win32api,win32process,win32con         
+priorityclasses = [win32process.IDLE_PRIORITY_CLASS,
+                win32process.BELOW_NORMAL_PRIORITY_CLASS,
+                win32process.NORMAL_PRIORITY_CLASS,
+                win32process.ABOVE_NORMAL_PRIORITY_CLASS,
+                win32process.HIGH_PRIORITY_CLASS,
+                win32process.REALTIME_PRIORITY_CLASS]  
 
-wrkdir = r""#"c:\\work\\"
+wrkdir = r"c:\\work\\WX29\\"
 GetSCV=1
 Numproc=mp.cpu_count()-1
 MxTime=1*60*60 # 2 haurs
@@ -498,13 +498,13 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
 
                             # dQ4_A= np.asarray(  XFilter.RALF1FilterX(-seqA_*((mDD4_A))+(dQ4),len(dQ4),len(dQ4[0]),1,0),np.float16)
                             # dQ4_B= np.asarray( -XFilter.RALF1FilterX(-seqA_*((mDD4_A))-(dQ4),len(dQ4),len(dQ4[0]),1,0),np.float16)
-                            dQ4_A=  np.asarray(  XFilter(((mDD4_A))+(dQ4),len(dQ4),len(dQ4[0]),1,0),np.float16)
-                            dQ4_B=  np.asarray( -XFilter(((mDD4_B))-(dQ4),len(dQ4),len(dQ4[0]),1,0),np.float16)
+                            dQ4_A=  np.asarray(  XFilter(((mDD4_A))+(dQ4)*(dQ4>0),len(dQ4),len(dQ4[0]),1,0),np.float16)
+                            dQ4_B=  np.asarray( -XFilter(((mDD4_B))-(dQ4)*(dQ4<0),len(dQ4),len(dQ4[0]),1,0),np.float16)
                             
                             #dQ4=dQ4_B*(dQ4_B>0)*((dQ4_A+dQ4_B)>0)+dQ4_A*(dQ4_A<0)*((dQ4_A+dQ4_B)<0)#                      
-                            # dQ4=(dQ4_A+dQ4_B)/2
-                            # dQ4_A=dQ4.copy()
-                            # dQ4_B=dQ4.copy() 
+                            dQ4=(dQ4_A+dQ4_B)/2
+                            dQ4_A=dQ4.copy()
+                            dQ4_B=dQ4.copy() 
                             
                             seqB=(dQ4_A.reshape(NCh*NCh0))[1:]*np.ceil(0.5*np.fabs(1/(1*(mDD4.reshape(NCh*NCh0)==1)[0:NCh*NCh0-1]-1*(mDD4.reshape(NCh*NCh0)==1)[1:])))
                             seqB=np.asarray(list(filter(lambda x: abs(x)!= np.Inf, seqB)),float) 
@@ -560,7 +560,7 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                 AsrXMx_=AsrXMx.copy()
                 AsrXMn_=AsrXMn.copy()
                 
-                dQ3=dQ3_.copy()
+                #dQ3=dQ3_.copy()
                 WW=0                                    
                 zz=zz+1
             else:
@@ -770,9 +770,9 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                 return rr2[hh]/0                                                                                             
 
 def RALf1FiltrQ(args):  
-    # pid = win32api.GetCurrentProcessId()
-    # handle = win32api.OpenProcess(win32con.PROCESS_ALL_ACCESS, True, pid)
-    # win32process.SetPriorityClass(handle, priorityclasses[1])
+    pid = win32api.GetCurrentProcessId()
+    handle = win32api.OpenProcess(win32con.PROCESS_ALL_ACCESS, True, pid)
+    win32process.SetPriorityClass(handle, priorityclasses[1])
     NChan=int(args[1])
     NNew=int(args[2])
     Nhh=int(args[3])
@@ -908,7 +908,7 @@ interv="Daily"
 #INTRADAY
 #d_intervals = {"1min","5min","15min","30min","60min"}
 
-Lengt0=1200
+Lengt0=400
 Ngroup=3
 Nproc=3*Ngroup#*(os.cpu_count())
 Lo=1  
@@ -918,7 +918,7 @@ NIt=3
 NIter=100
 DT=0.3
 dNIt=4
-aDecm=3
+aDecm=1
 KPP=0
 
 aKEY=0
@@ -1018,9 +1018,9 @@ try:
     ii=len(nnams_)
 except:
     WhO=[        
-           "CRV-USD",  
-           "BTC-USD",
-           "SOL-USD"   
+           #"CRV-USD",  
+            "BTC-USD",
+            "SOL-USD"   
           
           "SHIB-USD",
     "ETH-USD", 
@@ -1234,10 +1234,10 @@ def RALF1Cella(*arrgs_):
                     DD__B=DD__B*(DD__B>0)
                     
                     if len(dd1)>1 and len(dd1[0])>=len(dd1):
-                        eeB= ( XFilter( seqA0_*DD__A+dd1,len(dd1),len(dd1[0]),1,0))#+seqA_*((DD__A))
-                        eeA= (-XFilter( seqA0_*DD__B-dd1,len(dd1),len(dd1[0]),1,0))#-seqA_*((DD__B))
-                        dd_AA[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=eeA.copy()#*(eeB>0)*((eeA+eeB)>0)
-                        dd_BB[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=eeB.copy()#*(eeA<0)*((eeA+eeB)<0)
+                        eeB= ( XFilter( seqA0_*DD__A+dd1*(dd1>0),len(dd1),len(dd1[0]),1,0))#+seqA_*((DD__A))
+                        eeA= (-XFilter( seqA0_*DD__B-dd1*(dd1<0),len(dd1),len(dd1[0]),1,0))#-seqA_*((DD__B))
+                        dd_AA[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=(eeA+eeB).copy()#*(eeB>0)*((eeA+eeB)>0)
+                        dd_BB[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=(eeA+eeB).copy()#*(eeA<0)*((eeA+eeB)<0)
                   
                     dd2_1=(dd_AA)[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)] 
                     seqB=(dd2_1.reshape(len(dd2_1)*len(dd2_1[0])))[1:]*np.ceil(0.5*np.fabs(1/(1*(mdd4_.reshape(len(dd2_1)*len(dd2_1[0]))==1)[0:len(dd2_1)*len(dd2_1[0])-1]-1*(mdd4_.reshape(len(dd2_1)*len(dd2_1[0]))==1)[1:])))
