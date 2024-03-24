@@ -27,7 +27,7 @@ priorityclasses = [win32process.IDLE_PRIORITY_CLASS,
                 win32process.HIGH_PRIORITY_CLASS,
                 win32process.REALTIME_PRIORITY_CLASS]  
 
-wrkdir = r"c:\\work\\WX29\\"
+wrkdir = r"c:/work/"
 GetSCV=1
 Numproc=mp.cpu_count()-1
 MxTime=1*60*60 # 2 haurs
@@ -498,8 +498,8 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
 
                             # dQ4_A= np.asarray(  XFilter.RALF1FilterX(-seqA_*((mDD4_A))+(dQ4),len(dQ4),len(dQ4[0]),1,0),np.float16)
                             # dQ4_B= np.asarray( -XFilter.RALF1FilterX(-seqA_*((mDD4_A))-(dQ4),len(dQ4),len(dQ4[0]),1,0),np.float16)
-                            dQ4_A=  np.asarray(  XFilter(((mDD4_A))+(dQ4)*(dQ4>0),len(dQ4),len(dQ4[0]),1,0),np.float16)
-                            dQ4_B=  np.asarray( -XFilter(((mDD4_B))-(dQ4)*(dQ4<0),len(dQ4),len(dQ4[0]),1,0),np.float16)
+                            dQ4_A=  np.asarray(  XFilter(((mDD4_A))+(dQ4),len(dQ4),len(dQ4[0]),1,0),np.float16)
+                            dQ4_B=  np.asarray( -XFilter(((mDD4_B))-(dQ4),len(dQ4),len(dQ4[0]),1,0),np.float16)
                             
                             #dQ4=dQ4_B*(dQ4_B>0)*((dQ4_A+dQ4_B)>0)+dQ4_A*(dQ4_A<0)*((dQ4_A+dQ4_B)<0)#                      
                             dQ4=(dQ4_A+dQ4_B)/2
@@ -908,7 +908,7 @@ interv="Daily"
 #INTRADAY
 #d_intervals = {"1min","5min","15min","30min","60min"}
 
-Lengt0=400
+Lengt0=1200
 Ngroup=3
 Nproc=3*Ngroup#*(os.cpu_count())
 Lo=1  
@@ -918,7 +918,7 @@ NIt=3
 NIter=100
 DT=0.3
 dNIt=4
-aDecm=1
+aDecm=3
 KPP=0
 
 aKEY=0
@@ -1018,7 +1018,7 @@ try:
     ii=len(nnams_)
 except:
     WhO=[        
-           #"CRV-USD",  
+           "CRV-USD",  
             "BTC-USD",
             "SOL-USD"   
           
@@ -1234,8 +1234,8 @@ def RALF1Cella(*arrgs_):
                     DD__B=DD__B*(DD__B>0)
                     
                     if len(dd1)>1 and len(dd1[0])>=len(dd1):
-                        eeB= ( XFilter( seqA0_*DD__A+dd1*(dd1>0),len(dd1),len(dd1[0]),1,0))#+seqA_*((DD__A))
-                        eeA= (-XFilter( seqA0_*DD__B-dd1*(dd1<0),len(dd1),len(dd1[0]),1,0))#-seqA_*((DD__B))
+                        eeB= ( XFilter( seqA0_*DD__A+dd1,len(dd1),len(dd1[0]),1,0))#+seqA_*((DD__A))
+                        eeA= (-XFilter( seqA0_*DD__B-dd1,len(dd1),len(dd1[0]),1,0))#-seqA_*((DD__B))
                         dd_AA[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=(eeA+eeB).copy()#*(eeB>0)*((eeA+eeB)>0)
                         dd_BB[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=(eeA+eeB).copy()#*(eeA<0)*((eeA+eeB)<0)
                   
