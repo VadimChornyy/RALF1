@@ -28,7 +28,7 @@ priorityclasses = [win32process.IDLE_PRIORITY_CLASS,
                 win32process.REALTIME_PRIORITY_CLASS]  
 
 wrkdir = r"c:/work/"
-GetSCV=1
+GetSCV=0
 Numproc=mp.cpu_count()-1
 MxTime=1*60*60 # 2 haurs
 
@@ -428,11 +428,11 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
         ss4=np.concatenate((aa, aa, aa, aa))                         
         zz=0  
         WW=0   
-
+        
+        dQ3mx=np.zeros((sz,sz),np.float16)-1e32
+        dQ3mn=np.zeros((sz,sz),np.float16)+1e32
+        dQ3num=np.zeros((sz,sz),int)
         while zz<Nzz and WW>-2*Nhh:  
-            dQ3mx=np.zeros((sz,sz),np.float16)-1e32
-            dQ3mn=np.zeros((sz,sz),np.float16)+1e32
-            dQ3num=np.zeros((sz,sz),int)
             NumFri=NumFri0_[NumFri0[ss4[zz]]:NumFri0[ss4[zz]]+2*sz].copy()
             NumFri_=NumFri0[NumFri0_[ss4[zz]]:NumFri0_[ss4[zz]]+2*sz].copy()
             for kkk in range(Nzz):
@@ -498,8 +498,8 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
 
                             # dQ4_A= np.asarray(  XFilter.RALF1FilterX(-seqA_*((mDD4_A))+(dQ4),len(dQ4),len(dQ4[0]),1,0),np.float16)
                             # dQ4_B= np.asarray( -XFilter.RALF1FilterX(-seqA_*((mDD4_A))-(dQ4),len(dQ4),len(dQ4[0]),1,0),np.float16)
-                            dQ4_A=  np.asarray(  XFilter(((mDD4_A))+(dQ4),len(dQ4),len(dQ4[0]),1,0),np.float16)
-                            dQ4_B=  np.asarray( -XFilter(((mDD4_B))-(dQ4),len(dQ4),len(dQ4[0]),1,0),np.float16)
+                            dQ4_A=  np.asarray(  XFilter(((mDD4_A))+dQ4*(dQ4>0),len(dQ4),len(dQ4[0]),1,0),np.float16)
+                            dQ4_B=  np.asarray( -XFilter(((mDD4_B))-dQ4*(dQ4<0),len(dQ4),len(dQ4[0]),1,0),np.float16)
                             
                             #dQ4=dQ4_B*(dQ4_B>0)*((dQ4_A+dQ4_B)>0)+dQ4_A*(dQ4_A<0)*((dQ4_A+dQ4_B)<0)#                      
                             dQ4=(dQ4_A+dQ4_B)/2
@@ -560,7 +560,7 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                 AsrXMx_=AsrXMx.copy()
                 AsrXMn_=AsrXMn.copy()
                 
-                #dQ3=dQ3_.copy()
+                dQ3=dQ3_.copy()
                 WW=0                                    
                 zz=zz+1
             else:
@@ -1234,8 +1234,8 @@ def RALF1Cella(*arrgs_):
                     DD__B=DD__B*(DD__B>0)
                     
                     if len(dd1)>1 and len(dd1[0])>=len(dd1):
-                        eeB= ( XFilter( seqA0_*DD__A+dd1,len(dd1),len(dd1[0]),1,0))#+seqA_*((DD__A))
-                        eeA= (-XFilter( seqA0_*DD__B-dd1,len(dd1),len(dd1[0]),1,0))#-seqA_*((DD__B))
+                        eeB= ( XFilter( seqA0_*DD__A+dd1*(dd1>0),len(dd1),len(dd1[0]),1,0))#+seqA_*((DD__A))
+                        eeA= (-XFilter( seqA0_*DD__B-dd1*(dd1<0),len(dd1),len(dd1[0]),1,0))#-seqA_*((DD__B))
                         dd_AA[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=(eeA+eeB).copy()#*(eeB>0)*((eeA+eeB)>0)
                         dd_BB[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=(eeA+eeB).copy()#*(eeA<0)*((eeA+eeB)<0)
                   
