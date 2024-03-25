@@ -28,7 +28,7 @@ priorityclasses = [win32process.IDLE_PRIORITY_CLASS,
                 win32process.REALTIME_PRIORITY_CLASS]  
 
 wrkdir = r"c:/work/"
-GetSCV=0
+GetSCV=1
 Numproc=mp.cpu_count()-1
 MxTime=1*60*60 # 2 haurs
 
