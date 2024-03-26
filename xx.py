@@ -386,11 +386,11 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
             dQ3[i]=rrr[liix[i]].copy()
         
         astart=np.Inf
-        dQ3=dQ3.reshape((sz*sz))
-        astart=dQ3[0]            
-        dQ3[1:]=np.diff(dQ3)
-        dQ3[0]=0
-        dQ3=dQ3.reshape((sz,sz))
+        # dQ3=dQ3.reshape((sz*sz))
+        # astart=dQ3[0]            
+        # dQ3[1:]=np.diff(dQ3)
+        # dQ3[0]=0
+        # dQ3=dQ3.reshape((sz,sz))
         dQ3_=dQ3.copy()
         
         D=np.std(dQ3)
@@ -498,8 +498,8 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
 
                             # dQ4_A= np.asarray(  XFilter.RALF1FilterX(-seqA_*((mDD4_A))+(dQ4),len(dQ4),len(dQ4[0]),1,0),np.float16)
                             # dQ4_B= np.asarray( -XFilter.RALF1FilterX(-seqA_*((mDD4_A))-(dQ4),len(dQ4),len(dQ4[0]),1,0),np.float16)
-                            dQ4_A=  np.asarray(  XFilter(((mDD4_A))+dQ4*(dQ4>0),len(dQ4),len(dQ4[0]),1,0),np.float16)
-                            dQ4_B=  np.asarray( -XFilter(((mDD4_B))-dQ4*(dQ4<0),len(dQ4),len(dQ4[0]),1,0),np.float16)
+                            dQ4_A=  np.asarray(  XFilter(seqA0_*mDD4_A+dQ4,len(dQ4),len(dQ4[0]),1,0),np.float16)
+                            dQ4_B=  np.asarray( -XFilter(seqA0_*mDD4_B-dQ4,len(dQ4),len(dQ4[0]),1,0),np.float16)
                             
                             #dQ4=dQ4_B*(dQ4_B>0)*((dQ4_A+dQ4_B)>0)+dQ4_A*(dQ4_A<0)*((dQ4_A+dQ4_B)<0)#                      
                             dQ4=(dQ4_A+dQ4_B)/2
