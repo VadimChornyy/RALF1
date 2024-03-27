@@ -386,11 +386,11 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
             dQ3[i]=rrr[liix[i]].copy()
         
         astart=np.Inf
-        # dQ3=dQ3.reshape((sz*sz))
-        # astart=dQ3[0]            
-        # dQ3[1:]=np.diff(dQ3)
-        # dQ3[0]=0
-        # dQ3=dQ3.reshape((sz,sz))
+        dQ3=dQ3.reshape((sz*sz))
+        astart=dQ3[0]            
+        dQ3[1:]=np.diff(dQ3)
+        dQ3[0]=0
+        dQ3=dQ3.reshape((sz,sz))
         dQ3_=dQ3.copy()
         
         D=np.std(dQ3)
@@ -517,25 +517,25 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                                 P_2=P.copy()
                                 P_1[0:2]=np.polyfit(seqA,seqB,1)
                                 P_2[0:2]=np.polyfit(seqA,seqC,1)
-                                P_1[0]=np.std(seqB)/np.std(seqA)
-                                P_1[1]=np.mean(seqB)-P_1[0]*np.mean(seqA)  
-                                P_1[2]=0
-                                P_2[0]=np.std(seqC)/np.std(seqA)
-                                P_2[1]=np.mean(seqC)-P_2[0]*np.mean(seqA)  
-                                P_2[2]=0
+                                # P_1[0]=np.std(seqB)/np.std(seqA)
+                                # P_1[1]=np.mean(seqB)-P_1[0]*np.mean(seqA)  
+                                # P_1[2]=0
+                                # P_2[0]=np.std(seqC)/np.std(seqA)
+                                # P_2[1]=np.mean(seqC)-P_2[0]*np.mean(seqA)  
+                                # P_2[2]=0
                                 if 100*scp.pearsonr(seqA,seqB)[0]>0 and 100*scp.pearsonr(seqA,seqC)[0]>0:# and not (abs(P_1[0]-1)>0.5 or abs(P_2[0]-1)>0.5):   
                                     dQ4_A=(dQ4_A-P_1[1])/P_1[0]
                                     dQ4_B=(dQ4_B-P_2[1])/P_2[0]                                      
                                     for ll in range(NCh0):
-                                        # dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(#dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
-                                        #                                         np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_A[:,ll]))#/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
-                                        # dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(#dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
-                                        #                                         np.minimum(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_B[:,ll]))#/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
-
                                         dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
-                                                                                dQ4_A[:,ll])/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
+                                                                                np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_A[:,ll]))/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
                                         dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
-                                                                                dQ4_B[:,ll])/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
+                                                                                np.minimum(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_B[:,ll]))/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
+
+                                        # dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
+                                        #                                         dQ4_A[:,ll])/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
+                                        # dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
+                                        #                                         dQ4_B[:,ll])/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
                                         dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]=dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1
                                         dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(1-seqA0_[:,ll])*dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]]+seqA0_[:,ll]*((dQ3mx+dQ3mn)[NumFri[ii:ii+NCh],NumFri_[i+ll]])/2
 
@@ -1253,12 +1253,12 @@ def RALF1Cella(*arrgs_):
                         P_2=P.copy()
                         P_1[0:2]=np.polyfit(seqA,seqB,1)
                         P_2[0:2]=np.polyfit(seqA,seqC,1)
-                        P_1[0]=np.std(seqB)/np.std(seqA)
-                        P_1[1]=np.mean(seqB)-P_1[0]*np.mean(seqA)  
-                        P_1[2]=0
-                        P_2[0]=np.std(seqC)/np.std(seqA)
-                        P_2[1]=np.mean(seqC)-P_2[0]*np.mean(seqA)  
-                        P_2[2]=0
+                        # P_1[0]=np.std(seqB)/np.std(seqA)
+                        # P_1[1]=np.mean(seqB)-P_1[0]*np.mean(seqA)  
+                        # P_1[2]=0
+                        # P_2[0]=np.std(seqC)/np.std(seqA)
+                        # P_2[1]=np.mean(seqC)-P_2[0]*np.mean(seqA)  
+                        # P_2[2]=0
                         if 100*scp.pearsonr(seqA,seqB)[0]>0 and 100*scp.pearsonr(seqA,seqC)[0]>0: #and not (abs(P_1[0]-1)>0.5 or abs(P_2[0]-1)>0.5)
                             aanum=dd_Num[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]
                             dd_CC[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=(dd_CC[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]*aanum+0.5*((dd2_1.copy()-P_1[1])/P_1[0]+(dd2_2.copy()-P_2[1])/P_2[0]))/(aanum+1)
