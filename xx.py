@@ -527,10 +527,10 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                                     dQ4_A=(dQ4_A-P_1[1])/P_1[0]
                                     dQ4_B=(dQ4_B-P_2[1])/P_2[0]                                      
                                     for ll in range(NCh0):
-                                        dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
-                                                                                np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_A[:,ll]))/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
-                                        dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
-                                                                                np.minimum(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_B[:,ll]))/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
+                                        dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(#dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
+                                                                                np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_A[:,ll]))#/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
+                                        dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(#dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
+                                                                                np.minimum(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_B[:,ll]))#/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
 
                                         # dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
                                         #                                         dQ4_A[:,ll])/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
@@ -552,10 +552,10 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                     AsrXMx=dQ3mx.copy()
                     AsrXMn=dQ3mn.copy()      
                 else:  
-                    AsrXMx=(AsrXMx*zz+dQ3mx)/(zz+1)
-                    AsrXMn=(AsrXMn*zz+dQ3mn)/(zz+1)
-                    # AsrXMx=np.maximum(AsrXMx,dQ3mx)
-                    # AsrXMn=np.minimum(AsrXMn,dQ3mn)
+                    # AsrXMx=(AsrXMx*zz+dQ3mx)/(zz+1)
+                    # AsrXMn=(AsrXMn*zz+dQ3mn)/(zz+1)
+                    AsrXMx=np.maximum(AsrXMx,dQ3mx)
+                    AsrXMn=np.minimum(AsrXMn,dQ3mn)
 
                 AsrXMx_=AsrXMx.copy()
                 AsrXMn_=AsrXMn.copy()
@@ -1469,7 +1469,7 @@ if __name__ == '__main__':
         #key=13
         while hhh_<aTmStop and not key == 13: 
             Aprocess=[]
-            if hhh==int(NIter/33):
+            if hhh==int(NIter/12):
                 if hhh_<aTmStop-1:
                     try:
                         os.remove(wrkdir + aname+".rlf1")
