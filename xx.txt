@@ -27,7 +27,7 @@ priorityclasses = [win32process.IDLE_PRIORITY_CLASS,
                 win32process.HIGH_PRIORITY_CLASS,
                 win32process.REALTIME_PRIORITY_CLASS]  
 
-wrkdir = r"c:/work/"
+wrkdir = r""
 GetSCV=1
 Numproc=mp.cpu_count()-1
 MxTime=1*60*60 # 2 haurs
@@ -361,10 +361,14 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
         if hh==1:
             Nzz=int(Nzz0/2+1)
             
-        try:
-            arrrxx=hkl.load("ralfrez.rlf2")
-        except:
-            arrrxx=[]
+        wwwww=0
+        while not wwwww:
+            try:
+                arrrxx=hkl.load("ralfrez.rlf2")
+                wwwww=1
+            except:
+                tm.sleep(0.1)
+
         if len(arrrxx)>=Nproc: 
             return rr2[hh]/0 
         
@@ -498,8 +502,8 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
 
                             # dQ4_A= np.asarray(  XFilter.RALF1FilterX(-seqA_*((mDD4_A))+(dQ4),len(dQ4),len(dQ4[0]),1,0),np.float16)
                             # dQ4_B= np.asarray( -XFilter.RALF1FilterX(-seqA_*((mDD4_A))-(dQ4),len(dQ4),len(dQ4[0]),1,0),np.float16)
-                            dQ4_A=  np.asarray(  XFilter(seqA0_*mDD4_A+dQ4,len(dQ4),len(dQ4[0]),1,0),np.float16)
-                            dQ4_B=  np.asarray( -XFilter(seqA0_*mDD4_B-dQ4,len(dQ4),len(dQ4[0]),1,0),np.float16)
+                            dQ4_B=  np.asarray(  XFilter(seqA0_*mDD4_A+dQ4,len(dQ4),len(dQ4[0]),1,0),np.float16)
+                            dQ4_A=  np.asarray( -XFilter(seqA0_*mDD4_B-dQ4,len(dQ4),len(dQ4[0]),1,0),np.float16)
                             
                             #dQ4=dQ4_B*(dQ4_B>0)*((dQ4_A+dQ4_B)>0)+dQ4_A*(dQ4_A<0)*((dQ4_A+dQ4_B)<0)#                      
                             # dQ4=(dQ4_A+dQ4_B)/2
@@ -569,10 +573,14 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                 ss4[len(ss4)-1]=aa
                 WW=WW-1  
         
-        try:
-            arrrxx=hkl.load("ralfrez.rlf2")
-        except:
-            arrrxx=[]
+        wwwww=0
+        while not wwwww:
+            try:
+                arrrxx=hkl.load("ralfrez.rlf2")
+                wwwww=1
+            except:
+                tm.sleep(0.1)
+
         if len(arrrxx)>=Nproc: 
             return rr2[hh]/0 
         
@@ -818,10 +826,14 @@ def RALf1FiltrQ(args):
             if hh<Nhh:    
                 arr_bbbxxx=RALF1Calculation(arr_b,arr_c,Nf,NNew0,NNew,NChan,NumIt,args[0],Nproc)                
                 
-                try:
-                    arrrxx=hkl.load("ralfrez.rlf2")
-                except:
-                    arrrxx=[]
+                wwwww=0
+                while not wwwww:
+                    try:
+                        arrrxx=hkl.load("ralfrez.rlf2")
+                        wwwww=1
+                    except:
+                        tm.sleep(0.1)
+
                 if len(arrrxx)>=Nproc: 
                     return arr_bbbxxx/0 
                 if (sum(np.abs(arr_bbbxxx)==np.Inf)==0 and sum(np.isnan(arr_bbbxxx))==0):
@@ -883,18 +895,27 @@ def RALf1FiltrQ(args):
             # if hh==Nhh:
                                 
                                 try:
-                                    arrrxx=hkl.load("ralfrez.rlf2")
+                                    wwwww=0
+                                    while not wwwww:
+                                        try:
+                                            arrrxx=hkl.load("ralfrez.rlf2")
+                                            wwwww=1
+                                        except:
+                                            tm.sleep(0.1)
+
                                     if len(arrrxx)>=Nproc: 
                                         return np.asarray(arr_bbx[hh],float)
                                     else:
                                         print('%s'%(coef))
                                         if coef>0:   
                                             arrrxx.append(np.asarray(arr_bbx[hh],float))
-                                            try:
-                                                hkl.dump(arrrxx,"ralfrez.rlf2")
-                                            except:
-                                                tm.sleep(0.6)
-                                                hkl.dump(arrrxx,"ralfrez.rlf2")
+                                            wwwww=0
+                                            while not wwwww:
+                                                try:
+                                                    hkl.dump(arrrxx,"ralfrez.rlf2")
+                                                    wwwww=1
+                                                except:
+                                                    tm.sleep(0.6)
                                 except:
                                     arrrxx=[]
 
@@ -908,7 +929,7 @@ interv="Daily"
 #INTRADAY
 #d_intervals = {"1min","5min","15min","30min","60min"}
 
-Lengt0=1200
+Lengt0=400
 Ngroup=3
 Nproc=3*Ngroup#*(os.cpu_count())
 Lo=1  
@@ -918,7 +939,7 @@ NIt=3
 NIter=100
 DT=0.3
 dNIt=4
-aDecm=3
+aDecm=1
 KPP=0
 
 aKEY=0
@@ -1017,11 +1038,11 @@ try:
     nnams_=hkl.load(wrkdir +"name.rlf1")
     ii=len(nnams_)
 except:
-    WhO=[        
-           #"CRV-USD",  
+    WhO=[  
+        "MATIC-USD", 
             "BTC-USD",
             "SOL-USD"   
-          
+          "CRV-USD", 
           "SHIB-USD",
     "ETH-USD", 
   "ADA-USD", 
@@ -1030,7 +1051,6 @@ except:
 "LINK-USD", 
 "BCH-USD", 
 "LTC-USD", 
-"MATIC-USD", 
 "XLM-USD", 
 "ETC-USD", 
 "ATOM-USD", 
@@ -1259,7 +1279,7 @@ def RALF1Cella(*arrgs_):
                         # P_2[0]=np.std(seqC)/np.std(seqA)
                         # P_2[1]=np.mean(seqC)-P_2[0]*np.mean(seqA)  
                         # P_2[2]=0
-                        if 100*scp.pearsonr(seqA,seqB)[0]>0 and 100*scp.pearsonr(seqA,seqC)[0]>0: #and not (abs(P_1[0]-1)>0.5 or abs(P_2[0]-1)>0.5)
+                        if 100*scp.pearsonr(seqA,seqB)[0]>60 and 100*scp.pearsonr(seqA,seqC)[0]>60 and not (abs(P_1[0]-1)>0.5 or abs(P_2[0]-1)>0.5):
                             aanum=dd_Num[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]
                             dd_CC[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=(dd_CC[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]*aanum+0.5*((dd2_1.copy()-P_1[1])/P_1[0]+(dd2_2.copy()-P_2[1])/P_2[0]))/(aanum+1)
                             dd_Num[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=aanum+1
@@ -1271,8 +1291,8 @@ def RALF1Cella(*arrgs_):
                         
         if not PP==0:                                                                                
             if not astart==np.Inf: 
-                dd_AA=dd_CC*PP*(dd_CC>0)
-                dd_BB=dd_CC*PP*(dd_CC<0)     
+                # dd_AA=dd_CC*PP*(dd_CC>0)
+                # dd_BB=dd_CC*PP*(dd_CC<0)     
                 dd_AA=dd_AA.reshape((anI*Nf))
                 dd_AA=astart+np.cumsum(dd_AA)
                 dd_AA=dd_AA.reshape((anI,Nf))
@@ -1469,7 +1489,7 @@ if __name__ == '__main__':
         #key=13
         while hhh_<aTmStop and not key == 13: 
             Aprocess=[]
-            if hhh==int(NIter/12):
+            if hhh==int(NIter/33):
                 if hhh_<aTmStop-1:
                     try:
                         os.remove(wrkdir + aname+".rlf1")
@@ -1543,7 +1563,23 @@ if __name__ == '__main__':
                     
                     pool = mp.Pool(processes=Nproc)
                     try:
-                        pool.map(RALf1FiltrQ, argss)
+                        #pool.map(RALf1FiltrQ, argss)
+                        pool.map_async(RALf1FiltrQ,argss)
+                        wwwwww=0
+                        while not wwwwww:
+                            wwwww=0
+                            while not wwwww:
+                                try:
+                                    arezAMx_=hkl.load("ralfrez.rlf2")
+                                    wwwww=1
+                                except:
+                                    tm.sleep(0.1)
+                            nsz=len(arezAMx_)
+                            if nsz>=Nproc:
+                                wwwwww=1 
+                                pool.terminate()
+                            else:
+                                tm.sleep(0.1)
                     except:
                         arezAMx_=hkl.load("ralfrez.rlf2")
                     #arezAMx= np.asarray(arezAMx,float)[0,:,:]
