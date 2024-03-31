@@ -1039,11 +1039,11 @@ try:
     ii=len(nnams_)
 except:
     WhO=[  
-        "MATIC-USD", 
-            "BTC-USD",
-            "SOL-USD"   
-          "CRV-USD", 
-          "SHIB-USD",
+        # "MATIC-USD", 
+        #     "BTC-USD",
+        #     "SOL-USD"   
+        #   "CRV-USD", 
+        #   "SHIB-USD",
     "ETH-USD", 
   "ADA-USD", 
 "DOGE-USD", 
@@ -1550,11 +1550,31 @@ if __name__ == '__main__':
                         argss[iProc].append("%d"%Nproc)                    
                     
                     try:
-                        arezAMx_=hkl.load("ralfrez.rlf2")
+                        wwwww=0
+                        while not wwwww:
+                            try:
+                                arezAMx_=hkl.load("ralfrez.rlf2")
+                                wwwww=1
+                            except:
+                                tm.sleep(0.1)
+
                         if len(arezAMx_)==Nproc:
-                            hkl.dump([],"ralfrez.rlf2")
+                            wwwww=0
+                            while not wwwww:
+                                try:
+                                    hkl.dump([],"ralfrez.rlf2")
+                                    wwwww=1
+                                except:
+                                    tm.sleep(0.6)
+
                     except:
-                        hkl.dump([],"ralfrez.rlf2")
+                            wwwww=0
+                            while not wwwww:
+                                try:
+                                    hkl.dump([],"ralfrez.rlf2")
+                                    wwwww=1
+                                except:
+                                    tm.sleep(0.6)
                     
                     arezAMx_=[] 
                     # for iProc in range(Nproc):
@@ -1585,13 +1605,33 @@ if __name__ == '__main__':
                     #arezAMx= np.asarray(arezAMx,float)[0,:,:]
                     del(pool)
                     
-                    if arezAMx_==[]:
-                        arezAMx_=hkl.load("ralfrez.rlf2")
-                    if len(arezAMx_)>0:
-                        hkl.dump(arezAMx_,"ralfrez_.rlf2")
-                    arezAMx= np.asarray(arezAMx_,float)
-                    hkl.dump([],"ralfrez.rlf2")
+                    if arezAMx_==[]:                        
+                        wwwww=0
+                        while not wwwww:
+                            try:
+                                arezAMx_=hkl.load("ralfrez.rlf2")
+                                wwwww=1
+                            except:
+                                tm.sleep(0.1)
+                                
+                    if len(arezAMx_)>0:                        
+                        wwwww=0
+                        while not wwwww:
+                            try:
+                                hkl.dump(arezAMx_,"ralfrez_.rlf2")
+                                wwwww=1
+                            except:
+                                tm.sleep(0.6)
+                        
+                    arezAMx= np.asarray(arezAMx_,float)                    
                     
+                    wwwww=0
+                    while not wwwww:
+                        try:
+                            hkl.dump([],"ralfrez.rlf2")
+                            wwwww=1
+                        except:
+                            tm.sleep(0.6)
                     
                     arezAMx= np.asarray(arezAMx,float)*Klg+Asr
                      
