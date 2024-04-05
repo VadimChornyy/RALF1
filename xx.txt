@@ -329,7 +329,7 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
     sz=Nf*NChan
     MM=3
     Nzz=3
-    Nhh=6
+    Nhh=3
     
     Ndel=MM
     NCh=int(np.ceil(sz/Ndel))  
@@ -777,21 +777,40 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
             if hh_>2*Nhh:
                 return rr2[hh]/0                                                                                             
 
-def RALf1FiltrQ(args):  
+def RALf1FiltrQ(*args):  
     pid = win32api.GetCurrentProcessId()
     handle = win32api.OpenProcess(win32con.PROCESS_ALL_ACCESS, True, pid)
     win32process.SetPriorityClass(handle, priorityclasses[1])
-    NChan=int(args[1])
-    NNew=int(args[2])
-    Nhh=int(args[3])
-    Nf=int(len(args)-5) 
-    Nproc=int(args[int(len(args)-1)])
+    
+    ########################### 
+    www=0
+    while (not www):
+        try:
+            with open("filtrx.tmp", "rb") as file:
+                args=file.read()
+                file.close() 
+                www=1
+        except:
+            tm.sleep(0.1)
+    [NChan, Nf, NNew, Nhh, Nproc]=np.asarray(struct.unpack('5i', args[0:20]),np.int32)
+    anamef="maxmin_.xxx"
+    fo = open(anamef, "w")
+    fo.write('%s '%(Nproc)+'\n')
+    fo.close() 
+    arr_bb=np.asarray(struct.unpack('%sf'%(Nf), args[20:(4*Nf+20)]),np.float32)
+    ###########################
+    
+    # NChan=int(args[1])
+    # NNew=int(args[2])
+    # Nhh=int(args[3])
+    # Nf=int(len(args)-5) 
+    # Nproc=int(args[int(len(args)-1)])
        
-    arr_bb=[]    
-    for i in range(Nf):
-        arr_bb.append(args[4+i])
-    arr_bb=np.asarray(arr_bb,float)
-    Nf=int(len(arr_bb)/NChan)    
+    # arr_bb=[]    
+    # for i in range(Nf):
+    #     arr_bb.append(args[4+i])
+    # arr_bb=np.asarray(arr_bb,float)
+    # Nf=int(len(arr_bb)/NChan)    
     NNew0=int(NNew*1.2) 
     
     #Nhh=1
@@ -1039,49 +1058,49 @@ try:
     ii=len(nnams_)
 except:
     WhO=[  
-        # "MATIC-USD", 
-        #     "BTC-USD",
-        #     "SOL-USD"   
-        #   "CRV-USD", 
-        #   "SHIB-USD",
-    "ETH-USD", 
-  "ADA-USD", 
-"DOGE-USD", 
-"UNI1-USD", 
-"LINK-USD", 
-"BCH-USD", 
-"LTC-USD", 
-"XLM-USD", 
-"ETC-USD", 
-"ATOM-USD", 
-"EOS-USD", 
-"AAVE-USD", 
-"GRT1-USD", 
-"XTZ-USD", 
-"MKR-USD", 
-"COMP1-USD", 
-"MINA-USD", 
-"SUSHI-USD", 
-"SNX-USD", 
-"OMG-USD", 
-"BNT-USD", 
-"ZRX-USD", 
-"UMA-USD", 
-"CELO-USD", 
-"ANKR-USD", 
-"KNC-USD", 
-"LRC-USD", 
-"SKL-USD", 
-"STORJ-USD", 
-"NU-USD", 
-"NMR-USD", 
-"BAL-USD", 
-"BAND-USD", 
-"AXS-USD", 
-"ICP-USD", 
-"IOTX-USD", 
-"ORN-USD",
-"DOT-USD"
+    # "BTC-USD",
+    # "SOL-USD"   
+    # "CRV-USD", 
+    # "SHIB-USD",
+    # "MATIC-USD", 
+    # "ETH-USD", 
+    # "ADA-USD", 
+    # "DOGE-USD", 
+    # "UNI1-USD", 
+    # "LINK-USD", 
+    # "BCH-USD", 
+    "LTC-USD", 
+    # "XLM-USD", 
+    # "ETC-USD", 
+    # "ATOM-USD", 
+    # "EOS-USD", 
+    "AAVE-USD", 
+    "GRT1-USD", 
+    "XTZ-USD", 
+    "MKR-USD", 
+    "COMP1-USD", 
+    "MINA-USD", 
+    "SUSHI-USD", 
+    "SNX-USD", 
+    "OMG-USD", 
+    "BNT-USD", 
+    "ZRX-USD", 
+    "UMA-USD", 
+    "CELO-USD", 
+    "ANKR-USD", 
+    "KNC-USD", 
+    "LRC-USD", 
+    "SKL-USD", 
+    "STORJ-USD", 
+    "NU-USD", 
+    "NMR-USD", 
+    "BAL-USD", 
+    "BAND-USD", 
+    "AXS-USD", 
+    "ICP-USD", 
+    "IOTX-USD", 
+    "ORN-USD",
+    "DOT-USD"
     ]
     def getcsv(WhO,xYears,wrkdir):
         tm0=int(tm.time())
@@ -1436,7 +1455,7 @@ if __name__ == '__main__':
             dd2a=np.zeros((Ngroup,NIter,Nf),float)+np.Inf
             all_RezNM=np.zeros((Ngroup,NIter,Nf),float)
             all_RezMM=np.zeros((Ngroup,NIter,Nf),float)
-            argss=[[0] for j in range(Nproc)]    
+            #argss=[[0] for j in range(Nproc)]    
     
             hh0=0
             hhh=0
@@ -1543,29 +1562,44 @@ if __name__ == '__main__':
             
                     program =wrkdir + "RALF1FiltrX_lg.py"
                     NChan=1
-                    for iProc in range(Nproc):
-                        argss[iProc]=["%s"%iProc, "%s"%NChan, "%s"%NNew, "%s"%NIt]#"%s"%(iProc+1)]
-                        for i in range(Nf):
-                            argss[iProc].append(str("%1.6f"%(arr_A[i])))   
-                        argss[iProc].append("%d"%Nproc)                    
+                    ##########################
+                    ssssss=np.asarray([NChan, Nf, NNew, NIt, Nproc],np.int32)                    
+                    sssss=np.asarray(arr_A,np.float32)                        
+                    argss=(struct.pack("%si"%(len(ssssss)),*ssssss)+
+                                struct.pack("%sf"%(Nf),*sssss))
+                    with open("filtrx.tmp", "wb") as file:
+                        file.write(argss)
+                        file.close()  
+                    ##########################
+                    
+                    # for iProc in range(Nproc):
+                    #     argss[iProc]=["%s"%iProc, "%s"%NChan, "%s"%NNew, "%s"%NIt]#"%s"%(iProc+1)]
+                    #     for i in range(Nf):
+                    #         argss[iProc].append(str("%1.6f"%(arr_A[i])))   
+                    #     argss[iProc].append("%d"%Nproc)                    
                     
                     try:
-                        wwwww=0
-                        while not wwwww:
+                        wwwww=1
+                        while wwwww and wwwww<100:
                             try:
                                 arezAMx_=hkl.load("ralfrez.rlf2")
-                                wwwww=1
+                                wwwww=0
                             except:
                                 tm.sleep(0.1)
+                                wwwww=wwwww+1
+                                
+                        if wwwww>0:
+                            arezAMx_=[]
 
-                        if len(arezAMx_)==Nproc:
-                            wwwww=0
-                            while not wwwww:
+                        if len(arezAMx_)==Nproc or arezAMx_==[]:
+                            wwwww=1
+                            while wwwww and wwwww<100:
                                 try:
                                     hkl.dump([],"ralfrez.rlf2")
-                                    wwwww=1
+                                    wwwww=0
                                 except:
                                     tm.sleep(0.6)
+                                    wwwww=wwwww+1
 
                     except:
                             wwwww=0
@@ -1578,13 +1612,13 @@ if __name__ == '__main__':
                     
                     arezAMx_=[] 
                     # for iProc in range(Nproc):
-                    #     aaa=RALf1FiltrQ(argss[iProc])
+                    #     aaa=RALf1FiltrQ(zip(argss))
                     #     arezAMx_.append(aaa)
                     
                     pool = mp.Pool(processes=Nproc)
                     try:
                         #pool.map(RALf1FiltrQ, argss)
-                        pool.map_async(RALf1FiltrQ,argss)
+                        pool.map_async(RALf1FiltrQ,zip(argss))
                         wwwwww=0
                         while not wwwwww:
                             wwwww=0
