@@ -541,7 +541,11 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                                         # dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
                                         #                                         dQ4_B[:,ll])/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
                                         dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]=dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1
-                                        dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(1-seqA0_[:,ll])*dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]]+seqA0_[:,ll]*((dQ3mx+dQ3mn)[NumFri[ii:ii+NCh],NumFri_[i+ll]])/2
+                                        seqA=seqA0_[:,ll]*dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]]
+                                        seqB=seqA0_[:,ll]*((dQ3mx+dQ3mn)[NumFri[ii:ii+NCh],NumFri_[i+ll]])/2
+                                        # 100*scp.pearsonr(seqA,seqB-seqA)[0]
+                                        
+                                        dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(1-seqA0_[:,ll])*dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]]+(seqB-seqA)
 
                                     ll=ll+1
                                 else:
@@ -1069,24 +1073,24 @@ except:
     # "UNI1-USD", 
     # "LINK-USD", 
     # "BCH-USD", 
-    "LTC-USD", 
+    # "LTC-USD", 
     # "XLM-USD", 
     # "ETC-USD", 
     # "ATOM-USD", 
     # "EOS-USD", 
-    "AAVE-USD", 
-    "GRT1-USD", 
-    "XTZ-USD", 
-    "MKR-USD", 
-    "COMP1-USD", 
-    "MINA-USD", 
-    "SUSHI-USD", 
-    "SNX-USD", 
-    "OMG-USD", 
-    "BNT-USD", 
-    "ZRX-USD", 
-    "UMA-USD", 
-    "CELO-USD", 
+    # "AAVE-USD", 
+    # "GRT1-USD", 
+    # "XTZ-USD", 
+    # "MKR-USD", 
+    # "COMP1-USD", 
+    # "MINA-USD", 
+    # "SUSHI-USD", 
+    # "SNX-USD", 
+    # "OMG-USD", 
+    # "BNT-USD", 
+    # "ZRX-USD", 
+    # "UMA-USD", 
+    # "CELO-USD", 
     "ANKR-USD", 
     "KNC-USD", 
     "LRC-USD", 
