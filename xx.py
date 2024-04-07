@@ -554,7 +554,7 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                                 xxx=1
                         else:     
                             xxx=1
-                        
+                dQ3=dQ3_.copy()
             if xxx==0:    
                 if zz==0:
                     AsrXMx=dQ3mx.copy()
@@ -568,7 +568,6 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                 AsrXMx_=AsrXMx.copy()
                 AsrXMn_=AsrXMn.copy()
                 
-                dQ3=dQ3_.copy()
                 WW=0                                    
                 zz=zz+1
             else:
@@ -952,7 +951,7 @@ interv="Daily"
 #INTRADAY
 #d_intervals = {"1min","5min","15min","30min","60min"}
 
-Lengt0=400
+Lengt0=800
 Ngroup=3
 Nproc=3*Ngroup#*(os.cpu_count())
 Lo=1  
@@ -962,7 +961,7 @@ NIt=3
 NIter=100
 DT=0.3
 dNIt=4
-aDecm=1
+aDecm=2
 KPP=0
 
 aKEY=0
