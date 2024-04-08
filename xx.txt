@@ -541,13 +541,13 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                                         seqB=seqA0_[:,ll]*(dQ4_A[:,ll]+dQ4_B[:,ll])/2
                                         
                                         dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(#dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
-                                                                                np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]],seqB-seqA))#/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
+                                                                                np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]],seqB))#/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
                                         dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(#dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
-                                                                                np.minimum(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]],seqB-seqA))#/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
+                                                                                np.minimum(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]],seqB))#/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
 
                                         # 100*scp.pearsonr(seqA,seqB-seqA)[0]
                                         
-                                        dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(1-seqA0_[:,ll])*dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]]+(seqB-seqA)
+                                        dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(1-seqA0_[:,ll])*dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]]+(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]+dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]])/2
 
                                     ll=ll+1
                                 else:
@@ -1063,35 +1063,35 @@ try:
     ii=len(nnams_)
 except:
     WhO=[  
-    # "BTC-USD",
-    # "SOL-USD"   
-    # "CRV-USD", 
-    # "SHIB-USD",
-    # "MATIC-USD", 
-    # "ETH-USD", 
-    # "ADA-USD", 
-    # "DOGE-USD", 
-    # "UNI1-USD", 
-    # "LINK-USD", 
-    # "BCH-USD", 
-    # "LTC-USD", 
-    # "XLM-USD", 
-    # "ETC-USD", 
-    # "ATOM-USD", 
-    # "EOS-USD", 
-    # "AAVE-USD", 
-    # "GRT1-USD", 
-    # "XTZ-USD", 
-    # "MKR-USD", 
-    # "COMP1-USD", 
-    # "MINA-USD", 
-    # "SUSHI-USD", 
-    # "SNX-USD", 
-    # "OMG-USD", 
-    # "BNT-USD", 
-    # "ZRX-USD", 
-    # "UMA-USD", 
-    # "CELO-USD", 
+    "BTC-USD",
+    "SOL-USD"   
+    "CRV-USD", 
+    "SHIB-USD",
+    "MATIC-USD", 
+    "ETH-USD", 
+    "ADA-USD", 
+    "DOGE-USD", 
+    "UNI1-USD", 
+    "LINK-USD", 
+    "BCH-USD", 
+    "LTC-USD", 
+    "XLM-USD", 
+    "ETC-USD", 
+    "ATOM-USD", 
+    "EOS-USD", 
+    "AAVE-USD", 
+    "GRT1-USD", 
+    "XTZ-USD", 
+    "MKR-USD", 
+    "COMP1-USD", 
+    "MINA-USD", 
+    "SUSHI-USD", 
+    "SNX-USD", 
+    "OMG-USD", 
+    "BNT-USD", 
+    "ZRX-USD", 
+    "UMA-USD", 
+    "CELO-USD", 
     "ANKR-USD", 
     "KNC-USD", 
     "LRC-USD", 
