@@ -274,7 +274,8 @@ def filterFourierQ(arxx,arb,NNew,NChan,key=-1):
     arxr=arxx.copy()
     for l in range(NChan):      
         ar_=arxx[Nfl_*(l+1)-Nnl:Nfl_*(l+1)].copy()
-        par_= savgol_filter(ar_, 14, 5)
+        #par_= savgol_filter(ar_, 14, 5)
+        par_=ar_.copy()
         #ar_=ar_-ar_[0]
         ar_=ar_[::-1].copy()
         ar_=ar_-par_[0]
@@ -653,8 +654,8 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                     
                 ann=1  
                 try:
-                    for l in range(NChan):                             
-                        rrr[Nf*l:Nf+Nf*l]= savgol_filter(rrr[Nf*l:Nf+Nf*l], 14, 5)
+                    # for l in range(NChan):                             
+                    #     rrr[Nf*l:Nf+Nf*l]= savgol_filter(rrr[Nf*l:Nf+Nf*l], 14, 5)
 
                     dd1=(filterFourierQ(AMX[hh],rrr,NNew,NChan))
                     dd2=(filterFourierQ(AMN[hh],rrr,NNew,NChan)) 
