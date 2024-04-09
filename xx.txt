@@ -477,8 +477,8 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                        
                         mDD4_A=(mDD4_A-np.mean(mDD4_A))#*0
                         mDD4_B=(mDD4_B-np.mean(mDD4_B))#*0
-                        mDD4_A=mDD4_A*(mDD4_A>0)
-                        mDD4_B=mDD4_B*(mDD4_B>0)
+                        # mDD4_A=mDD4_A*(mDD4_A>0)
+                        # mDD4_B=mDD4_B*(mDD4_B>0)
                         
                         nNxA=sum(sum(mDD4==1))     
                         nNxA_=sum(sum(mDD4==0))  
@@ -538,13 +538,13 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                                         #                                         dQ4_B[:,ll])/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
                                         dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]=dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1
                                         #seqA0_[:,ll]*
-                                        seqA=dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]]
-                                        seqB=seqA0_[:,ll]*((dQ4_A[:,ll]+dQ4_B[:,ll])/2-seqA)
-                                        P_1[0:2]=np.polyfit(seqA,seqB,1)  
-                                        P_1[0]=np.std(seqB)/np.std(seqA)
-                                        P_1[1]=np.mean(seqB)-P_1[0]*np.mean(seqA)  
-                                        P_1[2]=0
-                                        seqB=seqA0_[:,ll]*(seqB-P_1[1])/P_1[0]
+                                        seqA=dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]]
+                                        seqB=((dQ4_A[:,ll]+dQ4_B[:,ll])/2-seqA)
+                                        #P_1[0:2]=np.polyfit(seqA,seqB,1)  
+                                        # P_1[0]=np.std(seqB)/np.std(seqA)
+                                        # P_1[1]=np.mean(seqB)-P_1[0]*np.mean(seqA)  
+                                        # P_1[2]=0
+                                        # seqB=seqA0_[:,ll]*(seqB-P_1[1])/P_1[0]
                                         
                                         dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(#dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
                                                                                 np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]],seqB))#/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
@@ -553,7 +553,7 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
 
                                         # 100*scp.pearsonr(seqA,seqB-seqA)[0]
                                         
-                                        dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(1-seqA0_[:,ll])*dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]]+(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]+dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]])/2
+                                        dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(1-seqA0_[:,ll])*dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]]+seqA0_[:,ll]*(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]+dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]])/2
 
                                     ll=ll+1
                                 else:
@@ -1280,8 +1280,8 @@ def RALF1Cella(*arrgs_):
                     
                     DD__A=DD_[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)].copy()
                     DD__B=DD__A.copy()#
-                    DD__A=DD__A*(DD__A>0)
-                    DD__B=DD__B*(DD__B>0)
+                    # DD__A=DD__A*(DD__A>0)
+                    # DD__B=DD__B*(DD__B>0)
                     
                     if len(dd1)>1 and len(dd1[0])>=len(dd1):
                         eeB= ( XFilter( seqA0_*DD__A+dd1,len(dd1),len(dd1[0]),1,0))#+seqA_*((DD__A))
