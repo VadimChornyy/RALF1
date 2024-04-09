@@ -426,7 +426,7 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
         liiC=np.concatenate((aa, aa, aa)) 
         aa=RandomQ(sz)  
         r5=aa.copy()
-        r5=2*r5*D/np.std(r5)
+        r5=6*r5*D/np.std(r5)
         r5=r5-np.mean(r5)
         r5=np.concatenate((r5, r5))
         aa=RandomQ(sz) 
@@ -537,8 +537,14 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                                         # dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
                                         #                                         dQ4_B[:,ll])/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
                                         dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]=dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1
-                                        seqA=seqA0_[:,ll]*dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]]
-                                        seqB=seqA0_[:,ll]*(dQ4_A[:,ll]+dQ4_B[:,ll])/2
+                                        #seqA0_[:,ll]*
+                                        seqA=dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]]
+                                        seqB=seqA0_[:,ll]*((dQ4_A[:,ll]+dQ4_B[:,ll])/2-seqA)
+                                        P_1[0:2]=np.polyfit(seqA,seqB,1)  
+                                        P_1[0]=np.std(seqB)/np.std(seqA)
+                                        P_1[1]=np.mean(seqB)-P_1[0]*np.mean(seqA)  
+                                        P_1[2]=0
+                                        seqB=seqA0_[:,ll]*(seqB-P_1[1])/P_1[0]
                                         
                                         dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(#dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
                                                                                 np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]],seqB))#/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
@@ -830,7 +836,7 @@ def RALf1FiltrQ(*args):
     arr_c=[]
     aa=RandomQ(NNew0)
     aa=aa-np.mean(aa)
-    aa=2*aa/np.std(aa)*np.std(arr_b)
+    aa=6*aa/np.std(aa)*np.std(arr_b)
     ss4=np.concatenate((aa, aa, aa, aa)) #*0
     for l in range(NChan):
         arr_c.append(arr_b[Nf-NNew0+Nf*l:Nf-NNew+Nf*l].copy()) 
@@ -868,7 +874,7 @@ def RALf1FiltrQ(*args):
                     arr_c_=[]
                     aa=RandomQ(NNew0)
                     aa=aa-np.mean(aa)
-                    aa=2*aa/np.std(aa)*np.std(arr_bbbxxx)
+                    aa=6*aa/np.std(aa)*np.std(arr_bbbxxx)
                     ss4=np.concatenate((aa, aa, aa, aa)) 
                     for l in range(NChan):
                         arr_bbbxxx_[Nf_*l:Nf_+Nf_*l]=np.asarray(arr_bbbxxx[Nf*(l+1):Nf-Nf_-1+Nf*l:-1],float)
@@ -1225,7 +1231,7 @@ def RALF1Cella(*arrgs_):
             vvv=ss4_[hhhc:hhhc+Nf].copy()
             DD_.append(vvv[::-1].copy())
         DD_=np.asarray(DD_,float)                              
-        DD_=(DD_/np.std(DD_))*D*2
+        DD_=(DD_/np.std(DD_))*D*6
         DD_=(DD_-np.mean(DD_))
         #DD_=DD_*0
                                 
@@ -1248,7 +1254,7 @@ def RALF1Cella(*arrgs_):
                 vvv=ss4_[hhhc:hhhc+Nf].copy()
                 DD_.append(vvv[::-1].copy())
             DD_=np.asarray(DD_,float)                              
-            DD_=(DD_/np.std(DD_))*D*2
+            DD_=(DD_/np.std(DD_))*D*6
             DD_=(DD_-np.mean(DD_))
             #DD_=DD_*0
             for ii in range(aNN):   
