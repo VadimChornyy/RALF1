@@ -532,8 +532,8 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                                     dQ4_A=(dQ4_A-P_1[1])/P_1[0]
                                     dQ4_B=(dQ4_B-P_2[1])/P_2[0]                                      
                                     for ll in range(NCh0):                                        
-                                        seqA=(1-seqA0_[:,ll])*dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]]+seqA0_[:,ll]*np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]],(dQ4_A[:,ll]+dQ4_A[:,ll])/2)
-                                        seqB=(1-seqA0_[:,ll])*dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]]+seqA0_[:,ll]*np.minimum(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]],(dQ4_B[:,ll]+dQ4_B[:,ll])/2)
+                                        seqA=(1-seqA0_[:,ll])*dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]]+seqA0_[:,ll]*np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]],(dQ4_A[:,ll]+dQ4_B[:,ll])/2)
+                                        seqB=(1-seqA0_[:,ll])*dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]]+seqA0_[:,ll]*np.minimum(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]],(dQ4_B[:,ll]+dQ4_A[:,ll])/2)
                                         
                                         dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
                                                                                 seqA)/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
@@ -649,8 +649,8 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                     
                 ann=1  
                 try:
-                    for l in range(NChan):                             
-                        rrr[Nf*l:Nf+Nf*l]= savgol_filter(rrr[Nf*l:Nf+Nf*l], 14, 5)
+                    # for l in range(NChan):                             
+                    #     rrr[Nf*l:Nf+Nf*l]= savgol_filter(rrr[Nf*l:Nf+Nf*l], 14, 5)
 
                     dd1=(filterFourierQ(AMX[hh],rrr,NNew,NChan))
                     dd2=(filterFourierQ(AMN[hh],rrr,NNew,NChan)) 
