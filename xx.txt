@@ -503,8 +503,8 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
 
                             # dQ4_A= np.asarray(  XFilter.RALF1FilterX(-seqA_*((mDD4_A))+(dQ4),len(dQ4),len(dQ4[0]),1,0),np.float16)
                             # dQ4_B= np.asarray( -XFilter.RALF1FilterX(-seqA_*((mDD4_A))-(dQ4),len(dQ4),len(dQ4[0]),1,0),np.float16)
-                            dQ4_B=  np.asarray(  XFilter(seqA0_*mDD4_A+dQ4,len(dQ4),len(dQ4[0]),1,0),np.float16)
-                            dQ4_A=  np.asarray( -XFilter(seqA0_*mDD4_B-dQ4,len(dQ4),len(dQ4[0]),1,0),np.float16)
+                            dQ4_B=  np.asarray(  XFilter(mDD4_A+dQ4,len(dQ4),len(dQ4[0]),1,0),np.float16)
+                            dQ4_A=  np.asarray( -XFilter(mDD4_B-dQ4,len(dQ4),len(dQ4[0]),1,0),np.float16)
                             
                             #dQ4=dQ4_B*(dQ4_B>0)*((dQ4_A+dQ4_B)>0)+dQ4_A*(dQ4_A<0)*((dQ4_A+dQ4_B)<0)#                      
                             # dQ4=(dQ4_A+dQ4_B)/2
@@ -1272,8 +1272,8 @@ def RALF1Cella(*arrgs_):
                     # DD__B=DD__B*(DD__B>0)
                     
                     if len(dd1)>1 and len(dd1[0])>=len(dd1):
-                        eeB= ( XFilter( seqA0_*DD__A+dd1,len(dd1),len(dd1[0]),1,0))#+seqA_*((DD__A))
-                        eeA= (-XFilter( seqA0_*DD__B-dd1,len(dd1),len(dd1[0]),1,0))#-seqA_*((DD__B))
+                        eeB= ( XFilter( DD__A+dd1,len(dd1),len(dd1[0]),1,0))#+seqA_*((DD__A))
+                        eeA= (-XFilter( DD__B-dd1,len(dd1),len(dd1[0]),1,0))#-seqA_*((DD__B))
                         dd_AA[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=(eeA).copy()#*(eeB>0)*((eeA+eeB)>0)
                         dd_BB[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=(eeB).copy()#*(eeA<0)*((eeA+eeB)<0)
                   
