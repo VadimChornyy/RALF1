@@ -532,8 +532,8 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                                     dQ4_A=(dQ4_A-P_1[1])/P_1[0]
                                     dQ4_B=(dQ4_B-P_2[1])/P_2[0]                                      
                                     for ll in range(NCh0):                                        
-                                        seqA=dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]]+seqA0_[:,ll]*np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]-dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]],(dQ4_A[:,ll]+dQ4_B[:,ll])/2-dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]])
-                                        seqB=dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]]+seqA0_[:,ll]*np.minimum(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]-dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]],(dQ4_B[:,ll]+dQ4_A[:,ll])/2-dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]])
+                                        seqA=dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]]+seqA0_[:,ll]*np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]-dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]],(dQ4_A[:,ll]+dQ4_B[:,ll])/2-dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]])
+                                        seqB=dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]]+seqA0_[:,ll]*np.minimum(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]-dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]],(dQ4_B[:,ll]+dQ4_A[:,ll])/2-dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]])
                                         
                                         dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
                                                                                 seqA)/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
