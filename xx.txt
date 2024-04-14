@@ -477,8 +477,8 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                        
                         mDD4_A=(mDD4_A-np.mean(mDD4_A))#*0
                         mDD4_B=(mDD4_B-np.mean(mDD4_B))#*0
-                        # mDD4_A=mDD4_A*(mDD4_A>0)
-                        # mDD4_B=mDD4_B*(mDD4_B>0)
+                        mDD4_A=mDD4_A*(mDD4_A>0)
+                        mDD4_B=mDD4_B*(mDD4_B>0)
                         
                         nNxA=sum(sum(mDD4==1))     
                         nNxA_=sum(sum(mDD4==0))  
@@ -1268,8 +1268,8 @@ def RALF1Cella(*arrgs_):
                     
                     DD__A=DD_[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)].copy()
                     DD__B=DD__A.copy()#
-                    # DD__A=DD__A*(DD__A>0)
-                    # DD__B=DD__B*(DD__B>0)
+                    DD__A=DD__A*(DD__A>0)
+                    DD__B=DD__B*(DD__B>0)
                     
                     if len(dd1)>1 and len(dd1[0])>=len(dd1):
                         eeB= ( XFilter( DD__A+dd1,len(dd1),len(dd1[0]),1,0))#+seqA_*((DD__A))
@@ -1507,7 +1507,7 @@ if __name__ == '__main__':
         #key=13
         while hhh_<aTmStop and not key == 13: 
             Aprocess=[]
-            if hhh==int(NIter/33):
+            if hhh==int(NIter/12):
                 if hhh_<aTmStop-1:
                     try:
                         os.remove(wrkdir + aname+".rlf1")
@@ -1689,8 +1689,10 @@ if __name__ == '__main__':
                         xxxx=ZDat.copy()
                     else:
                         xxxx=np.concatenate((xxxx, ZDat))
-                ZDat=xxxx.copy()        
-                
+                ZDat=xxxx.copy()     
+                anI=len(ZDat)
+                for i in range(anI):  
+                    ZDat[i]= savgol_filter(ZDat[i], 14, 5)
                 anI=len(ZDat)
                 for ii in range(3):       
                     ar0x=np.median(ZDat,axis=0)
