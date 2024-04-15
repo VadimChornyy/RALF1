@@ -551,7 +551,7 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                                 xxx=1
                         else:     
                             xxx=1
-                dQ3=dQ3_.copy()
+            dQ3=dQ3_.copy()
             if xxx==0:    
                 if zz==0:
                     AsrXMx=dQ3mx.copy()
