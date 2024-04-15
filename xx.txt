@@ -434,10 +434,11 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
         zz=0  
         WW=0   
         
-        dQ3mx=np.zeros((sz,sz),np.float16)-1e32
-        dQ3mn=np.zeros((sz,sz),np.float16)+1e32
-        dQ3num=np.zeros((sz,sz),int)
         while zz<Nzz and WW>-2*Nhh:  
+            dQ3mx=np.zeros((sz,sz),np.float16)-1e32
+            dQ3mn=np.zeros((sz,sz),np.float16)+1e32
+            dQ3num=np.zeros((sz,sz),int)
+            
             NumFri=NumFri0_[NumFri0[ss4[zz]]:NumFri0[ss4[zz]]+2*sz].copy()
             NumFri_=NumFri0[NumFri0_[ss4[zz]]:NumFri0_[ss4[zz]]+2*sz].copy()
             for kkk in range(Nzz):
@@ -571,7 +572,7 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                 ss4[0:len(ss4)-1]=ss4[1:].copy()
                 ss4[len(ss4)-1]=aa
                 WW=WW-1  
-        
+                
         wwwww=0
         while not wwwww:
             try:
