@@ -557,11 +557,12 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                     AsrXMx=dQ3mx.copy()
                     AsrXMn=dQ3mn.copy()      
                 else:  
-                    # AsrXMx=(AsrXMx*zz+dQ3mx)/(zz+1)
-                    # AsrXMn=(AsrXMn*zz+dQ3mn)/(zz+1)
-                    AsrXMx=np.maximum(AsrXMx,dQ3mx)
-                    AsrXMn=np.minimum(AsrXMn,dQ3mn)
+                    AsrXMx=(AsrXMx*zz+dQ3mx)/(zz+1)
+                    AsrXMn=(AsrXMn*zz+dQ3mn)/(zz+1)
+                    # AsrXMx=np.maximum(AsrXMx,dQ3mx)
+                    # AsrXMn=np.minimum(AsrXMn,dQ3mn)
 
+                dQ3=(AsrXMx+AsrXMn)/2
                 AsrXMx_=AsrXMx.copy()
                 AsrXMn_=AsrXMn.copy()
                 
