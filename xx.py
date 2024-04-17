@@ -1059,7 +1059,7 @@ try:
     ii=len(nnams_)
 except:
     WhO=[  
-    "BTC-USD",
+    #"BTC-USD",
     "SOL-USD"   
     "CRV-USD", 
     "SHIB-USD",
@@ -1303,7 +1303,7 @@ def RALF1Cella(*arrgs_):
                             aanum=dd_Num[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)].copy()
                             dd_CC[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=(dd_CC[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]*aanum+0.5*((dd2_1.copy()-P_1[1])/P_1[0]+(dd2_2.copy()-P_2[1])/P_2[0]))/(aanum+1)
                             dd_Num[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=aanum+1
-                            dd[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=(1-seqA0_)*dd0[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]+seqA0_*dd_CC[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]
+                            dd[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=dd0[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]+seqA0_*(dd_CC-dd0)[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]
                         # else:
                         #     PP=0    
                     except:
@@ -1509,7 +1509,7 @@ if __name__ == '__main__':
         #key=13
         while hhh_<aTmStop and not key == 13: 
             Aprocess=[]
-            if hhh==int(NIter/12):
+            if hhh==int(NIter/8):
                 if hhh_<aTmStop-1:
                     try:
                         os.remove(wrkdir + aname+".rlf1")
@@ -1692,9 +1692,9 @@ if __name__ == '__main__':
                     else:
                         xxxx=np.concatenate((xxxx, ZDat))
                 ZDat=xxxx.copy()     
-                anI=len(ZDat)
-                for i in range(anI):  
-                    ZDat[i]= savgol_filter(ZDat[i], 14, 5)
+                # anI=len(ZDat)
+                # for i in range(anI):  
+                #     ZDat[i]= savgol_filter(ZDat[i], 14, 5)
                 anI=len(ZDat)
                 for ii in range(3):       
                     ar0x=np.median(ZDat,axis=0)
