@@ -533,8 +533,8 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                                     dQ4_A=(dQ4_A-P_1[1])/P_1[0]
                                     dQ4_B=(dQ4_B-P_2[1])/P_2[0]                                      
                                     for ll in range(NCh0):                                        
-                                        seqA=dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]]+seqA0_[:,ll]*np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]-dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]],(dQ4_A[:,ll]+dQ4_B[:,ll])-dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]])
-                                        seqB=dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]]+seqA0_[:,ll]*np.minimum(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]-dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]],(dQ4_B[:,ll]+dQ4_A[:,ll])-dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]])
+                                        seqA=dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]]+seqA0_[:,ll]*np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]-dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]],(dQ4_A[:,ll]+dQ4_B[:,ll])/2-dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]])
+                                        seqB=dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]]+seqA0_[:,ll]*np.minimum(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]-dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]],(dQ4_B[:,ll]+dQ4_A[:,ll])/2-dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]])
                                         
                                         dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
                                                                                 seqA)/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
@@ -557,10 +557,10 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                     AsrXMx=dQ3mx.copy()
                     AsrXMn=dQ3mn.copy()      
                 else:  
-                    AsrXMx=(AsrXMx*zz+dQ3mx)/(zz+1)
-                    AsrXMn=(AsrXMn*zz+dQ3mn)/(zz+1)
-                    # AsrXMx=np.maximum(AsrXMx,dQ3mx)
-                    # AsrXMn=np.minimum(AsrXMn,dQ3mn)
+                    # AsrXMx=(AsrXMx*zz+dQ3mx)/(zz+1)
+                    # AsrXMn=(AsrXMn*zz+dQ3mn)/(zz+1)
+                    AsrXMx=np.maximum(AsrXMx,dQ3mx)
+                    AsrXMn=np.minimum(AsrXMn,dQ3mn)
 
                 dQ3=(AsrXMx+AsrXMn)/2
                 AsrXMx_=AsrXMx.copy()
@@ -1301,9 +1301,9 @@ def RALF1Cella(*arrgs_):
                         # P_2[2]=0
                         if 100*scp.pearsonr(seqA,seqB)[0]>60 and 100*scp.pearsonr(seqA,seqC)[0]>60 and not (abs(P_1[0]-1)>0.5 or abs(P_2[0]-1)>0.5):
                             aanum=dd_Num[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)].copy()
-                            dd_CC[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=(dd_CC[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]*aanum+0.5*((dd2_1.copy()-P_1[1])/P_1[0]+(dd2_2.copy()-P_2[1])/P_2[0]))/(aanum+1)
+                            dd_CC[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=(dd_CC[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]*aanum+seqA0_*(0.5*((dd2_1.copy()-P_1[1])/P_1[0]+(dd2_2.copy()-P_2[1])/P_2[0])-dd0[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]))/(aanum+1)
                             dd_Num[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=aanum+1
-                            dd[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=dd0[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]+seqA0_*(dd_CC-dd0)[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]
+                            dd[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=dd0[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]+dd_CC[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]
                         # else:
                         #     PP=0    
                     except:
