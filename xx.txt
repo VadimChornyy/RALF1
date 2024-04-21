@@ -800,25 +800,14 @@ def RALf1FiltrQ(*args):
     fo.close() 
     arr_bb=np.asarray(struct.unpack('%sf'%(Nf), args[20:(4*Nf+20)]),np.float32)
     ###########################
-    
-    # NChan=int(args[1])
-    # NNew=int(args[2])
-    # Nhh=int(args[3])
-    # Nf=int(len(args)-5) 
-    # Nproc=int(args[int(len(args)-1)])
-       
-    # arr_bb=[]    
-    # for i in range(Nf):
-    #     arr_bb.append(args[4+i])
-    # arr_bb=np.asarray(arr_bb,float)
-    # Nf=int(len(arr_bb)/NChan)    
+      
     NNew0=int(NNew*1.2) 
     
     #Nhh=1
     Nhh0=Nhh
     astar0=np.Inf
     # astar0=arr_bb[0]
-    # arr_bb[1:]=np.diff(arr_bb)
+    arr_bb=np.cumsum(arr_bb)
     # arr_bb[0]=0
     
     arr_b=np.asarray(arr_bb,float)
@@ -928,7 +917,9 @@ def RALf1FiltrQ(*args):
                                     else:
                                         print('%s'%(coef))
                                         if coef>0:   
-                                            arrrxx.append(np.asarray(arr_bbx[hh],float))
+                                            zresu=arr_bbx[hh].copy()
+                                            zresu[1:]=np.diff(zresu)
+                                            arrrxx.append(np.asarray(zresu,float))
                                             wwwww=0
                                             while not wwwww:
                                                 try:
