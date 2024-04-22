@@ -533,13 +533,13 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                                     dQ4_A=(dQ4_A-P_1[1])/P_1[0]
                                     dQ4_B=(dQ4_B-P_2[1])/P_2[0]                                      
                                     for ll in range(NCh0):                                        
-                                        seqA=dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]]+seqA0_[:,ll]*np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]-dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]],(dQ4_A[:,ll]+dQ4_B[:,ll])/2-dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]])
-                                        seqB=dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]]+seqA0_[:,ll]*np.minimum(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]-dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]],(dQ4_B[:,ll]+dQ4_A[:,ll])/2-dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]])
+                                        seqA=dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]]+seqA0_[:,ll]*np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]-dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_A[:,ll]-dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]])
+                                        seqB=dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]]+seqA0_[:,ll]*np.minimum(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]-dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_B[:,ll]-dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]])
                                         
-                                        dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
-                                                                                seqA)/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
-                                        dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
-                                                                                seqB)/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
+                                        dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]=seqA.copy()#(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
+                                                                                #seqA)/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
+                                        dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]=seqB.copy()#(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+
+                                                                                #seqB)/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
                                         
                                         dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]=dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1
                                         dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]+dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]])/2
@@ -1683,9 +1683,9 @@ if __name__ == '__main__':
                     else:
                         xxxx=np.concatenate((xxxx, ZDat))
                 ZDat=xxxx.copy()     
-                # anI=len(ZDat)
-                # for i in range(anI):  
-                #     ZDat[i]= savgol_filter(ZDat[i], 14, 5)
+                anI=len(ZDat)
+                for i in range(anI):  
+                    ZDat[i]= savgol_filter(ZDat[i], 14, 5)
                 anI=len(ZDat)
                 for ii in range(3):       
                     ar0x=np.median(ZDat,axis=0)
@@ -1739,12 +1739,12 @@ if __name__ == '__main__':
                         ZDat=xxxx.copy()
                         hhhx=0
                         anI=len(ZDat)
-                        # for i in range(anI):  
-                        # #     ZDat[i][:len(ar0)]=ar0.copy()
-                        #     if Lo:
-                        #         ZDat[i]= np.exp(savgol_filter(np.log(ZDat[i]), 14, 5))
-                        #     else:
-                        #         ZDat[i]= savgol_filter(ZDat[i], 14, 5)
+                        for i in range(anI):  
+                        #     ZDat[i][:len(ar0)]=ar0.copy()
+                            if Lo:
+                                ZDat[i]= np.exp(savgol_filter(np.log(ZDat[i]), 14, 5))
+                            else:
+                                ZDat[i]= savgol_filter(ZDat[i], 14, 5)
                         lnn=len(ZDat[0])
                         for i in range(anI):    
                             for j in range(lnn):    
