@@ -426,7 +426,7 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
         liiC=np.concatenate((aa, aa, aa)) 
         aa=RandomQ(sz)  
         r5=aa.copy()
-        r5=6*r5*D/np.std(r5)
+        r5=3*r5*D/np.std(r5)
         r5=r5-np.mean(r5)
         r5=np.concatenate((r5, r5))
         aa=RandomQ(sz) 
@@ -651,8 +651,8 @@ def RALF1Calculation(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                     
                 ann=1  
                 try:
-                    # for l in range(NChan):                             
-                    #     rrr[Nf*l:Nf+Nf*l]= savgol_filter(rrr[Nf*l:Nf+Nf*l], 14, 5)
+                    for l in range(NChan):                             
+                        rrr[Nf*l:Nf+Nf*l]= savgol_filter(rrr[Nf*l:Nf+Nf*l], 14, 5)
 
                     dd1=(filterFourierQ(AMX[hh],rrr,NNew,NChan))
                     dd2=(filterFourierQ(AMN[hh],rrr,NNew,NChan)) 
@@ -815,7 +815,7 @@ def RALf1FiltrQ(*args):
     arr_c=[]
     aa=RandomQ(NNew0)
     aa=aa-np.mean(aa)
-    aa=6*aa/np.std(aa)*np.std(arr_b)
+    aa=3*aa/np.std(aa)*np.std(arr_b)
     ss4=np.concatenate((aa, aa, aa, aa)) #*0
     for l in range(NChan):
         arr_c.append(arr_b[Nf-NNew0+Nf*l:Nf-NNew+Nf*l].copy()) 
@@ -853,7 +853,7 @@ def RALf1FiltrQ(*args):
                     arr_c_=[]
                     aa=RandomQ(NNew0)
                     aa=aa-np.mean(aa)
-                    aa=6*aa/np.std(aa)*np.std(arr_bbbxxx)
+                    aa=3*aa/np.std(aa)*np.std(arr_bbbxxx)
                     ss4=np.concatenate((aa, aa, aa, aa)) 
                     for l in range(NChan):
                         arr_bbbxxx_[Nf_*l:Nf_+Nf_*l]=np.asarray(arr_bbbxxx[Nf*(l+1):Nf-Nf_-1+Nf*l:-1],float)
@@ -1212,7 +1212,7 @@ def RALF1Cella(*arrgs_):
             vvv=ss4_[hhhc:hhhc+Nf].copy()
             DD_.append(vvv[::-1].copy())
         DD_=np.asarray(DD_,float)                              
-        DD_=(DD_/np.std(DD_))*D*6
+        DD_=(DD_/np.std(DD_))*D*3
         DD_=(DD_-np.mean(DD_))
         #DD_=DD_*0
                                 
@@ -1235,7 +1235,7 @@ def RALF1Cella(*arrgs_):
                 vvv=ss4_[hhhc:hhhc+Nf].copy()
                 DD_.append(vvv[::-1].copy())
             DD_=np.asarray(DD_,float)                              
-            DD_=(DD_/np.std(DD_))*D*6
+            DD_=(DD_/np.std(DD_))*D*3
             DD_=(DD_-np.mean(DD_))
             #DD_=DD_*0
             for ii in range(aNN):   
