@@ -583,16 +583,13 @@ def hybrid_geo_filter(dd, intensity=0.1, iterations=15, alpha=0.5):
     return filtered_matrix, p_combined, snr_anomaly_map
 
 def XFilter(dd0, key3=1):
-    stddQ2=np.std(dd0)
-    srdQ2=np.mean(dd0,axis=0)
-    dd0=dd0-srdQ2
-    dd, p_combined, snr_anomaly_map = hybrid_geo_filter(dd0, intensity=0.1, iterations=15, alpha=0.5)
-    if key3==0:      
-        dd_=XFilterB(dd0)
-        dd_, p_combined, snr_anomaly_map = hybrid_geo_filter(dd_, intensity=0.1, iterations=15, alpha=0.5)
-        dd= hybrid_geo_filter(dd-dd_, intensity=0.1, iterations=15, alpha=0.5)[0]
-    
-    dd=(dd-np.mean(dd,axis=0))*stddQ2/np.std(dd)+srdQ2
+    # stddQ2=np.std(dd0)
+    # srdQ2=np.mean(dd0,axis=0)
+    # dd0=dd0-srdQ2
+    if not key3==1:
+       dd0=XFilterB(dd0)        
+    dd, p_combined, snr_anomaly_map = hybrid_geo_filter(dd0, intensity=0.1, iterations=15, alpha=0.5)   
+    # dd=(dd-np.mean(dd,axis=0))*stddQ2/np.std(dd)+srdQ2
     return dd  # Return the filtered matrix
 
 # === Faddeev Residual Refinement ===
@@ -730,7 +727,7 @@ def RALF1Calculation2(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
     warnings.filterwarnings("ignore", category=RuntimeWarning) 
     sz=Nf*NChan
     MM=3
-    Nzz=Nhh
+    Nzz=2#Nhh
     Nhh=Nzz
     
     Ndel=MM
@@ -879,7 +876,7 @@ def RALF1Calculation2(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                        
                         mDD4_B=mDD4_A.copy()#*0
                         # KY=KY*(-1)
-                        # mDD4_A=KY*mDD4_A*(mDD4_A>0)
+                        mDD4_A=KY*mDD4_A*(mDD4_A>0)
                         # mDD4_B=KY*mDD4_B*(mDD4_B>0)
                         
                         nNxA=sum(sum(mDD4==1))     
@@ -903,11 +900,14 @@ def RALF1Calculation2(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                             seqA=np.asarray(list(filter(lambda x: abs(x)!= np.inf, seqA)),float) 
                             seqA=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seqA)),float)
 
-                            dQ4_B=   XFilter(mDD4_A+dQ4)-((mDD4_A))#,0)
+                            # dQ4_B=   XFilterB(mDD4_A+dQ4)-((mDD4_A))#,0)
+                            dQ4_A=  mDD4_A+dQ4#XFilter( mDD4_A+dQ4)#-((mDD4_A)) #,0)#,1)#
+                            # eeB=XFilterB(eeB)
+                            dQ4_B= XFilter( mDD4_A+dQ4)#-((mDD4_A)) #,0)#,1)#  
                             # dQ4_B=XFilterB(dQ4_B)
-                            dQ4_A=  -XFilter(mDD4_B-dQ4)+((mDD4_B))#,0)
+                            # dQ4_A=  -XFilterB(mDD4_B-dQ4)+((mDD4_B))#,0)
                             # dQ4_A=XFilterB(dQ4_A)
-                            # dQ4_B=(dQ4_B-dQ4_A)/2
+                            # dQ4_B=(dQ4_B+dQ4_A)/2
                             # # asr1=abs(dQ4_B-xxxx)>abs(dQ4_A-xxxx)
                             # # asr2=abs(dQ4_B-xxxx)<abs(dQ4_A-xxxx)                    
                             # # dQ4_B=dQ4_B*asr1+dQ4_A*asr2+(dQ4_B+dQ4_A)*(asr1==asr2)/2    
@@ -937,8 +937,16 @@ def RALF1Calculation2(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                                 if P_1[0]>0 and P_2[0]>0:# and 100*scp.pearsonr(seqA,seqB)[0]>0 and 100*scp.pearsonr(seqA,seqC)[0]>0:# and not (abs(P_1[0]-1)>0.5 or abs(P_2[0]-1)>0.5):   
                                     dQ4_A=(dQ4_A-P_1[1])/P_1[0]
                                     dQ4_B=(dQ4_B-P_2[1])/P_2[0]   
-                                    dQ4_B=(dQ4_B-dQ4_A)/2
-                                    dQ4_A=dQ4_B.copy()                                    
+                                    dQ4_B=(dQ4_B-dQ4_A)
+                                    dQ4_A=dQ4_B.copy() 
+                                    
+                                    # seqB=((dQ4_B).reshape(NCh*NCh0))[1:]*np.ceil(0.5*np.fabs(1/(1*(mDD4.reshape(NCh*NCh0)==1)[0:NCh*NCh0-1]-1*(mDD4.reshape(NCh*NCh0)==1)[1:])))
+                                    # seqB=np.asarray(list(filter(lambda x: abs(x)!= np.inf, seqB)),float) 
+                                    # seqB=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seqB)),float)
+                                    # P_1[0:2]=np.polyfit(seqA,seqB,1)
+                                    # dQ4_B=(dQ4_B-P_1[1])/P_1[0]
+                                    # dQ4_A=dQ4_B.copy() 
+                                    
                                     for ll in range(NCh0):                                        
                                         seqA=dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]]+seqA0_[:,ll]*np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]-dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_A[:,ll]-dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]])
                                         seqB=dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]]+seqA0_[:,ll]*np.minimum(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]-dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_B[:,ll]-dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]])
@@ -959,7 +967,7 @@ def RALF1Calculation2(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                         else:     
                             xxx=1
 
-            #dQ3=dQ3_.copy()
+            # dQ3=dQ3_.copy()
             dQ3mxL=dQ3mx.copy()
             dQ3mnL=dQ3mn.copy()
 
@@ -1167,7 +1175,7 @@ def RALF1Calculation2(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                                 for l in range(NChan):  
                                     rr2[hh,Nf-NNew+Nf*l:Nf+Nf*l]=(rr2[hh,Nf-NNew+Nf*l:Nf+Nf*l]-P[1])/P[0]
                                     rr2[hh,Nf*l:Nf-NNew+Nf*l]=arr_b[Nf*l:Nf-NNew+Nf*l].copy()
-                                    rr2[hh,:]= savgol_filter(rr2[hh,:], 14, 5)
+                                    # rr2[hh,:]= savgol_filter(rr2[hh,:], 14, 5)
                                 #P[0:2]=np.polyfit(sarr_c,sr2,1)   
                                 
                                 #D1=0.2
@@ -1365,7 +1373,7 @@ interv="Daily"
 #INTRADAY
 #d_intervals = {"1min","5min","15min","30min","60min"}
 
-Lengt0=300
+Lengt0=200
 Ngroup=3
 Nproc=Ngroup*(os.cpu_count())
 Lo=1  
@@ -1375,7 +1383,7 @@ NIt=3
 NIter=100
 DT=0.3
 dNIt=4
-aDecm=2
+aDecm=7
 andecim=1
 KPP=0
 
@@ -1451,7 +1459,8 @@ except:
         "CRV","ICP","MANA","DOGE","EOS","ETH","ETC","GRT","LTC","LRC","MKR","NU",
         "OMG","ORN","MATIC","SHIB","SKL","SOL","XLM","SNX","XTZ","UNI"
     ]
-    WhO= ['MANA','ETC', 'ANKR', 'UNI', 'CHZ', 'BAT', 'DOT', 'ATOM', 'ETH']
+    WhO= [#'MANA', 'ICP', 'ADA', 
+          'SNX', 'SHIB', 'LTC', 'UNI', 'MKR', 'EOS']
     def getcsv(WhO,xYears,wrkdir):
         for i in range(len(WhO)):
             nm=WhO[i]
@@ -1620,15 +1629,15 @@ def RALF1Cella(*arrgs_):
                     DD__A=DD_[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)].copy()
                     DD__B=DD__A.copy()#
                     # KY=KY*(-1)
-                    # DD__A=KY*DD__A*(DD__A>0)
+                    DD__A=KY*DD__A*(DD__A>0)
                     # DD__B=KY*DD__B*(DD__B>0)
                     
                     if len(dd1)>1 and len(dd1[0])>=len(dd1):
-                        eeB= XFilter( DD__A+dd1)-((DD__A)) #,0)#,1)#
+                        eeA= DD__A+dd1#XFilter( DD__A+dd1)#-((DD__A)) #,0)#,1)#
                         # eeB=XFilterB(eeB)
-                        eeA=-XFilter( DD__B-dd1)+((DD__B)) #,0)#,1)#    
+                        eeB= XFilter( DD__A+dd1)#-((DD__A)) #,0)#,1)#    
                         # eeA=XFilterB(eeA)
-                        # eeB=(eeB-eeA)/2
+                        # eeB=(eeB+eeA)/2
                         # # asr1=abs(eeB-xxxx)>abs(eeA-xxxx)
                         # # asr2=abs(eeB-xxxx)<abs(eeA-xxxx)                    
                         # # eeB=eeB*asr1+eeA*asr2+(eeB+eeA)*(asr1==asr2)/2    
@@ -1664,14 +1673,14 @@ def RALF1Cella(*arrgs_):
                         if P_1[0]>0 and P_2[0]>0:# and 100*scp.pearsonr(seqA,seqB)[0]>0 and 100*scp.pearsonr(seqA,seqC)[0]>0:
                             eeA=(eeA-P_1[1])/P_1[0]
                             eeB=(eeB-P_2[1])/P_2[0]   
-                            eeB=(eeB-eeA)/2
+                            eeB=(eeB-eeA)
                             eeA=eeB.copy()
                             aanum=dd_Num[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)].copy()
                             seqAA=dd0[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]+np.maximum(dd_CCmx[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]-dd0[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)],(dd2_1)-dd0[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)])
                             seqBB=dd0[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]+np.minimum(dd_CCmn[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]-dd0[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)],(dd2_2)-dd0[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)])
-                            dd_CCmx[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=np.maximum((dd_CCmx[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]),seqAA)
-                            dd_CCmn[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=np.minimum((dd_CCmn[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]),seqBB)                                
-                            dd[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=((dd[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)])*aanum+(dd_CCmx[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]+dd_CCmn[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)])/2)/(aanum+1)
+                            dd_CCmx[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=(dd_CCmx[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]*aanum+np.maximum((dd_CCmx[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]),seqAA))/(aanum+1)
+                            dd_CCmn[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=(dd_CCmn[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]*aanum+np.minimum((dd_CCmn[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]),seqBB))/(aanum+1)                               
+                            dd[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=(dd_CCmx[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]+dd_CCmn[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)])/2
                             dd_Num[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=aanum+1
                     except:
                         PP=0
@@ -1839,6 +1848,9 @@ if __name__ == '__main__':
             dd2a=np.zeros((Ngroup,NIter,Nf),float)+np.inf
             all_RezNM=np.zeros((Ngroup,NIter,Nf),float)
             all_RezMM=np.zeros((Ngroup,NIter,Nf),float)
+            all_RezNM_=np.zeros((Ngroup,NIter,Nf),float)
+            all_RezMM_=np.zeros((Ngroup,NIter,Nf),float)
+
             #argss=[[0] for j in range(Nproc)]    
     
             hh0=0
@@ -1892,7 +1904,7 @@ if __name__ == '__main__':
         #key=13
         while hhh_<aTmStop and not key == 13: 
             Aprocess=[]
-            if hhh==int(NIter/5):
+            if hhh==int(NIter/3):
                 if hhh_<aTmStop-1:
                     try:
                         os.remove(wrkdir + aname+".rlf1")
@@ -1922,6 +1934,8 @@ if __name__ == '__main__':
                     dd2a=np.zeros((Ngroup,NIter,Nf),float)+1e32
                     all_RezNM=np.zeros((Ngroup,NIter,Nf),float)
                     all_RezMM=np.zeros((Ngroup,NIter,Nf),float)
+                    all_RezNM_=np.zeros((Ngroup,NIter,Nf),float)
+                    all_RezMM_=np.zeros((Ngroup,NIter,Nf),float)
                     hhh_=hhh_+1
                 else:
                     hhh_=hhh_+1
@@ -2425,8 +2439,15 @@ if __name__ == '__main__':
                             all_RezMM[iGr][hhh][:Nf-NNew]=np.log(ar0[:Nf-NNew])
                         else:
                             all_RezMM[iGr][hhh][:Nf-NNew]=ar0[:Nf-NNew].copy()
+                            
+                        if hhh>0:                        
+                            all_RezMM_[iGr][hhh]=(all_RezMM_[iGr][hhh-1]*hhh+np.amax(all_RezMM[iGr][max(0,(hhh-dNIt)):hhh+1],axis=0))/(hhh+1)
+                            all_RezNM_[iGr][hhh]=(all_RezNM_[iGr][hhh-1]*hhh+np.amin(all_RezMM[iGr][max(0,(hhh-dNIt)):hhh+1],axis=0))/(hhh+1)
+                        else:
+                            all_RezMM_[iGr][hhh]=np.amax(all_RezMM[iGr][max(0,(hhh-dNIt)):hhh+1],axis=0)
+                            all_RezNM_[iGr][hhh]=np.amin(all_RezMM[iGr][max(0,(hhh-dNIt)):hhh+1],axis=0)
                         
-                        arr_RezM[iGr]=(np.amax(all_RezMM[iGr][0:hhh+1],axis=0)+np.amin(all_RezMM[iGr][0:hhh+1],axis=0))/2
+                        arr_RezM[iGr]=(all_RezMM_[iGr][hhh]+all_RezNM_[iGr][hhh])/2
                         arr_RezM[iGr]= savgol_filter(arr_RezM[iGr], 14, 5)
                         
                     tm1=tm.time()
@@ -2452,8 +2473,19 @@ if __name__ == '__main__':
                 
                 tm1=tm.time()
                 if MMM_<2*Nproc and np.std(mm1)>0 and np.std(mm2)>0 and (tm1-tm0)<MxTime:
+                    kcoef=100*scp.pearsonr(mm1,mm2)[0]
+                    
+                    try:
+                        if (kcoef>0.7*Koef_[len(Koef_)-1]):
+                            Koef_.append(kcoef) 
+                        else:
+                            MMM_=2*Nproc
+                    except:
+                            Koef_.append(kcoef) 
+                                    
+                if MMM_<2*Nproc and np.std(mm1)>0 and np.std(mm2)>0 and (tm1-tm0)<MxTime:
                     arr_rezBzz=arr_rezBz.copy()
-                    Koef_.append(100*scp.pearsonr(mm1,mm2)[0]) 
+                    
                     
                     y_data = arr_rezBzz.copy()
                     y_data[:len(arrr)]=arrr.copy()
