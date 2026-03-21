@@ -32,7 +32,7 @@ priorityclasses = [win32process.IDLE_PRIORITY_CLASS,
 wrkdir = r""
 GetSCV=0
 Numproc=mp.cpu_count()-1
-MxTime=0.5*60*60 # 1/2 haurs
+MxTime=0.66*60*60 # 1/2 haurs
 
 class BaseRandom( Random ):
 
@@ -832,16 +832,16 @@ def RALF1Calculation2(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
         ss4=np.concatenate((aa, aa, aa, aa))                         
         zz=0  
         WW=0   
-        
+                
         while zz<Nzz and WW>-2*Nhh: 
             KY=-1
-            # dQ3=dQ3_.copy()            
-            dQ3mx=np.zeros((sz,sz),np.float16)-1e3
-            dQ3mn=np.zeros((sz,sz),np.float16)+1e3
+            # dQ3=dQ3_.copy()   
+            dQ3mx=np.zeros((sz,sz))-1e32
+            dQ3mn=np.zeros((sz,sz))+1e32
             dQ3num=np.zeros((sz,sz),int)
             NumFri=NumFri0_[NumFri0[ss4[zz]]:NumFri0[ss4[zz]]+2*sz].copy()
             NumFri_=NumFri0[NumFri0_[ss4[zz]]:NumFri0_[ss4[zz]]+2*sz].copy()
-            for kkk in range(Nzz):                  
+            while np.min(dQ3num)<2:                  
                 aa=ss4[0]
                 ss4[0:len(ss4)-1]=ss4[1:].copy()
                 ss4[len(ss4)-1]=aa
@@ -850,7 +850,7 @@ def RALF1Calculation2(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                 
                 kk=-1
                 xxx=0
-                while kk <Ndel-1 and xxx==0 and np.sum(dQ3num==0)>0:  
+                while kk <Ndel-1 and xxx==0:  
                     kk=kk+1                      
                     ii=int(kk*NCh)
                     k=-1
@@ -876,104 +876,120 @@ def RALF1Calculation2(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                        
                         mDD4_B=mDD4_A.copy()#*0
                         # KY=KY*(-1)
-                        mDD4_A=KY*mDD4_A*(mDD4_A>0)
+                        # mDD4_A=KY*mDD4_A*(mDD4_A>0)
                         # mDD4_B=KY*mDD4_B*(mDD4_B>0)
                         
-                        nNxA=sum(sum(mDD4==1))     
-                        nNxA_=sum(sum(mDD4==0))  
+                        # nNxA=sum(sum(mDD4==1))     
+                        # nNxA_=sum(sum(mDD4==0))  
                         # if nNxA>nNxA_ and nNxA_>0:  
-                        if nNxA_>0:  
-                            seqA0=(dQ4.reshape(NCh*NCh0))[1:]*np.ceil(0.5*(1/(mDD4.reshape(NCh*NCh0)==1)[0:NCh*NCh0-1]+1/(mDD4.reshape(NCh*NCh0)==1)[1:]))
-                            seqA0_=  mDD4.reshape(NCh*NCh0)*0
-                            seqA0_[0]=1
-                            seqA0_[1:]=(abs(seqA0)==np.inf)+np.isnan(seqA0)
-                            seqA0_=seqA0_.reshape((NCh,NCh0))
-                            seqA0=np.asarray(list(filter(lambda x: abs(x)!= np.inf, seqA0)),float) 
-                            seqA0=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seqA0)),float)
+                        # if nNxA_>0:  
+                        seqA0=(dQ4.reshape(NCh*NCh0))[1:]*np.ceil(0.5*(1/(mDD4.reshape(NCh*NCh0)==1)[0:NCh*NCh0-1]+1/(mDD4.reshape(NCh*NCh0)==1)[1:]))
+                        seqA0_=  mDD4.reshape(NCh*NCh0)*0
+                        seqA0_[0]=1
+                        seqA0_[1:]=(abs(seqA0)==np.inf)+np.isnan(seqA0)
+                        seqA0_=seqA0_.reshape((NCh,NCh0))
+                        seqA0=np.asarray(list(filter(lambda x: abs(x)!= np.inf, seqA0)),float) 
+                        seqA0=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seqA0)),float)
 
-                            
-                            seqA=(dQ4.reshape(NCh*NCh0))[1:]*np.ceil(0.5*np.fabs(1/(1*(mDD4.reshape(NCh*NCh0)==1)[0:NCh*NCh0-1]-1*(mDD4.reshape(NCh*NCh0)==1)[1:])))
-                            seqA_=  mDD4.reshape(NCh*NCh0)*0
-                            seqA_[0]=1
-                            seqA_[1:]=(abs(seqA)==np.inf)+np.isnan(seqA)
-                            seqA_=seqA_.reshape((NCh,NCh0))
-                            seqA=np.asarray(list(filter(lambda x: abs(x)!= np.inf, seqA)),float) 
-                            seqA=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seqA)),float)
+                        
+                        seqA=(dQ4.reshape(NCh*NCh0))[1:]*np.ceil(0.5*np.fabs(1/(1*(mDD4.reshape(NCh*NCh0)==1)[0:NCh*NCh0-1]-1*(mDD4.reshape(NCh*NCh0)==1)[1:])))
+                        seqA_=  mDD4.reshape(NCh*NCh0)*0
+                        seqA_[0]=1
+                        seqA_[1:]=(abs(seqA)==np.inf)+np.isnan(seqA)
+                        seqA_=seqA_.reshape((NCh,NCh0))
+                        seqA=np.asarray(list(filter(lambda x: abs(x)!= np.inf, seqA)),float) 
+                        seqA=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seqA)),float)
 
-                            # dQ4_B=   XFilterB(mDD4_A+dQ4)-((mDD4_A))#,0)
-                            dQ4_A=  mDD4_A+dQ4#XFilter( mDD4_A+dQ4)#-((mDD4_A)) #,0)#,1)#
-                            # eeB=XFilterB(eeB)
-                            dQ4_B= XFilter( mDD4_A+dQ4)#-((mDD4_A)) #,0)#,1)#  
-                            # dQ4_B=XFilterB(dQ4_B)
-                            # dQ4_A=  -XFilterB(mDD4_B-dQ4)+((mDD4_B))#,0)
-                            # dQ4_A=XFilterB(dQ4_A)
-                            # dQ4_B=(dQ4_B+dQ4_A)/2
-                            # # asr1=abs(dQ4_B-xxxx)>abs(dQ4_A-xxxx)
-                            # # asr2=abs(dQ4_B-xxxx)<abs(dQ4_A-xxxx)                    
-                            # # dQ4_B=dQ4_B*asr1+dQ4_A*asr2+(dQ4_B+dQ4_A)*(asr1==asr2)/2    
+                        # dQ4_B=   XFilterB(mDD4_A+dQ4)-((mDD4_A))#,0)
+                        dQ4_A= XFilterB( mDD4_A+dQ4)#((mDD4_A)) #,0)#,1)#
+                        # eeB=XFilterB(eeB)
+                        dQ4_B= ( mDD4_A+dQ4)#-((mDD4_A)) #,0)#,1)#  
+                        # dQ4_B=XFilterB(dQ4_B)
+                        # dQ4_A=  -XFilterB(mDD4_B-dQ4)+((mDD4_B))#,0)
+                        # dQ4_A=XFilterB(dQ4_A)
+                        # dQ4_B=(dQ4_B+dQ4_A)/2
+                        # # asr1=abs(dQ4_B-xxxx)>abs(dQ4_A-xxxx)
+                        # # asr2=abs(dQ4_B-xxxx)<abs(dQ4_A-xxxx)                    
+                        # # dQ4_B=dQ4_B*asr1+dQ4_A*asr2+(dQ4_B+dQ4_A)*(asr1==asr2)/2    
 
-                            # # dQ4_B = faddeev_residual_refinement(dQ4_B, dQ4_A)                           
-                            # # # # # dQ4_B=dQ4_B-dQ4_A
-                            # dQ4_A=dQ4_B.copy()
-                            
-                            seqB=((dQ4_A).reshape(NCh*NCh0))[1:]*np.ceil(0.5*np.fabs(1/(1*(mDD4.reshape(NCh*NCh0)==1)[0:NCh*NCh0-1]-1*(mDD4.reshape(NCh*NCh0)==1)[1:])))
-                            seqB=np.asarray(list(filter(lambda x: abs(x)!= np.inf, seqB)),float) 
-                            seqB=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seqB)),float)
-                            seqC=((dQ4_B).reshape(NCh*NCh0))[1:]*np.ceil(0.5*np.fabs(1/(1*(mDD4.reshape(NCh*NCh0)==1)[0:NCh*NCh0-1]-1*(mDD4.reshape(NCh*NCh0)==1)[1:])))
-                            seqC=np.asarray(list(filter(lambda x: abs(x)!= np.inf, seqC)),float) 
-                            seqC=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seqC)),float)
-                            try:    
-                                P_1=P.copy()
-                                P_2=P.copy()
-                                P_1[0:2]=np.polyfit(seqA,seqB,1)
-                                P_2[0:2]=np.polyfit(seqA,seqC,1)
-                                # print(100*scp.pearsonr(seqA,seqB)[0])
-                                # P_1[0]=np.std(seqB)/np.std(seqA)
-                                # P_1[1]=np.mean(seqB)-P_1[0]*np.mean(seqA)  
-                                # P_1[2]=0
-                                # P_2[0]=np.std(seqC)/np.std(seqA)
-                                # P_2[1]=np.mean(seqC)-P_2[0]*np.mean(seqA)  
-                                # P_2[2]=0
-                                if P_1[0]>0 and P_2[0]>0:# and 100*scp.pearsonr(seqA,seqB)[0]>0 and 100*scp.pearsonr(seqA,seqC)[0]>0:# and not (abs(P_1[0]-1)>0.5 or abs(P_2[0]-1)>0.5):   
-                                    dQ4_A=(dQ4_A-P_1[1])/P_1[0]
-                                    dQ4_B=(dQ4_B-P_2[1])/P_2[0]   
-                                    dQ4_B=(dQ4_B-dQ4_A)
-                                    dQ4_A=dQ4_B.copy() 
-                                    
-                                    # seqB=((dQ4_B).reshape(NCh*NCh0))[1:]*np.ceil(0.5*np.fabs(1/(1*(mDD4.reshape(NCh*NCh0)==1)[0:NCh*NCh0-1]-1*(mDD4.reshape(NCh*NCh0)==1)[1:])))
-                                    # seqB=np.asarray(list(filter(lambda x: abs(x)!= np.inf, seqB)),float) 
-                                    # seqB=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seqB)),float)
-                                    # P_1[0:2]=np.polyfit(seqA,seqB,1)
-                                    # dQ4_B=(dQ4_B-P_1[1])/P_1[0]
-                                    # dQ4_A=dQ4_B.copy() 
-                                    
+                        # # dQ4_B = faddeev_residual_refinement(dQ4_B, dQ4_A)                           
+                        # # # # # dQ4_B=dQ4_B-dQ4_A
+                        # dQ4_A=dQ4_B.copy()
+                        
+                        seqB=((dQ4_A).reshape(NCh*NCh0))[1:]*np.ceil(0.5*np.fabs(1/(1*(mDD4.reshape(NCh*NCh0)==1)[0:NCh*NCh0-1]-1*(mDD4.reshape(NCh*NCh0)==1)[1:])))
+                        seqB=np.asarray(list(filter(lambda x: abs(x)!= np.inf, seqB)),float) 
+                        seqB=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seqB)),float)
+                        seqC=((dQ4_B).reshape(NCh*NCh0))[1:]*np.ceil(0.5*np.fabs(1/(1*(mDD4.reshape(NCh*NCh0)==1)[0:NCh*NCh0-1]-1*(mDD4.reshape(NCh*NCh0)==1)[1:])))
+                        seqC=np.asarray(list(filter(lambda x: abs(x)!= np.inf, seqC)),float) 
+                        seqC=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seqC)),float)
+                        try:    
+                            P_1=P.copy()
+                            P_2=P.copy()
+                            P_1[0:2]=np.polyfit(seqA,seqB,1)
+                            P_2[0:2]=np.polyfit(seqA,seqC,1)
+                            # print(100*scp.pearsonr(seqA,seqB)[0])
+                            # P_1[0]=np.std(seqB)/np.std(seqA)
+                            # P_1[1]=np.mean(seqB)-P_1[0]*np.mean(seqA)  
+                            # P_1[2]=0
+                            # P_2[0]=np.std(seqC)/np.std(seqA)
+                            # P_2[1]=np.mean(seqC)-P_2[0]*np.mean(seqA)  
+                            # P_2[2]=0
+                            if P_1[0]>0 and P_2[0]>0:# and 100*scp.pearsonr(seqA,seqB)[0]>0 and 100*scp.pearsonr(seqA,seqC)[0]>0:# and not (abs(P_1[0]-1)>0.5 or abs(P_2[0]-1)>0.5):   
+                                dQ4_A=(dQ4_A-P_1[1])/P_1[0]
+                                dQ4_B=(dQ4_B-P_2[1])/P_2[0]                                     
+                                # dQ4_B=faddeev_residual_refinement(dQ4_B,dQ4_A)
+                                dQ4_B=XFilter(dQ4_B-dQ4_A)                                
+                                dQ4_A=dQ4_B.copy() 
+                                
+                                seqD=((dQ4_B).reshape(NCh*NCh0))[1:]*np.ceil(0.5*np.fabs(1/(1*(mDD4.reshape(NCh*NCh0)==1)[0:NCh*NCh0-1]-1*(mDD4.reshape(NCh*NCh0)==1)[1:])))
+                                seqD=np.asarray(list(filter(lambda x: abs(x)!= np.inf, seqD)),float) 
+                                seqD=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seqD)),float)
+                                # # P_1[0:2]=np.polyfit(seqA,seqB,1)
+                                # # dQ4_B=(dQ4_B-P_1[1])/P_1[0]
+                                # # dQ4_A=dQ4_B.copy() 
+                                P_1[0]=np.std(seqD)/np.std(seqA)
+                                P_1[1]=np.mean(seqD)-P_1[0]*np.mean(seqA)  
+                                P_1[2]=0
+                                P_2[0]=np.std(seqD)/np.std(seqA)
+                                P_2[1]=np.mean(seqD)-P_2[0]*np.mean(seqA)  
+                                P_2[2]=0
+                                dQ4_A=(dQ4_A-P_1[1])/P_1[0]
+                                dQ4_B=(dQ4_B-P_2[1])/P_2[0]  
+                                zcoef=100*scp.pearsonr(seqA,seqD)[0]
+                                # print(zcoef)
+                                if zcoef>0:
+                                #     P_1[0:2]=np.polyfit(seqA,seqD,1)
+                                #     P_2[0:2]=np.polyfit(seqA,seqD,1)
+                                #     if P_1[0]<0 and P_2[0]<0:
+                                #         dQ4_A=(dQ4_A-P_1[1])/P_1[0]
+                                #         dQ4_B=(dQ4_B-P_2[1])/P_2[0] 
                                     for ll in range(NCh0):                                        
                                         seqA=dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]]+seqA0_[:,ll]*np.maximum(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]-dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_A[:,ll]-dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]])
                                         seqB=dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]]+seqA0_[:,ll]*np.minimum(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]-dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]],dQ4_B[:,ll]-dQ3_[NumFri[ii:ii+NCh],NumFri_[i+ll]])
-                                        ab=dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]*np.asarray(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]],np.float16)
-                                        ba=dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]*np.asarray(dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]],np.float16)
+                                        ab=dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]
+                                        ba=dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]*dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]
                                         dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(ab+seqA)/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
                                         dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(ba+seqB)/(dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1)
                                         
                                         dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]=dQ3num[NumFri[ii:ii+NCh],NumFri_[i+ll]]+1
                                         dQ3[NumFri[ii:ii+NCh],NumFri_[i+ll]]=(dQ3mx[NumFri[ii:ii+NCh],NumFri_[i+ll]]+dQ3mn[NumFri[ii:ii+NCh],NumFri_[i+ll]])/2
-
+    
                                     ll=ll+1
-                                # else:
-                                #     xxx=1
-                                
-                            except:
-                                xxx=1
-                        else:     
+                            # else:
+                            #     xxx=1
+                            
+                        except:
                             xxx=1
+                        # else:     
+                        #     xxx=1
 
             # dQ3=dQ3_.copy()
-            dQ3mxL=dQ3mx.copy()
-            dQ3mnL=dQ3mn.copy()
 
             if np.isnan(np.std(dQ3mx)) or np.isnan(np.std(dQ3mn)):
                 xxx=1
-            if xxx==0:                   
+            if xxx==0:  
+                # dQ3mxL=dQ3mx.copy()
+                # dQ3mnL=dQ3mn.copy()                 
                 if zz==0:
                     AsrXMx=dQ3mx.copy()
                     AsrXMn=dQ3mn.copy()      
@@ -995,7 +1011,7 @@ def RALF1Calculation2(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                 aa=ss4[0]
                 ss4[0:len(ss4)-1]=ss4[1:].copy()
                 ss4[len(ss4)-1]=aa
-                WW=WW-1  
+                WW=WW-1                      
                 
         wwwww=0
         while not wwwww:
@@ -1118,8 +1134,7 @@ def RALF1Calculation2(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                         # sr2_1=(sr2_1+sr2_2)/2 
                         # sr2_2=sr2_1.copy()
                         P_1[0:2]=np.polyfit(sarr_c,sr2_1,1)
-                        P_2[0:2]=np.polyfit(sarr_c,sr2_2,1)
-                        
+                        P_2[0:2]=np.polyfit(sarr_c,sr2_2,1) 
                         P_1[0]=np.std(sr2_1)/np.std(sarr_c)
                         P_1[1]=np.mean(sr2_1)-P_1[0]*np.mean(sarr_c) 
                         P_2[0]=np.std(sr2_2)/np.std(sarr_c)
@@ -1165,11 +1180,11 @@ def RALF1Calculation2(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                             sr2=sr2.reshape((len(sr2)*len(sr2[0])))
                             sarr_c=sarr_c.reshape((len(sarr_c)*len(sarr_c[0])))   
                             
-                            P[0:2]=np.polyfit(sarr_c,sr2,1)  
-                            P[0]=np.std(sr2)/np.std(sarr_c)
-                            P[1]=np.mean(sr2)-P[0]*np.mean(sarr_c) 
+                            P[0:2]=np.polyfit(sarr_c,sr2,1)                              
                             
                             if P[0]>0:# and 100*scp.pearsonr(sarr_c,sr2)[0]>0:#and :
+                                # P[0]=np.std(sr2)/np.std(sarr_c)
+                                # P[1]=np.mean(sr2)-P[0]*np.mean(sarr_c) 
                                 dd1_x=[]     
                                 dd2_x=[]  
                                 for l in range(NChan):  
@@ -1459,8 +1474,8 @@ except:
         "CRV","ICP","MANA","DOGE","EOS","ETH","ETC","GRT","LTC","LRC","MKR","NU",
         "OMG","ORN","MATIC","SHIB","SKL","SOL","XLM","SNX","XTZ","UNI"
     ]
-    WhO= [#'MANA', 'ICP', 'ADA', 
-          'SNX', 'SHIB', 'LTC', 'UNI', 'MKR', 'EOS']
+    WhO= [#'MANA', 'ICP', 
+          'EOS', 'ADA','SNX', 'SHIB', 'LTC', 'UNI', 'MKR']
     def getcsv(WhO,xYears,wrkdir):
         for i in range(len(WhO)):
             nm=WhO[i]
@@ -1591,7 +1606,7 @@ def RALF1Cella(*arrgs_):
         dd_CCmn=dd*0+1e32
 
 
-        for fff in range(3):    
+        while np.min(dd_Num)<2:    
             aa=RandomQ(Nf)  
             aa=aa-np.mean(aa)                 
             ss4_=np.concatenate((aa, aa, aa))                                      
@@ -1629,13 +1644,13 @@ def RALF1Cella(*arrgs_):
                     DD__A=DD_[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)].copy()
                     DD__B=DD__A.copy()#
                     # KY=KY*(-1)
-                    DD__A=KY*DD__A*(DD__A>0)
+                    # DD__A=KY*DD__A*(DD__A>0)
                     # DD__B=KY*DD__B*(DD__B>0)
                     
                     if len(dd1)>1 and len(dd1[0])>=len(dd1):
-                        eeA= DD__A+dd1#XFilter( DD__A+dd1)#-((DD__A)) #,0)#,1)#
+                        eeA= XFilterB(DD__A+dd1)#Filter( DD__A+dd1)#-((DD__A)) #,0)#,1)#
                         # eeB=XFilterB(eeB)
-                        eeB= XFilter( DD__A+dd1)#-((DD__A)) #,0)#,1)#    
+                        eeB= ( DD__A+dd1)#-((DD__A)) #,0)#,1)#    
                         # eeA=XFilterB(eeA)
                         # eeB=(eeB+eeA)/2
                         # # asr1=abs(eeB-xxxx)>abs(eeA-xxxx)
@@ -1673,15 +1688,32 @@ def RALF1Cella(*arrgs_):
                         if P_1[0]>0 and P_2[0]>0:# and 100*scp.pearsonr(seqA,seqB)[0]>0 and 100*scp.pearsonr(seqA,seqC)[0]>0:
                             eeA=(eeA-P_1[1])/P_1[0]
                             eeB=(eeB-P_2[1])/P_2[0]   
-                            eeB=(eeB-eeA)
+                            eeB=XFilter(eeB-eeA)
                             eeA=eeB.copy()
-                            aanum=dd_Num[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)].copy()
-                            seqAA=dd0[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]+np.maximum(dd_CCmx[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]-dd0[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)],(dd2_1)-dd0[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)])
-                            seqBB=dd0[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]+np.minimum(dd_CCmn[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]-dd0[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)],(dd2_2)-dd0[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)])
-                            dd_CCmx[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=(dd_CCmx[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]*aanum+np.maximum((dd_CCmx[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]),seqAA))/(aanum+1)
-                            dd_CCmn[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=(dd_CCmn[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]*aanum+np.minimum((dd_CCmn[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]),seqBB))/(aanum+1)                               
-                            dd[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=(dd_CCmx[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]+dd_CCmn[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)])/2
-                            dd_Num[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=aanum+1
+                                                        
+                            seqD=(eeB.reshape(len(dd2_1)*len(dd2_1[0])))[1:]*np.ceil(0.5*np.fabs(1/(1*(mdd4_.reshape(len(dd2_1)*len(dd2_1[0]))==1)[0:len(dd2_1)*len(dd2_1[0])-1]-1*(mdd4_.reshape(len(dd2_1)*len(dd2_1[0]))==1)[1:])))
+                            seqD=np.asarray(list(filter(lambda x: abs(x)!= np.inf, seqD)),float) 
+                            seqD=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seqD)),float)    
+                            zcoef=100*scp.pearsonr(seqA,seqD)[0]
+                            
+                            P_1[0]=np.std(seqD)/np.std(seqA)
+                            P_1[1]=np.mean(seqD)-P_1[0]*np.mean(seqA)  
+                            P_1[2]=0
+                            P_2[0]=np.std(seqD)/np.std(seqA)
+                            P_2[1]=np.mean(seqD)-P_2[0]*np.mean(seqA)  
+                            P_2[2]=0
+                            eeA=(eeA-P_1[1])/P_1[0]
+                            eeB=(eeB-P_2[1])/P_2[0]  
+                            
+                            # print(zcoef)
+                            if zcoef>0:
+                                aanum=dd_Num[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)].copy()
+                                seqAA=dd0[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]+np.maximum(dd_CCmx[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]-dd0[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)],(dd2_1)-dd0[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)])
+                                seqBB=dd0[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]+np.minimum(dd_CCmn[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]-dd0[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)],(dd2_2)-dd0[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)])
+                                dd_CCmx[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=(dd_CCmx[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]*aanum+np.maximum((dd_CCmx[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]),seqAA))/(aanum+1)
+                                dd_CCmn[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=(dd_CCmn[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]*aanum+np.minimum((dd_CCmn[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]),seqBB))/(aanum+1)                               
+                                dd[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=(dd_CCmx[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]+dd_CCmn[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)])/2
+                                dd_Num[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=aanum+1
                     except:
                         PP=0
         # dd_CCmx=filter_ralf1_matrix(dd_CCmx, intensity=1.0, iterations=100)
@@ -1765,6 +1797,7 @@ def RALF1Cella(*arrgs_):
             break
             #os._exit(os.EX_OK)
     return aRes
+
 
 
 warnings.filterwarnings("ignore", category=RuntimeWarning) 
@@ -1904,7 +1937,7 @@ if __name__ == '__main__':
         #key=13
         while hhh_<aTmStop and not key == 13: 
             Aprocess=[]
-            if hhh==int(NIter/3):
+            if hhh==int(NIter/5):
                 if hhh_<aTmStop-1:
                     try:
                         os.remove(wrkdir + aname+".rlf1")
@@ -2232,7 +2265,7 @@ if __name__ == '__main__':
                             ss0=np.concatenate((aa, aa, aa))
                             hhhx=0
                             #pool = mp.Pool(processes=Numproc)
-                            while hhhx<int(NIter/24):
+                            while hhhx<int(NIter/33):
                                 #if dNIt*int(hhhx/dNIt)==hhhx:
                                 areza=[]        
                                 
