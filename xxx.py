@@ -1388,7 +1388,7 @@ interv="Daily"
 #INTRADAY
 #d_intervals = {"1min","5min","15min","30min","60min"}
 
-Lengt0=200
+Lengt0=250
 Ngroup=3
 Nproc=Ngroup*(os.cpu_count())
 Lo=1  
@@ -2116,8 +2116,8 @@ if __name__ == '__main__':
                 aMM=3
 
                 for iGr in range(Ngroup):  
-                    ZDat=(Arr_AAA[iGr*NIter*int(Nproc/Ngroup)+max(0,(hh0+1)-dNIt)*int(Nproc/Ngroup):iGr*NIter*int(Nproc/Ngroup)+(hh0+1)*int(Nproc/Ngroup)]).copy()
-                
+                    ZDat=(Arr_AAA[iGr*NIter*int(Nproc/Ngroup)+((hh0))*int(Nproc/Ngroup):iGr*NIter*int(Nproc/Ngroup)+(hh0+min(dNIt, hhha-hh0))*int(Nproc/Ngroup)]).copy()
+                    
                     # ZDat=Arr_AAA[iGr*NIter*int(Nproc/Ngroup)+max(0,0)*int(Nproc/Ngroup):iGr*NIter*int(Nproc/Ngroup)+((hhha))*int(Nproc/Ngroup)]ZDat=np.exp(Arr_AAA[iGr*NIter*int(Nproc/Ngroup)+max(0,(hh0+1)-dNIt)*int(Nproc/Ngroup):iGr*NIter*int(Nproc/Ngroup)+(hh0+1)*int(Nproc/Ngroup)])
                 
                     if iGr==0:
@@ -2182,7 +2182,7 @@ if __name__ == '__main__':
                     arr_RezN=  np.zeros((Ngroup,Nf),float)  
                     MMM=0    
                     for iGr in range(Ngroup):   
-                        ZDat=(Arr_AAA[iGr*NIter*int(Nproc/Ngroup)+max(0,(hh0+1)-dNIt)*int(Nproc/Ngroup):iGr*NIter*int(Nproc/Ngroup)+(hh0+1)*int(Nproc/Ngroup)]).copy()
+                        ZDat=(Arr_AAA[iGr*NIter*int(Nproc/Ngroup)+((hh0))*int(Nproc/Ngroup):iGr*NIter*int(Nproc/Ngroup)+(hh0+min(dNIt, hhha-hh0))*int(Nproc/Ngroup)]).copy()
                         if Lo:
                             ZDat=np.exp(ZDat)
                         xxxx=ZDat.copy()
@@ -2265,7 +2265,7 @@ if __name__ == '__main__':
                             ss0=np.concatenate((aa, aa, aa))
                             hhhx=0
                             #pool = mp.Pool(processes=Numproc)
-                            while hhhx<int(NIter/33):
+                            while hhhx<int(NIter/16):
                                 #if dNIt*int(hhhx/dNIt)==hhhx:
                                 areza=[]        
                                 
