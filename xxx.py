@@ -825,7 +825,7 @@ def RALF1Calculation2(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
         aa=RandomQ(sz)
         aa=aa-np.mean(aa)
         r5=aa.copy()
-        r5=3*r5*D/np.std(r5)
+        r5=20*r5*D/np.std(r5)
         r5=r5-np.mean(r5)
         r5=np.concatenate((r5, r5))
         aa=RandomQ(sz) 
@@ -1167,7 +1167,7 @@ def RALF1Calculation2(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                             asr1=abs(dd1-dd0)>abs(dd2-dd0)
                             asr2=abs(dd1-dd0)<abs(dd2-dd0)                    
                             rr2[hh]=dd1*asr1+dd2*asr2+(dd1+dd2)*(asr1==asr2)/2
-                            rr2[hh]=(rr2[hh-1]*(hh-1)+rr2[hh])/hh#filterFourierQ(rr2[hh],rrr,NNew,NChan))/hh 
+                            rr2[hh]=(rr2[hh-1]*(hh-1)+filterFourierQ(rr2[hh],rrr,NNew,NChan))/hh 
                             
                             ##rr2[hh]=(rr2[hh-1]*(hh-1)+rr2[hh])/hh                             
                             sr2=[]
@@ -1259,7 +1259,7 @@ def RALf1FiltrQ(*args):
     aa=RandomQ(NNew0)
     aa=aa-np.mean(aa)
     #aa= savgol_filter(aa, 14, 5)
-    aa=9*aa/np.std(aa)*np.std(arr_b)
+    aa=20*aa/np.std(aa)*np.std(arr_b)
     ss4=np.concatenate((aa, aa, aa, aa)) #*0    
     for l in range(NChan):
         arr_b[Nf-NNew0+Nf*l:Nf+Nf*l]=(astar0==np.inf)*arr_b[Nf-NNew0+Nf*l-1]+ss4[l:NNew0+l]
@@ -1300,7 +1300,7 @@ def RALf1FiltrQ(*args):
                     arr_c_=[]
                     aa=RandomQ(NNew0)
                     aa=aa-np.mean(aa)
-                    aa=3*aa/np.std(aa)*np.std(arr_bbbxxx)
+                    aa=20*aa/np.std(aa)*np.std(arr_bbbxxx)
                     ss4=np.concatenate((aa, aa, aa, aa)) 
                     for l in range(NChan):
                         arr_bbbxxx_[Nf_*l:Nf_+Nf_*l]=np.asarray(arr_bbbxxx[Nf*(l+1):Nf-Nf_-1+Nf*l:-1],float)
@@ -1398,7 +1398,7 @@ NIt=3
 NIter=100
 DT=0.3
 dNIt=4
-aDecm=7
+aDecm=1
 andecim=1
 KPP=0
 
@@ -1470,12 +1470,13 @@ try:
     ii=len(nnams_)
 except:
     WhO = [
-        "AAVE","ANKR","AVAX","AXS","BAL","BTC","BCH","ADA","CGLD","LINK","COMP",
+        'XRP', "AAVE","ANKR","AVAX","AXS","BAL","BTC","BCH","ADA","CGLD","LINK","COMP",
         "CRV","ICP","MANA","DOGE","EOS","ETH","ETC","GRT","LTC","LRC","MKR","NU",
         "OMG","ORN","MATIC","SHIB","SKL","SOL","XLM","SNX","XTZ","UNI"
     ]
-    WhO= ['MANA', 'ICP', 
-          'ADA','SNX', 'SHIB', 'LTC', 'UNI', 'MKR']
+
+    WhO= ['MANA', 'ANKR', 'XLM', 'ORN', 'COMP', 'AVAX', 'NU']
+    
     def getcsv(WhO,xYears,wrkdir):
         for i in range(len(WhO)):
             nm=WhO[i]
@@ -1615,7 +1616,7 @@ def RALF1Cella(*arrgs_):
                 vvv=(ss4_[hhhc:hhhc+Nf]*(1-mdd4[hhhc])).copy()
                 DD_.append(vvv[::-1].copy())
             DD_=np.asarray(DD_,float)                              
-            DD_=(DD_/np.std(DD_))*D*3
+            DD_=(DD_/np.std(DD_))*D*20
 
             #DD_=DD_*0
             KY=-1
@@ -1990,7 +1991,11 @@ if __name__ == '__main__':
                     arr_A=arr_A-Asr
                     Klg=np.power(10,np.floor(np.log10(np.max(abs(arr_A)))))
                     arr_A=arr_A/Klg
-            
+                    x=np.asarray(range(len(arr_A)),float)
+                    P=np.polyfit(x[:Nf-NNew],arr_A[:Nf-NNew],1)   
+                    arr_A=arr_A-np.polyval(P, x)
+                    arr_A[Nf-NNew:]=arr_A[Nf-NNew-1]
+                    
                     program =wrkdir + "RALF1FiltrX_lg.py"
                     NChan=1
                     ##########################
@@ -2098,7 +2103,7 @@ if __name__ == '__main__':
                         except:
                             tm.sleep(0.6)
                     
-                    arezAMx= np.asarray(arezAMx,float)*Klg+Asr
+                    arezAMx= (np.asarray(arezAMx,float)+np.polyval(P, x))*Klg+Asr
                      
                     for iGr in range(Ngroup):
                         Arr_AAA[iGr*NIter*int(Nproc/Ngroup)+hh0*int(Nproc/Ngroup):iGr*NIter*int(Nproc/Ngroup)+(hh0+1)*int(Nproc/Ngroup)]=(
@@ -2391,7 +2396,6 @@ if __name__ == '__main__':
                         
                         y_1=dd1[:Nf-NNew+int(lSrez*(NNew-(Nf-len(ar0))))].copy()
                         y_2=dd2[:Nf-NNew+int(lSrez*(NNew-(Nf-len(ar0))))].copy()
-                        
                         
                         P_1[0:2]=np.polyfit(x,y_1,1)
                         P_2[0:2]=np.polyfit(x,y_2,1)
