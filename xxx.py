@@ -2159,7 +2159,9 @@ if __name__ == '__main__':
                             P[0:2]=np.polyfit(dd,ZDat[i][lnn-NNew:],1)
                         ZDat[i][lnn-NNew:]=(ZDat[i][lnn-NNew:]-P[1])/P[0]    
                         # ZDat[i]= savgol_filter(ZDat[i], 14, 5)    
-                                       
+                        
+                ar0x[Nf-NNew:]=savgol_filter(ar0x[Nf-NNew:], 14, 5)     
+                
                 if Lo:
                     ar0x=np.exp(ar0x) 
                 ar0x[0:len(ar0)]=ar0[0:len(ar0)].copy()
@@ -2257,7 +2259,7 @@ if __name__ == '__main__':
                                 P[0]=np.std(ZDat[i][Nf-NNew:Nf-NNew+int(lSrez*(NNew-(Nf-len(ar0))))])/np.std(x)
                                 P[1]=np.mean(ZDat[i][Nf-NNew:Nf-NNew+int(lSrez*(NNew-(Nf-len(ar0))))])-P[0]*np.mean(x)   
                             
-                            ZDat[i][Nf-NNew:]=(ZDat[i][Nf-NNew:]-P[1])/P[0]     
+                            ZDat[i][Nf-NNew:]=savgol_filter((ZDat[i][Nf-NNew:]-P[1])/P[0], 14, 5)     
                         
                         if anI<aNN: 
                             all_RezM[iGr][hhh]=np.amax(ZDat,axis=0)
