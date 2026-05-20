@@ -1183,10 +1183,8 @@ def RALF1Calculation2(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                             P[0:2]=np.polyfit(sarr_c,sr2,1)                              
                             
                             if P[0]>0:# and 100*scp.pearsonr(sarr_c,sr2)[0]>0:#and :
-                                # P[0]=np.std(sr2)/np.std(sarr_c)
-                                # P[1]=np.mean(sr2)-P[0]*np.mean(sarr_c) 
-                                dd1_x=[]     
-                                dd2_x=[]  
+                                P[0]=np.std(sr2)/np.std(sarr_c)
+                                P[1]=np.mean(sr2)-P[0]*np.mean(sarr_c) 
                                 for l in range(NChan):  
                                     rr2[hh,Nf-NNew+Nf*l:Nf+Nf*l]=(rr2[hh,Nf-NNew+Nf*l:Nf+Nf*l]-P[1])/P[0]
                                     rr2[hh,Nf*l:Nf-NNew+Nf*l]=arr_b[Nf*l:Nf-NNew+Nf*l].copy()
@@ -1991,10 +1989,10 @@ if __name__ == '__main__':
                     arr_A=arr_A-Asr
                     Klg=np.power(10,np.floor(np.log10(np.max(abs(arr_A)))))
                     arr_A=arr_A/Klg
-                    x=np.asarray(range(len(arr_A)),float)
-                    P=np.polyfit(x[:Nf-NNew],arr_A[:Nf-NNew],1)   
-                    arr_A=arr_A-np.polyval(P, x)
-                    arr_A[Nf-NNew:]=arr_A[Nf-NNew-1]
+                    # x=np.asarray(range(len(arr_A)),float)
+                    # P=np.polyfit(x[:Nf-NNew],arr_A[:Nf-NNew],1)   
+                    # arr_A=arr_A-np.polyval(P, x)
+                    # arr_A[Nf-NNew:]=arr_A[Nf-NNew-1]
                     
                     program =wrkdir + "RALF1FiltrX_lg.py"
                     NChan=1
@@ -2102,8 +2100,9 @@ if __name__ == '__main__':
                             wwwww=1
                         except:
                             tm.sleep(0.6)
+                    # arezAMx= (np.asarray(arezAMx,float)+np.polyval(P, x))*Klg+Asr
                     
-                    arezAMx= (np.asarray(arezAMx,float)+np.polyval(P, x))*Klg+Asr
+                    arezAMx= (np.asarray(arezAMx,float))*Klg+Asr
                      
                     for iGr in range(Ngroup):
                         Arr_AAA[iGr*NIter*int(Nproc/Ngroup)+hh0*int(Nproc/Ngroup):iGr*NIter*int(Nproc/Ngroup)+(hh0+1)*int(Nproc/Ngroup)]=(
@@ -2134,8 +2133,8 @@ if __name__ == '__main__':
                 # for i in range(anI):  
                 #     ZDat[i]= savgol_filter(ZDat[i], 65, 5)
                 for ii in range(3):       
-                    ar0x=np.median(ZDat,axis=0)
-                    ar0x_=0.4*(np.median(abs((ZDat)-(ar0x)),axis=0))
+                    ar0x=np.mean(ZDat,axis=0)
+                    ar0x_=0.4*(np.mean(abs((ZDat)-(ar0x)),axis=0))
                         
                     lnn=len(ZDat[0])
                     NNew=int(.35*lnn)
@@ -2226,9 +2225,9 @@ if __name__ == '__main__':
                                 
                         if hhh==0:
                             if Lo:
-                                arr_rezBzz=np.exp(np.median(np.log(ZDat),axis=0)) 
+                                arr_rezBzz=np.exp(np.mean(np.log(ZDat),axis=0)) 
                             else:
-                                arr_rezBzz=np.median(ZDat,axis=0)
+                                arr_rezBzz=np.mean(ZDat,axis=0)
                         for i in range(anI):
                             if not astart0==np.inf:
                                 if Lo:                                
