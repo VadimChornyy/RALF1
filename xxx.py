@@ -901,7 +901,7 @@ def RALF1Calculation2(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                         seqA=np.asarray(list(filter(lambda x: abs(np.isnan(x))!= 1, seqA)),float)
 
                         # dQ4_B=   XFilterB(mDD4_A+dQ4)-((mDD4_A))#,0)
-                        dQ4_A= XFilterB( mDD4_A+dQ4)#((mDD4_A)) #,0)#,1)#
+                        # dQ4_A= XFilterB( mDD4_A+dQ4)#((mDD4_A)) #,0)#,1)#
                         # eeB=XFilterB(eeB)
                         dQ4_B= ( mDD4_A+dQ4)#-((mDD4_A)) #,0)#,1)#  
                         # dQ4_B=XFilterB(dQ4_B)
@@ -914,7 +914,7 @@ def RALF1Calculation2(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
 
                         # # dQ4_B = faddeev_residual_refinement(dQ4_B, dQ4_A)                           
                         # # # # # dQ4_B=dQ4_B-dQ4_A
-                        # dQ4_A=dQ4_B.copy()
+                        dQ4_A=dQ4_B.copy()
                         
                         seqB=((dQ4_A).reshape(NCh*NCh0))[1:]*np.ceil(0.5*np.fabs(1/(1*(mDD4.reshape(NCh*NCh0)==1)[0:NCh*NCh0-1]-1*(mDD4.reshape(NCh*NCh0)==1)[1:])))
                         seqB=np.asarray(list(filter(lambda x: abs(x)!= np.inf, seqB)),float) 
@@ -938,7 +938,7 @@ def RALF1Calculation2(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                                 dQ4_A=(dQ4_A-P_1[1])/P_1[0]
                                 dQ4_B=(dQ4_B-P_2[1])/P_2[0]                                     
                                 # dQ4_B=faddeev_residual_refinement(dQ4_B,dQ4_A)
-                                dQ4_B=XFilter(dQ4_B-dQ4_A)                                
+                                # dQ4_B=XFilter(dQ4_B-dQ4_A)                                
                                 dQ4_A=dQ4_B.copy() 
                                 
                                 seqD=((dQ4_B).reshape(NCh*NCh0))[1:]*np.ceil(0.5*np.fabs(1/(1*(mDD4.reshape(NCh*NCh0)==1)[0:NCh*NCh0-1]-1*(mDD4.reshape(NCh*NCh0)==1)[1:])))
@@ -1647,7 +1647,7 @@ def RALF1Cella(*arrgs_):
                     # DD__B=KY*DD__B*(DD__B>0)
                     
                     if len(dd1)>1 and len(dd1[0])>=len(dd1):
-                        eeA= XFilterB(DD__A+dd1)#Filter( DD__A+dd1)#-((DD__A)) #,0)#,1)#
+                        # eeA= XFilterB(DD__A+dd1)#Filter( DD__A+dd1)#-((DD__A)) #,0)#,1)#
                         # eeB=XFilterB(eeB)
                         eeB= ( DD__A+dd1)#-((DD__A)) #,0)#,1)#    
                         # eeA=XFilterB(eeA)
@@ -1658,7 +1658,7 @@ def RALF1Cella(*arrgs_):
                         
                         # # # # eeB = faddeev_residual_refinement(eeB, eeA)                           
                         # # # # # eeB=eeB-eeA
-                        # eeA=eeB.copy()
+                        eeA=eeB.copy()
                         
                         dd_AA[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=(eeA).copy()#*(eeB>0)*((eeA+eeB)>0)
                         dd_BB[int(ii*anI/aNN):int((ii+1)*anI/aNN),int(jj*Nf/aMM):int((jj+1)*Nf/aMM)]=(eeB).copy()#*(eeA<0)*((eeA+eeB)<0)
@@ -1687,8 +1687,8 @@ def RALF1Cella(*arrgs_):
                         if P_1[0]>0 and P_2[0]>0:# and 100*scp.pearsonr(seqA,seqB)[0]>0 and 100*scp.pearsonr(seqA,seqC)[0]>0:
                             eeA=(eeA-P_1[1])/P_1[0]
                             eeB=(eeB-P_2[1])/P_2[0]   
-                            eeA=XFilter(eeB-eeA)
-                            eeB=eeA.copy()
+                            # eeB=XFilter(eeB-eeA)
+                            eeA=eeB.copy()
                                                         
                             seqD=(eeB.reshape(len(dd2_1)*len(dd2_1[0])))[1:]*np.ceil(0.5*np.fabs(1/(1*(mdd4_.reshape(len(dd2_1)*len(dd2_1[0]))==1)[0:len(dd2_1)*len(dd2_1[0])-1]-1*(mdd4_.reshape(len(dd2_1)*len(dd2_1[0]))==1)[1:])))
                             seqD=np.asarray(list(filter(lambda x: abs(x)!= np.inf, seqD)),float) 

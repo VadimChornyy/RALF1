@@ -25,8 +25,8 @@ try:
     # for i in range(anI):  
     #     ZDat[i]= savgol_filter(ZDat[i],65, 5)
     for ii in range(3):       
-        ar0x=np.median(ZDat,axis=0)
-        ar0x_=.4*(np.median(abs((ZDat)-(ar0x)),axis=0))
+        ar0x=np.mean(ZDat,axis=0)
+        ar0x_=.4*(np.mean(abs((ZDat)-(ar0x)),axis=0))
             
         lnn=len(ZDat[0])
         NNew=int(.35*lnn)
@@ -52,14 +52,14 @@ try:
             ZDat[i]= savgol_filter(ZDat[i], 14, 5)  
                                 
     bbbbb=ZDat[:,:].transpose().copy()
-    aaaaa=np.median(bbbbb.transpose(),axis=0)
+    aaaaa=np.mean(bbbbb.transpose(),axis=0)
         
     %varexp --plot bbbbb 
     len(arrrxx)
 except:
     len(arrrxx)
 len(arrrxx)
-aname="EOS"
+aname="MANA"
 
 fourcc = 0
 ImApp=[]
@@ -86,8 +86,8 @@ for hhhai in range(hhhao):
     # for i in range(anI):  
     #     ZDat[i]= savgol_filter(ZDat[i], 65, 5)
     for ii in range(3):       
-        ar0x=np.median(ZDat,axis=0)
-        ar0x_=0.4*(np.median(abs((ZDat)-(ar0x)),axis=0))
+        ar0x=np.mean(ZDat,axis=0)
+        ar0x_=0.4*(np.mean(abs((ZDat)-(ar0x)),axis=0))
             
         lnn=len(ZDat[0])
         NNew=int(.35*lnn)
@@ -113,15 +113,15 @@ for hhhai in range(hhhao):
             ZDat[i]= savgol_filter(ZDat[i], 14, 5)                  
     #ZDat=Arr_AAA[iGr*NIter*int(Nproc/Ngroup)+max(0,(hhh+1)-dNIt)*int(Nproc/Ngroup):iGr*NIter*int(Nproc/Ngroup)+(hhh+1)*int(Nproc/Ngroup)].copy()
     if hhhai==0:
-        bbbbb=np.median(ZDat[:,:],axis=0).transpose().copy()
+        bbbbb=np.mean(ZDat[:,:],axis=0).transpose().copy()
     else:
-        bbbbb=(bbbbb*hhhai+np.median(ZDat[:,:],axis=0).transpose())/(hhhai+1)
+        bbbbb=(bbbbb*hhhai+np.mean(ZDat[:,:],axis=0).transpose())/(hhhai+1)
     aaaaa=(np.amax(bbbbb.transpose(),axis=0)+np.amin(bbbbb.transpose(),axis=0))/2
     fig = plt.figure()
     axes = fig.add_axes([0.2, 0.2, 0.8, 0.8])    
     axes.plot(bbbbb,'o')
     frame=fig2dsk(fig) 
-    cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)     
+    cimg = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)   
     if gray_sz1==0:       
         gray_sz1=len(cimg[0])
         gray_sz2=len(cimg)
