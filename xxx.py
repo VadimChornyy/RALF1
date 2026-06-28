@@ -786,14 +786,15 @@ def RALF1Calculation2(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
             
         for i in range(sz):    
             liix[i]=liiB[liiD[i]:sz+liiD[i]].copy()#range(sz)#
-            dQ3[i]=rrr[liix[i]].copy()
+            dQ3[i]=rrr.copy()
 
         astart=np.inf
         dQ3=dQ3.reshape((sz*sz))
         astart=dQ3[0]            
         dQ3[1:]=np.diff(dQ3)
         dQ3[0]=0
-        dQ3=dQ3.reshape((sz,sz))
+        dQ3=dQ3.reshape((sz,sz))        
+        # dQ3=dQ3-np.mean(dQ3)        
         dQ3_=dQ3.copy()
         
         D=np.std(dQ3)
@@ -803,7 +804,7 @@ def RALF1Calculation2(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
             R4[Nf-NNew+Nf*l:Nf+Nf*l]=0
             
         for i in range(sz):     
-            mDD[i]=R4[liix[i]].copy() 
+            mDD[i]=R4.copy() 
         
         seqq=(dQ3.reshape(sz*sz))[1:]*np.ceil(0.5*(1/(mDD.reshape(sz*sz)==1)[0:sz*sz-1]+1/(mDD.reshape(sz*sz)==1)[1:]))
         seqq_=  mDD.reshape(sz*sz)*0
@@ -1067,8 +1068,8 @@ def RALF1Calculation2(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
             aMx=np.zeros(sz,float)-1e32
             aMn=np.zeros(sz,float)+1e32
             for i in  range(sz):
-                aMx[liix[i]]=np.maximum(aMx[liix[i]],AsrXMx_[i])
-                aMn[liix[i]]=np.minimum(aMn[liix[i]],AsrXMn_[i])
+                aMx=np.maximum(aMx,AsrXMx_[i])
+                aMn=np.minimum(aMn,AsrXMn_[i])
                 # aMx_=(aMx_*i+aMx)/(i+1)#
                 # aMn_=(aMn_*i+aMn)/(i+1)#
             aMx_=aMx.copy()                    
@@ -1396,7 +1397,7 @@ NIt=3
 NIter=100
 DT=0.3
 dNIt=4
-aDecm=1
+aDecm=7
 andecim=1
 KPP=0
 
@@ -1586,7 +1587,8 @@ def RALF1Cella(*arrgs_):
         astart=dd[0]
         dd[1:]=np.diff(dd)
         dd[0]=0                        
-        dd=dd.reshape((anI,Nf))                                 
+        dd=dd.reshape((anI,Nf))  
+        # dd=dd-np.mean(dd)                               
         D=np.std(dd)
         dd0=dd.copy()    
                                 
@@ -1796,7 +1798,6 @@ def RALF1Cella(*arrgs_):
             break
             #os._exit(os.EX_OK)
     return aRes
-
 
 
 warnings.filterwarnings("ignore", category=RuntimeWarning) 
