@@ -236,13 +236,34 @@ import pywt
 # === CONFIGURATION ===
 USE_KOLMOGOROV_ENHANCEMENTS = True
 FAST_MODE = True
-KOLMOGOROV_WEIGHTS = {
-    'kc': 0.15, 'spectral': 0.05, 'wavelet': 0.10, 'mahal': 0.15,
-    'kan': 0.15, 'graph': 0.10, 'wass': 0.05, 'ae': 0.10, 'hurst': 0.05
+
+RALF_CONTEXT = {
+    'tau': 0.8,
+    'bins': 5,
+    'latent': 4
 }
 
+def get_advanced_adaptive_params(snr_map):
+    avg_snr = np.mean(snr_map)
+    
+    # 1. Адаптивный порог для графов
+    # Если шумно, делаем фильтр связей жестче
+    adaptive_tau = 0.8 + (0.15 * avg_snr) 
+    
+    # 2. Адаптивное квантование для сложности LZ
+    # Если шумно, огрубляем сигнал (меньше бинов)
+    adaptive_bins = 5 if avg_snr < 0.5 else 3
+    
+    # 3. Адаптивная размерность для AE (SVD)
+    # В чистой среде сжимаем сильнее, в аномальной - даем больше свободы
+    adaptive_latent = 3 if avg_snr < 0.3 else 6
+    
+    RALF_CONTEXT['tau']=np.clip(adaptive_tau, 0.7, 0.95)
+    RALF_CONTEXT['bins']=adaptive_bins
+    RALF_CONTEXT['latent']=adaptive_latent
+    
 # === VECTORIZED & FAST VERSIONS ===
-def fast_lz_complexity(dd, bins=5):
+def fast_lz_complexity(dd, bins=RALF_CONTEXT['bins']):
     n, m = dd.shape
     if m < 4: return np.zeros(n)
     mins = dd.min(axis=1, keepdims=True)
@@ -309,7 +330,7 @@ def fast_kan_layer(dd):
     variances = np.var(dd, axis=1)
     return 0.1 * (variances**2 + 0.1 * np.sin(variances))
 
-def fast_graph_degree(dd, tau=0.8):
+def fast_graph_degree(dd, tau=RALF_CONTEXT['tau']):
     n = dd.shape[0]
     if n < 2: return np.zeros(n)
     norms = np.linalg.norm(dd, axis=1, keepdims=True)
@@ -328,7 +349,7 @@ def fast_wasserstein(dd):
         return dists / (dists.max() + 1e-12)
     return np.clip(dists.mean() * np.ones(n), 0, 1)
 
-def fast_ae_error(dd, latent=4):
+def fast_ae_error(dd, latent=RALF_CONTEXT['latent']):
     n, m = dd.shape
     if n < 2 or m < 2: return np.zeros(n)
     try:
@@ -362,7 +383,7 @@ def fast_hurst(dd):
         h[i] = np.clip(poly[0], 0.1, 2.0)
     return 1 - np.abs(h - 0.5) / 0.5
 
-def fast_kolmogorov_ensemble(dd_pre):
+def fast_kolmogorov_ensemble(dd_pre, KOLMOGOROV_WEIGHTS):
     if not FAST_MODE or not USE_KOLMOGOROV_ENHANCEMENTS:
         return np.zeros(dd_pre.shape[0])
     
@@ -507,7 +528,7 @@ def filter_ralf1_matrix(source_matrix, intensity=1.0, iterations=50):
         filtered_matrix[i, :] *= x_norm[i]
     return filtered_matrix
 
-def hybrid_geo_filter(dd, intensity=0.1, iterations=15, alpha=0.5):
+def hybrid_geo_filter(dd, KOLMOGOROV_WEIGHTS, intensity=0.1, iterations=15, alpha=0.5):
     if not isinstance(dd, np.ndarray) or dd.ndim != 2:
         raise ValueError("Input must be a 2D NumPy array")
     n, m = dd.shape
@@ -529,7 +550,7 @@ def hybrid_geo_filter(dd, intensity=0.1, iterations=15, alpha=0.5):
     p_anomaly, anomaly_map, efficiency = ev_anomaly_detection(dd_pre_light, snr_global_light, sigma2, intensity)
 
     if USE_KOLMOGOROV_ENHANCEMENTS and FAST_MODE:
-        p_kolmo = fast_kolmogorov_ensemble(dd_pre_light)
+        p_kolmo = fast_kolmogorov_ensemble(dd_pre_light, KOLMOGOROV_WEIGHTS)
         p_anomaly = np.maximum(p_anomaly, 0.4 * p_kolmo)
 
     snr_rows = np.zeros(n)
@@ -582,19 +603,99 @@ def hybrid_geo_filter(dd, intensity=0.1, iterations=15, alpha=0.5):
 
     return filtered_matrix, p_combined, snr_anomaly_map
 
+# Базовые веса из исходного кода xxx.txt [1]
+BASE_KOLMOGOROV_WEIGHTS = {
+    'kc': 0.15, 
+    'spectral': 0.05, 
+    'wavelet': 0.10, 
+    'mahal': 0.15, 
+    'kan': 0.15, 
+    'graph': 0.10, 
+    'wass': 0.05, 
+    'ae': 0.10, 
+    'hurst': 0.05
+}
+
+# Обновленный порог значимости согласно вашему запросу
+SIGNIFICANCE_THRESHOLD = 0.03 
+
+def get_online_adaptive_weights(snr_anomaly_map, base_weights):
+    """
+    Рассчитывает веса с повышенным порогом отсечения 0.03.
+    Это ускоряет FAST_MODE за счет более частого игнорирования 
+    слабозначимых метрик.
+    """
+    avg_anomaly = np.mean(snr_anomaly_map)
+    peak_anomaly = np.max(snr_anomaly_map)
+    
+    current_weights = base_weights.copy()
+    
+    # Логика адаптации остается прежней (из xxx.txt и обсуждения)
+    if peak_anomaly > 0.75:
+        # Режим критического резонанса (например, реакция на обвал BTC до $57,742)
+        for k in current_weights: current_weights[k] = 0.0
+        current_weights['wass'] = 0.6
+        current_weights['mahal'] = 0.4
+    elif avg_anomaly > 0.4:
+        current_weights['wass'] += 0.15
+        current_weights['kc'] -= 0.10
+        current_weights['kan'] -= 0.05
+
+    # ЖЕСТКОЕ ОТСЕЧЕНИЕ ПРИ 0.03
+    for key in current_weights:
+        if current_weights[key] < SIGNIFICANCE_THRESHOLD:
+            current_weights[key] = 0.0
+            
+    # Нормализация
+    total_w = sum(current_weights.values())
+    if total_w > 0:
+        for key in current_weights:
+            current_weights[key] /= total_w
+            
+    return current_weights
+
+def fast_kolmogorov_ensemble_online(dd_pre, snr_map):
+    """
+    Модифицированная функция ансамбля из xxx.txt для онлайн-управления [4]
+    """
+    # Получаем адаптивные веса на основе snr_anomaly_map
+    weights = get_online_adaptive_weights(snr_map, BASE_KOLMOGOROV_WEIGHTS)
+    
+    # Расчет компонентов (вызовы функций из xxx.txt) [1, 5, 6]
+    # kc_res = fast_lz_complexity(dd_pre) * weights['kc']
+    # wass_res = fast_wasserstein(dd_pre) * weights['wass']
+    # ... и так далее для всех ключей в weights
+    
+    # Итоговая сборка "квантового резонанса"
+    # ensemble_signal = sum(calculated_components)
+    
+    return weights # Возвращаем веса для логирования или дальнейшей обработки
+
+# Пример интеграции в основной цикл фильтрации XFilter [2]
+def XFilter_Online(dd0, KOLMOGOROV_WEIGHTS):
+    # hybrid_geo_filter возвращает snr_anomaly_map [2]
+    dd, p_combined, snr_anomaly_map = hybrid_geo_filter(dd0, KOLMOGOROV_WEIGHTS, intensity=0.1)
+    get_advanced_adaptive_params(snr_anomaly_map)
+    # Применяем онлайн-адаптацию весов
+    adaptive_weights = fast_kolmogorov_ensemble_online(dd, snr_anomaly_map)
+    
+    # print(f"Текущие адаптивные веса (wass): {adaptive_weights['wass']:.4f}")
+    return adaptive_weights
+
 def XFilter(dd0, key3=1):
     # stddQ2=np.std(dd0)
     # srdQ2=np.mean(dd0,axis=0)
     # dd0=dd0-srdQ2
     if not key3==1:
-       dd0=XFilterB(dd0)        
-    dd, p_combined, snr_anomaly_map = hybrid_geo_filter(dd0, intensity=0.1, iterations=15, alpha=0.5)   
+        dd0=XFilterB(dd0)       
+    adaptive_weights=XFilter_Online(dd0, BASE_KOLMOGOROV_WEIGHTS)
+    dd, p_combined, snr_anomaly_map = hybrid_geo_filter(dd0, adaptive_weights, intensity=0.1, iterations=15, alpha=0.5)   
     # dd=(dd-np.mean(dd,axis=0))*stddQ2/np.std(dd)+srdQ2
     return dd  # Return the filtered matrix
 
-# === Faddeev Residual Refinement ===
-def faddeev_residual_refinement(dQ4_B, dQ4_A):
-    return hybrid_geo_filter(dQ4_B - dQ4_A, 0.15, 10, 0.6)[0]
+# # === Faddeev Residual Refinement ===
+# def faddeev_residual_refinement(dQ4_B, dQ4_A):
+#     return hybrid_geo_filter(dQ4_B - dQ4_A, 0.15, 10, 0.6, KOLMOGOROV_WEIGHTS)[0]
 
 
 
@@ -904,7 +1005,7 @@ def RALF1Calculation2(arr_bx,arr_c,Nf,NNew,NNew0,NChan,Nhh,iProc,Nproc):
                         # dQ4_B=   XFilterB(mDD4_A+dQ4)-((mDD4_A))#,0)
                         # dQ4_A= XFilterB( mDD4_A+dQ4)#((mDD4_A)) #,0)#,1)#
                         # eeB=XFilterB(eeB)
-                        dQ4_B= ( mDD4_A+dQ4)#-((mDD4_A)) #,0)#,1)#  
+                        dQ4_B= XFilter( mDD4_A+dQ4)#-((mDD4_A)) #,0)#,1)#  
                         # dQ4_B=XFilterB(dQ4_B)
                         # dQ4_A=  -XFilterB(mDD4_B-dQ4)+((mDD4_B))#,0)
                         # dQ4_A=XFilterB(dQ4_A)
@@ -1474,7 +1575,8 @@ except:
         "OMG","ORN","MATIC","SHIB","SKL","SOL","XLM","SNX","XTZ","UNI"
     ]
 
-    WhO= ['MANA', 'ANKR', 'XLM', 'ORN', 'COMP', 'AVAX', 'NU']
+    WhO= [#'MANA', 'ANKR', 
+          'BTC', 'XLM', 'ORN', 'COMP', 'AVAX', 'NU']
     
     def getcsv(WhO,xYears,wrkdir):
         for i in range(len(WhO)):
@@ -1651,7 +1753,7 @@ def RALF1Cella(*arrgs_):
                     if len(dd1)>1 and len(dd1[0])>=len(dd1):
                         # eeA= XFilterB(DD__A+dd1)#Filter( DD__A+dd1)#-((DD__A)) #,0)#,1)#
                         # eeB=XFilterB(eeB)
-                        eeB= ( DD__A+dd1)#-((DD__A)) #,0)#,1)#    
+                        eeB= XFilter( DD__A+dd1)#-((DD__A)) #,0)#,1)#    
                         # eeA=XFilterB(eeA)
                         # eeB=(eeB+eeA)/2
                         # # asr1=abs(eeB-xxxx)>abs(eeA-xxxx)
