@@ -567,6 +567,7 @@ def hybrid_geo_filter(dd, KOLMOGOROV_WEIGHTS, intensity=0.1, iterations=15, alph
     snr_median = np.median(snr_rows)
     snr_threshold = max(np.percentile(snr_rows, 70.09), snr_median + 0.05)
     snr_anomaly_map = (snr_rows > snr_threshold).astype(int)
+    get_advanced_adaptive_params(snr_anomaly_map)
     p_combined = np.maximum(p_anomaly, snr_anomaly_map)
 
     filtered_matrix = np.zeros_like(dd_norm)
@@ -678,7 +679,7 @@ def find_optimal_resonance_weights(dd_pre, iterations=100, threshold=0.05):
 
     return optimal_weights
 
-def fast_kolmogorov_ensemble_online(dd_pre, snr_map):
+def fast_kolmogorov_ensemble_online(dd_pre):
     """
     Модифицированная функция ансамбля из xxx.txt для онлайн-управления [4]
     """
@@ -695,24 +696,17 @@ def fast_kolmogorov_ensemble_online(dd_pre, snr_map):
     
     return weights # Возвращаем веса для логирования или дальнейшей обработки
 
-# Пример интеграции в основной цикл фильтрации XFilter [2]
-def XFilter_Online(dd0, KOLMOGOROV_WEIGHTS):
-    # hybrid_geo_filter возвращает snr_anomaly_map [2]
-    dd, p_combined, snr_anomaly_map = hybrid_geo_filter(dd0, KOLMOGOROV_WEIGHTS, intensity=0.1)
-    get_advanced_adaptive_params(snr_anomaly_map)
-    # Применяем онлайн-адаптацию весов
-    adaptive_weights = fast_kolmogorov_ensemble_online(dd, snr_anomaly_map)
-    
-    # print(f"Текущие адаптивные веса (wass): {adaptive_weights['wass']:.4f}")
-    return adaptive_weights
-
 def XFilter(dd0, key3=1):
     # stddQ2=np.std(dd0)
     # srdQ2=np.mean(dd0,axis=0)
     # dd0=dd0-srdQ2
     if not key3==1:
         dd0=XFilterB(dd0)       
-    adaptive_weights=XFilter_Online(dd0, BASE_KOLMOGOROV_WEIGHTS)
+    adaptive_weights = fast_kolmogorov_ensemble_online(dd0)  
+    # anamef="coefKolmogorovaRALF1Calculation2.txt"
+    # fo = open(anamef, "a")
+    # fo.write(' %s\n'%(adaptive_weights))
+    # fo.close()
     dd, p_combined, snr_anomaly_map = hybrid_geo_filter(dd0, adaptive_weights, intensity=0.1, iterations=15, alpha=0.5)   
     # dd=(dd-np.mean(dd,axis=0))*stddQ2/np.std(dd)+srdQ2
     return dd  # Return the filtered matrix
