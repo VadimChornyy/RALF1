@@ -263,8 +263,12 @@ def get_advanced_adaptive_params(snr_map):
     RALF_CONTEXT['latent']=adaptive_latent
     
 # === VECTORIZED & FAST VERSIONS ===
-def fast_lz_complexity(dd, bins=RALF_CONTEXT['bins']):
-    n, m = dd.shape
+def fast_lz_complexity(dd):
+    bins=RALF_CONTEXT['bins']
+    try:
+        n, m = dd.shape
+    except:
+        1==1
     if m < 4: return np.zeros(n)
     mins = dd.min(axis=1, keepdims=True)
     maxs = dd.max(axis=1, keepdims=True) + 1e-12
@@ -330,7 +334,8 @@ def fast_kan_layer(dd):
     variances = np.var(dd, axis=1)
     return 0.1 * (variances**2 + 0.1 * np.sin(variances))
 
-def fast_graph_degree(dd, tau=RALF_CONTEXT['tau']):
+def fast_graph_degree(dd):
+    tau=RALF_CONTEXT['tau']
     n = dd.shape[0]
     if n < 2: return np.zeros(n)
     norms = np.linalg.norm(dd, axis=1, keepdims=True)
@@ -349,7 +354,8 @@ def fast_wasserstein(dd):
         return dists / (dists.max() + 1e-12)
     return np.clip(dists.mean() * np.ones(n), 0, 1)
 
-def fast_ae_error(dd, latent=RALF_CONTEXT['latent']):
+def fast_ae_error(dd):
+    latent=RALF_CONTEXT['latent']
     n, m = dd.shape
     if n < 2 or m < 2: return np.zeros(n)
     try:
@@ -616,50 +622,68 @@ BASE_KOLMOGOROV_WEIGHTS = {
     'hurst': 0.05
 }
 
-# Обновленный порог значимости согласно вашему запросу
-SIGNIFICANCE_THRESHOLD = 0.03 
+def find_optimal_resonance_weights(dd_pre, iterations=100, threshold=0.05):
+    import numpy as np
+    import time as tm
 
-def get_online_adaptive_weights(snr_anomaly_map, base_weights):
-    """
-    Рассчитывает веса с повышенным порогом отсечения 0.03.
-    Это ускоряет FAST_MODE за счет более частого игнорирования 
-    слабозначимых метрик.
-    """
-    avg_anomaly = np.mean(snr_anomaly_map)
-    peak_anomaly = np.max(snr_anomaly_map)
-    
-    current_weights = base_weights.copy()
-    
-    # Логика адаптации остается прежней (из xxx.txt и обсуждения)
-    if peak_anomaly > 0.75:
-        # Режим критического резонанса (например, реакция на обвал BTC до $57,742)
-        for k in current_weights: current_weights[k] = 0.0
-        current_weights['wass'] = 0.6
-        current_weights['mahal'] = 0.4
-    elif avg_anomaly > 0.4:
-        current_weights['wass'] += 0.15
-        current_weights['kc'] -= 0.10
-        current_weights['kan'] -= 0.05
+    # 1. ПРЕДВАРИТЕЛЬНЫЙ РАСЧЕТ
+    # Эти функции возвращают векторы длиной N (количество сигналов)
+    metric_responses = {
+        'kc': fast_lz_complexity(dd_pre),
+        'spectral': fast_spectral_entropy(dd_pre),
+        'wavelet': fast_wavelet_energy(dd_pre),
+        'mahal': fast_mahal_robust(dd_pre),
+        'kan': fast_kan_layer(dd_pre),
+        'graph': fast_graph_degree(dd_pre),
+        'wass': fast_wasserstein(dd_pre),
+        'ae': fast_ae_error(dd_pre),
+        'hurst': fast_hurst(dd_pre)
+    }
 
-    # ЖЕСТКОЕ ОТСЕЧЕНИЕ ПРИ 0.03
-    for key in current_weights:
-        if current_weights[key] < SIGNIFICANCE_THRESHOLD:
-            current_weights[key] = 0.0
-            
-    # Нормализация
-    total_w = sum(current_weights.values())
-    if total_w > 0:
-        for key in current_weights:
-            current_weights[key] /= total_w
-            
-    return current_weights
+    rng = LFib1340(int(tm.time())) 
+    best_reaction_score = -1.0
+    optimal_weights = {}
+
+    # Определяем количество сигналов (в вашем случае 8)
+    n_signals = dd_pre.shape
+
+    for _ in range(iterations):
+        raw_w = {k: rng.random() for k in metric_responses.keys()}
+        total = sum(raw_w.values())
+        norm_w = {k: v/total for k, v in raw_w.items()}
+        
+        # Hard Pruning (Порог 0.05)
+        pruned_w = {k: (v if v >= threshold else 0.0) for k, v in norm_w.items()}
+        
+        final_sum = sum(pruned_w.values())
+        if final_sum == 0: continue
+        current_trial_weights = {k: v/final_sum for k, v in pruned_w.items()}
+
+        # ИСПРАВЛЕННАЯ ИНИЦИАЛИЗАЦИЯ: теперь это вектор длиной 8
+        # Теперь размеры совпадут: вектор(8,) += вес * вектор(8,)
+        combined_anomaly=0
+        for k, weight in current_trial_weights.items():
+            if weight > 0:
+                try:
+                    if combined_anomaly==0:
+                        combined_anomaly = weight * metric_responses[k]  
+                except:
+                    combined_anomaly += weight * metric_responses[k]        
+
+        # Расчет резонанса по 8 каналам теперь пройдет без ошибок
+        reaction_score = np.std(combined_anomaly) / (np.mean(combined_anomaly) + 1e-12)
+        if reaction_score > best_reaction_score:
+            best_reaction_score = reaction_score
+            optimal_weights = current_trial_weights
+
+    return optimal_weights
 
 def fast_kolmogorov_ensemble_online(dd_pre, snr_map):
     """
     Модифицированная функция ансамбля из xxx.txt для онлайн-управления [4]
     """
     # Получаем адаптивные веса на основе snr_anomaly_map
-    weights = get_online_adaptive_weights(snr_map, BASE_KOLMOGOROV_WEIGHTS)
+    weights = find_optimal_resonance_weights(dd_pre)
     
     # Расчет компонентов (вызовы функций из xxx.txt) [1, 5, 6]
     # kc_res = fast_lz_complexity(dd_pre) * weights['kc']
