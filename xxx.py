@@ -1593,7 +1593,7 @@ except:
         "OMG","ORN","MATIC","SHIB","SKL","SOL","XLM","SNX","XTZ","UNI"
     ]
 
-    WhO= [#'MANA', 'ANKR', 
+    WhO= ['MANA', 'ANKR', 
           'BTC', 'XLM', 'ORN', 'COMP', 'AVAX', 'NU']
     
     def getcsv(WhO,xYears,wrkdir):
@@ -1736,7 +1736,7 @@ def RALF1Cella(*arrgs_):
                 vvv=(ss4_[hhhc:hhhc+Nf]*(1-mdd4[hhhc])).copy()
                 DD_.append(vvv[::-1].copy())
             DD_=np.asarray(DD_,float)                              
-            DD_=(DD_/np.std(DD_))*D*20
+            DD_=(DD_/np.std(DD_))*D*5
 
             #DD_=DD_*0
             KY=-1
